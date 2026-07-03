@@ -1,0 +1,17 @@
+<!-- 
+  passdown-os 入口段落 — OpenAI Codex CLI (codex) 用
+  使用方式：將下方 ## Passdown OS 段落加入專案根目錄的 AGENTS.md
+  若 AGENTS.md 已有其他內容，將此段落附加到末尾即可
+-->
+
+## Passdown OS
+
+本專案使用 `passdown-os/` 框架管理跨 AI Agent 協作（codex / cc / agy 三者平權交接）。
+
+**每次新 session 開始時，依序執行：**
+
+1. 讀 [`passdown-os/CONSTITUTION.md`](passdown-os/CONSTITUTION.md) — 最高規則來源（每次對話只需讀一次）。
+2. 讀 [`passdown-os/handoff/CURRENT.md`](passdown-os/handoff/CURRENT.md) — 目前在哪、做到哪、下一步是什麼。
+3. 依 CONSTITUTION.md「Session 開始協定」的後續步驟繼續。
+
+**結束 session 前，必須完整執行 CONSTITUTION.md 中的「Session 結束協定」，不可省略。**

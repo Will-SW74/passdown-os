@@ -1,0 +1,4 @@
+# 本機記憶匯入暫存區 — 清洗完才進正規位置
+imports/*
+!imports/README.md
+!imports/.gitkeep

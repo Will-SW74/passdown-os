@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '=== passdown-os 交接內容（SessionStart hook 自動注入）==='; cat \"$CLAUDE_PROJECT_DIR/passdown-os/handoff/CURRENT.md\" 2>/dev/null || echo '（警告：找不到 passdown-os/handoff/CURRENT.md，請檢查框架是否就位）'; echo '--- 以上即 CURRENT.md 全文，Session 開始協定第 2 步視為已完成；請依 passdown-os/CONSTITUTION.md 執行其餘步驟。'",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
