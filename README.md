@@ -6,6 +6,30 @@
 
 *A pure-Markdown, zero-dependency framework for seamless handoffs between AI coding agents (Claude Code / Codex / Antigravity / any). It governs session-to-session handoff protocols, shared memory, context-budget economics, and externalized judgment rubrics — so a cheap model tomorrow inherits the discipline of an expensive model today. Docs are currently in Traditional Chinese.*
 
+## 交接流程一圖看懂
+
+```mermaid
+flowchart TD
+    subgraph S1["Session N（cc / codex / agy 任一）"]
+        A1["開始：讀 CONSTITUTION.md ＋ CURRENT.md<br/>（cc 裝了 hook 會自動注入）"] --> A2{"復原偵測：<br/>CURRENT.md 與最新 log<br/>時間戳一致？"}
+        A2 -- "log 較新 → 上次交接沒跑完" --> A2b["先讀最新 log<br/>修復 CURRENT.md"] --> A3
+        A2 -- 一致 --> A3["循 Context Index 錨點<br/>讀指定 session log 與程式碼行號"]
+        A3 --> A4["動工（micro-task）"]
+        A4 --> A5{"存檔線？<br/>task 完成／切子系統／<br/>60% CT／15 輪"}
+        A5 -- 未觸發 --> A4
+    end
+    A5 -- "觸發（70% 為硬紅線）" --> E1
+    subgraph E["Session 結束協定（cc 可打 /handoff 一鍵觸發）"]
+        E1["覆寫 handoff/CURRENT.md<br/>（Next step 具體到不用猜）"] --> E2["新增 sessions/ log<br/>（Scratchpad 記下未竟思路）"]
+        E2 --> E3["決策 → memory/decisions.md<br/>坑 → known-issues.md<br/>本機私有記憶回寫"]
+        E3 --> E4["Read-back 驗證：<br/>無佔位符、錨點路徑存在"]
+        E4 --> E5["commit（feature branch）"]
+    end
+    E5 --> F[("passdown-os/<br/>唯一權威記錄<br/>（純 Markdown、進版控）")]
+    F -- 交班 --> B1["Session N+1：另一個 agent、<br/>或明天的自己——不用猜、不重工"]
+    B1 -.-> A1
+```
+
 ## 導入新專案
 
 1. 把本 repo 的內容放進專案根目錄的 `passdown-os/` 資料夾（clone 後複製，或加為 subtree）。
