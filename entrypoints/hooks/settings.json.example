@@ -23,6 +23,17 @@
           }
         ]
       }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/passdown-os/entrypoints/hooks/archive-transcript.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
     ]
   }
 }

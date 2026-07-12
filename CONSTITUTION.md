@@ -36,6 +36,7 @@
 | `memory/glossary.md` | 名詞/縮寫表 | 看到不認得的縮寫時查閱 |
 | `memory/redaction-log.md` | 本機記憶匯入時的去敏感化紀錄 | 只在執行「本機記憶同步」的整批匯入流程時相關 |
 | `imports/` | 本機原始記憶暫存清洗區 | 只在整批遷移本機記憶時使用，平常不需要看 |
+| `transcripts/` | 逐字稿本機歸檔區（gitignored 不入版控；cc 由 SessionEnd hook 自動歸檔，codex/agy 手動） | 幾乎不需要讀——只在提煉版 log 看不出當初脈絡的考古情境；歸檔規則見 `PROTOCOLS.md`「逐字稿歸檔」 |
 | `references/` | 已合併進正本、僅供歷史參考的舊草稿 | 幾乎不需要讀，正式規則一律以 `CONSTITUTION.md` 為準 |
 | `INSTALL.md` | **給 agent 的安裝指南**：使用者要你把本框架裝進某專案時的完整執行程序（複製清單、汙染排除、重置、入口與 hooks 設定、驗收） | 使用者說「把 passdown-os 套用／安裝到專案」時，照此執行 |
 | `GOLDEN_TEMPLATE.md` | 套用時「哪些檔案要重置、哪些規則不可動」的對照表（`INSTALL.md` 執行中會指到） | 執行 `INSTALL.md` 第 2、5 步時查閱 |
@@ -107,7 +108,7 @@
 1. 若有做完的 task，更新對應 change 的 `tasks.md` 勾選狀態。
 2. 覆寫（不是新增）[`handoff/CURRENT.md`](handoff/CURRENT.md)，反映最新真實狀態。`Context Index` 欄位的填法見 `PROTOCOLS.md`「記憶索引與接力協定」。**`Direct Memory Source` 第一項必須填本次 session log 的檔名**（第 3 步即將建立的那份）——開始協定的交接完整性檢查（訊號 B）靠這個指標運作。
 3. 用 [`sessions/_template.md`](sessions/_template.md) 在 `sessions/` 新增一份本次 session 的 log，檔名格式：`YYYY-MM-DD-HHmm-<agent>-<slug>.md`，其中日期與 `HHmm` 一律填 **session 開始時間**（不是寫檔時間）。其中 `<slug>` 用小寫英文 + 短橫線，3-5 個詞，描述本次 session 主要做的事（例如 `setup-auth-middleware`、`fix-csv-parser-edge-case`、`review-api-design`）。**這一步不可省略**——即使本次 session 沒有產出程式碼變更（例如只是討論、只是回答問題），只要對專案的理解或方向有影響，也要留一份簡短 log。**天條：程式不會一次就成功——本次所有失敗的嘗試與死路（試了什麼、為什麼不行），不論最終有沒有成功繞過，都必須記進 log 的 Failed attempts 欄位**，讓下一個接手者不必重跑你已經踩過的失敗路徑。若本次 session 具長期參考價值（重大決策、架構變動、複雜 debug 的解法），同時在 [`sessions/INDEX.md`](sessions/INDEX.md) 補一行索引（日常瑣事不必）。
-4. 若本次做了跨 spec、影響後續判斷的決策（例如選了某個技術方案、放棄某個做法），在 `memory/decisions.md` 補一筆。
+4. 若本次做了跨 spec、影響後續判斷的決策（例如選了某個技術方案、放棄某個做法），在 `memory/decisions.md` 補一筆——標題依 `D-YYYYMMDD-N` 格式編 ID（N＝當日流水號），session log 的 `Decisions made` 欄位與相關程式碼註解都用這個 ID 引用。
 5. 若發現了值得記住的坑或 workaround，補進 `memory/known-issues.md`。
 6. **本機記憶同步檢查（強制）**：檢查本次 session 是否有內容被寫進了目前工具自己的私有記憶系統（例如 Claude Code 的 `~/.claude/.../memory/` auto memory、Codex 的本機 session 記錄）。若有，依 `PROTOCOLS.md`「本機記憶同步」章節，把重點內容鏡射一份回 `passdown-os/`（sessions/ 或 memory/），**回寫的每一條都依第 8 節簽名規則附上 agent 代號與時間戳**，不能讓任何決策或事實只存在單一工具看得到的地方。若本次 session 沒有寫入任何本機私有記憶，這步驟視為已確認、無需動作。
 7. **Read-back 驗證（不可自認完成）**：重新讀取剛覆寫的 CURRENT.md 與剛新增的 session log，逐項確認：(a) 檔案確實存在且內容完整；(b) `Next concrete step` 是具體可執行的一句話，不是 `<佔位文字>` 或空白；(c) `Context Index` 指向的檔案路徑真實存在。任一項不過就修到過為止——「我寫了」不等於「寫對了」。
@@ -151,6 +152,8 @@
 2. **跨 agent review 的生存線**：接手的 Agent 只有當下的 Context，不會為了一個 function 去翻所有歷史 session log。別的 agent review 或重構時，需要從註解知道你當下為什麼這樣寫，才不會誤判成冗餘代碼而刪除。
 
 **特殊邏輯加強版**：非標準實作、踩坑後的 Workaround、缺乏明確架構下的 Vibe Coding 產物，註解必須**更詳盡**——寫清楚踩了什麼坑、為什麼標準做法不行、這段不能怎麼改。你的註解是保護這段 code 存活與被正確理解的唯一防線。
+
+**決策 ID 引用**：若這段實作對應 `memory/decisions.md` 裡已記錄的決策，註解中引用其決策 ID（例如 `// D-20260712-2：時間戳比對必然誤判，故用語意檢查`）——讓任何人從 code 一步跳到完整的決策理由與否決方案，不必翻日期猜標題。
 
 ## 11. 語言與編碼紀律（一啟動即生效） <a name="lang-encoding"></a>
 <!-- 使用者指示新增：從 session 第一個回覆起就適用 -->

@@ -37,6 +37,14 @@
 
 - matcher 刻意不含 `resume`：恢復的 session 已保有原 context，重複注入只是浪費 token。
 
+## SessionEnd hook：逐字稿自動歸檔（2026-07-12 加入）
+
+`settings.json.example` 含一個 `SessionEnd` hook，呼叫 [`archive-transcript.sh`](archive-transcript.sh)：session 結束時自動把當次 cc 逐字稿複製到 `passdown-os/transcripts/`（gitignored 歸檔區，見該資料夾 README）。機制：SessionEnd 的 stdin JSON 帶有 `transcript_path` 與 `session_id`，腳本取出後照 `日期時間-cc-<id前8碼>.jsonl` 命名歸檔。
+
+- **驗證方法**：結束一個 session（或 `/clear`）後檢查 `passdown-os/transcripts/` 是否出現新 `.jsonl`。
+- **已實測（2026-07-12）**：無 jq 環境的 sed fallback＋POSIX 路徑，假 JSON 實跑通過（歸檔與命名正確）。**【待實測】**：真實 SessionEnd 觸發時 Windows 雙反斜線路徑（`C:\\Users\\...`）的還原——實測後更新本段。
+- codex / agy 沒有等效自動機制（其 hook 是否提供 transcript 路徑**未查證**）——依 `PROTOCOLS.md`「逐字稿歸檔」小節手動複製。
+
 ## PreCompact hook（壓縮前的最後防線，2026-07-12 加入）
 
 `settings.json.example` 另含一個 `PreCompact` hook：在 cc 執行 compact（手動 `/compact` 或自動觸發）**之前**輸出提醒，機制化 CONSTITUTION 第 3 節「準備壓縮前必須先完成記憶同步」的規則——這正好補上「模型自估 context 百分比不可靠」的缺口。**【待實測】**PreCompact 的 stdout 是否注入模型 context（或僅顯示於 transcript）尚未在新 session 驗證；實測後請更新本段。

@@ -30,6 +30,7 @@
 | `sessions/INDEX.md` | 清空索引列表，只保留表頭與說明 |
 | `sessions/archive/` | 清空 |
 | `imports/` | 清空成只有 `README.md` + `.gitkeep`（保持 gitignore 規則） |
+| `transcripts/` | 清空成只有 `README.md` + `.gitkeep`（逐字稿屬原專案，絕不帶到新專案） |
 | `references/` | 清空；只有在新專案自己也有類似的舊草稿要合併時才會用到這個資料夾 |
 | `DISPATCH.md` 第 7 節的 agent 查證表 | 重填新環境的實測值（或清回 `<待填>`）——這張表是「內容」，其餘章節是「規則」不動 |
 

@@ -96,7 +96,7 @@
 1. **分支隔離**：AI Agent 執行任何非瑣碎任務時，**必須在獨立的 Feature Branch 上工作**（例如 `agent/<change-slug>` 或 `feature/<task-name>`），禁止直接在 main/master 分支進行頻繁交接。
 2. **頻繁 Local Commit**：在 Feature Branch 上，每次執行「Session 結束協定」時，Agent 應該將所有修改（包含專案代碼、`CURRENT.md`、新產生的 `sessions/*.md`）直接 commit。Commit message 格式建議為：`<agent>: <slug> - <summary>`（例如 `cc: fix-auth-bug - complete token parsing and save session log`）。
 3. **Commit 前安全檢查（每次 commit 都要）**：
-   - **本機記憶原始檔不入版控**：確認 staged files 中沒有 `*.raw`、`*.jsonl`、`*.sqlite`、`*.db` 等原始記憶／逐字稿檔案。`imports/` 已由 `.gitignore` 機制擋住，這道檢查抓的是**漏到其他位置**的原始檔（例如誤把工具逐字稿複製到 `sessions/` 或專案根目錄）。
+   - **本機記憶原始檔不入版控**：確認 staged files 中沒有 `*.raw`、`*.jsonl`、`*.sqlite`、`*.db` 等原始記憶／逐字稿檔案。`imports/` 與 `transcripts/` 已由 `.gitignore` 機制擋住（`transcripts/` 是逐字稿的**唯一**合法存放區），這道檢查抓的是**漏到其他位置**的原始檔（例如誤把工具逐字稿複製到 `sessions/` 或專案根目錄）。
    - **敏感資訊掃描**：確認 staged 的文字檔（尤其 `.md`）內容不含 API key、token、密碼、個人帳號。發現即移除，並在 [`memory/redaction-log.md`](memory/redaction-log.md) 記一筆移除了什麼。
 4. **壓扁合併 (Squash & Merge)**：當任務完全結束，變更要併回 main/master 或 dev 分支時，必須採用 **Squash and Merge** 的方式合併。
    - **效果**：這會將 Feature Branch 上的數十個 AI 工作碎屑 commit 壓扁成一個乾淨的、人類可讀的高階 commit（例如 `feat: support JWT token authentication`）。
@@ -125,6 +125,14 @@
    - 把去敏感後、真正有價值的內容，摘要進正規位置（`sessions/`、`memory/decisions.md`、`memory/known-issues.md`），不要把原始檔案直接留在 `imports/` 裡當記憶來源——`imports/` 只是暫存清洗區。**升級（Promotion）原則**：不要複製貼上原始紀錄，必須「摘要與結構化」——舊的 raw text 要提煉成可執行的準則（actionable guidelines），符合本框架的閱讀習慣。
 
 換句話說：**每次**都要做「檢查 + 輕量摘要回寫」（步驟 1-2）；只有在整批搬家/換工具的情境才需要走完整的匯入清洗流程（步驟 3）。
+
+### 逐字稿歸檔（選用，但啟用後每次 session 結束都做）
+
+若專案啟用了 `transcripts/` 歸檔區（見該資料夾 README），執行本章記憶同步時順手歸檔當次逐字稿——讓「每次互動的完整記錄」跟著專案資料夾走（gitignored、不入版控）：
+
+- **cc**：安裝 SessionEnd hook（`entrypoints/hooks/archive-transcript.sh`）後全自動，不需手動。
+- **codex / agy**：從上方造冊的本機路徑（codex：`~/.codex/sessions/`；agy：`~/.gemini/antigravity-cli/brain/<conversation-id>/...`）複製當次逐字稿到 `transcripts/`，命名 `YYYY-MM-DD-HHmm-<agent>-<slug>.jsonl`（與本次 session log 同前綴）。
+- 定位提醒：逐字稿是最後一層考古材料，不是記憶正本——交接仍靠 `sessions/*.md` 提煉版；要把逐字稿內容升級進正式記憶，走 `imports/` 清洗流程。
 
 ## 維護規則
 

@@ -17,7 +17,7 @@
 
 ## Decisions made
 
-- <若有跨 spec 的決策，連結到 memory/decisions.md 對應條目；沒有則寫「無」>
+- <以決策 ID 引用 memory/decisions.md 對應條目，例如「D-20260712-2 — 復原偵測改語意檢查」；沒有則寫「無」>
 
 ## Files touched
 
@@ -36,6 +36,10 @@
 > 如果本次對話已經快消耗完 Context Window 預算（或已達到實用限制，準備開新對話接力），請在此處詳細記錄當前尚未寫進代碼的點子、邏輯細節、猜想、或是下一步除錯思路。若沒有跨 session 接力需求，此處可寫「無」或留空。
 
 - <在此處寫下你腦海中的細部邏輯，防止在重啟對話時丟失 Context 記憶>
+
+## Transcript（選填）
+
+- <若專案啟用 transcripts/ 歸檔：本次逐字稿檔名，例如 transcripts/YYYY-MM-DD-HHmm-cc-xxxxxxxx.jsonl；未啟用或尚未歸檔則寫「無」>
 
 ## Blockers / open questions
 

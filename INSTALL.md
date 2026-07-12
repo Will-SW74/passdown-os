@@ -17,6 +17,7 @@
 - 資料夾：`prompts/`、`entrypoints/`、`handoff/`、`memory/`、`references/`
 - `sessions/`：只搬 `_template.md`、`INDEX.md`、`archive/.gitkeep`
 - `imports/`：只搬 `README.md`、`.gitkeep`
+- `transcripts/`：只搬 `README.md`、`.gitkeep`（實際逐字稿 `.jsonl` 絕不搬）
 
 **絕對不要複製**（這些是範本庫「自己作為一個專案」累積的狀態，帶過去就污染新專案）：
 
