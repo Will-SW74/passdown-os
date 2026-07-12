@@ -1,6 +1,6 @@
 # Current State
 
-_Last updated: 2026-07-13 01:46 by codex_
+_Last updated: 2026-07-13 01:51 by codex_
 
 ## Active change
 
@@ -14,13 +14,15 @@ _Last updated: 2026-07-13 01:46 by codex_
 
 最終 Git hygiene 檢查發現 `.claude/settings.local.json` 未被排除；已補入 `.gitignore`，避免本機權限、路徑或個人 hook 設定被 `git add .` 誤收。完整框架回歸檢查均通過，準備將本機領先的 commits 同步到 `origin/main`。
 
+agy review D-20260713-4 後提出兩項維護歧義；codex 獨立核對後做最小修正：RUBRICS 明定五問是內部判斷模型、不是固定輸出格式；cc subagent README 與五個定義檔補上根目錄相對純文字路徑的可攜性理由，避免未來被誤改成安裝後失效的 Markdown 相對連結。
+
 ## Next concrete step
 
 請 agy 以 fresh context review D-20260713-4：確認各入口能按需找到 RUBRICS 第 6 節、五問沒有第二份正本、GOLDEN/INSTALL 套用後會保留框架預設文風，並檢查文字是否自然、不討好也不刻意唱反調。
 
 ## Context Index / Memory Anchors
 
-- **Direct Memory Source**: `sessions/2026-07-13-0146-codex-final-git-sync.md`（次讀 `sessions/2026-07-13-0122-codex-add-independent-judgment.md`）
+- **Direct Memory Source**: `sessions/2026-07-13-0151-codex-clarify-review-rules.md`（次讀 `sessions/2026-07-13-0146-codex-final-git-sync.md`）
 - **決策紀錄**: `memory/decisions.md` D-20260713-4（次讀 D-20260713-1～3）
 - **Code Symbol Anchor**: [CONSTITUTION.md](../CONSTITUTION.md)「誠實條款／語言與編碼紀律」、[RUBRICS.md](../RUBRICS.md) 第 6 節、[conventions.md](../memory/conventions.md)「框架預設文風」
 

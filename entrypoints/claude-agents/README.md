@@ -24,3 +24,4 @@
 
 1. **model 用別名（haiku/sonnet/opus），不寫死版本號**——別名會解析到當下環境的現行版本，避免模型更新後範本變成過時地雷（呼應 CONSTITUTION 誠實條款：不憑記憶填型號）。
 2. **subagent 是冷啟動的**：它看不到主對話的任何脈絡。所以 (a) 每個定義檔已內嵌回報合約，不依賴 subagent 自己去讀 `passdown-os/`；(b) 指揮官交辦時，必須把填好的交辦單內容（目標與動機／範圍／驗收條件）完整放進派工 prompt 裡，只丟一句「去修 bug」等於丟掉整套制度。
+3. **框架引用使用專案根目錄相對的純文字路徑**：這些定義檔會從 `passdown-os/entrypoints/claude-agents/` 複製到 `<project>/.claude/agents/`，檔案深度會改變。因此一律寫 `passdown-os/RUBRICS.md`，不要改成以定義檔位置解析的 Markdown 相對連結；來源裡可點擊，不代表安裝後仍可攜。
