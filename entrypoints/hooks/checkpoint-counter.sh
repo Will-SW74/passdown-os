@@ -1,0 +1,29 @@
+#!/bin/sh
+# passdown-os 檢查點計數器 — 掛在各工具的 PostToolUse hook 使用
+#
+# 為什麼需要這個腳本：模型無法可靠地「自數」自己已經呼叫了幾次工具（內省不可信），
+# 所以改由外部 hook 在每次工具呼叫後遞增一個計數檔。每滿 10 次，就輸出一段提醒文字，
+# 由各工具的 hook 機制注入 agent 的 context——這才是真正「不靠自覺」的持續存檔觸發器。
+#
+# 前提：hook 執行時的工作目錄是專案根目錄（cc / codex 預設如此）。
+#       若你的工具不是，把下面的 COUNT_FILE 改成絕對路徑。
+# 注意：sessions/.toolcount 已列入 .gitignore，屬本機暫存；
+#       SessionStart hook 應把它重置為 0（見各工具的 hooks 範本）。
+
+COUNT_FILE="passdown-os/sessions/.toolcount"
+
+# 讀取現值；檔案不存在或內容不是數字時歸零（防呆：避免髒資料讓算術運算炸掉）
+n=$(cat "$COUNT_FILE" 2>/dev/null)
+case "$n" in
+  ''|*[!0-9]*) n=0 ;;
+esac
+
+n=$((n + 1))
+printf '%s' "$n" > "$COUNT_FILE"
+
+# 每滿 10 次輸出提醒。stdout 是否注入 context 依各工具而定：
+#   cc / codex 的 PostToolUse 建議用 JSON additionalContext（見 hooks/README.md）；
+#   純文字輸出在部分工具只會顯示在 transcript——安裝時請照 README 對應你的工具調整。
+if [ $((n % 10)) -eq 0 ]; then
+  echo "[passdown-os checkpoint] 本 session 已累計 ${n} 次工具呼叫：請先在 sessions/ 的當前 log append 一行進度（見 PROTOCOLS.md「持續存檔機制」），再繼續工作。"
+fi

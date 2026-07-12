@@ -2,3 +2,10 @@
 imports/*
 !imports/README.md
 !imports/.gitkeep
+.spectra/
+openspec/.vector-search.db*
+
+# session 執行期的本機暫存訊號（值班鎖、工具呼叫計數器）——不是記錄、不進版控
+# 真正的記錄在 sessions/*.md；這兩個檔案是單機單次 session 的即時狀態
+sessions/.active_lock
+sessions/.toolcount

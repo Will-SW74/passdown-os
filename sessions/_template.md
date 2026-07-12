@@ -1,4 +1,5 @@
 # Session: YYYY-MM-DD HH:mm (<agent: codex|cc|agy>)
+<!-- 檔名與此處的日期時間一律填 session「開始」時間，不是寫檔時間 -->
 
 ## Started from
 
@@ -23,7 +24,7 @@
 - <交給下一個接手者的具體下一步>
 - Context Anchors for next agent:
   - **Direct Memory Source**: <本 session 檔案名稱，或指示下一個 agent 接班必讀的 session 紀錄>
-  - **Code Symbol Anchor**: <例如 [parseHeader](file:///C:/project/parser.js#L42-L55)，精確的行號與代碼符號位置>
+  - **Code Symbol Anchor**: <例如 [parseHeader](src/parser.js#L42-L55)；一律 repo 相對路徑（不可用 file:/// 絕對路徑，跨機必斷）；行號會漂移，必須同時給符號名>
 
 ## Scratchpad (Mental Model / Unfinished Thoughts)
 

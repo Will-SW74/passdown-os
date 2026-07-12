@@ -18,3 +18,5 @@
 3. 依 CONSTITUTION.md「Session 開始協定」的後續步驟繼續。
 
 **結束 session 前，必須完整執行 CONSTITUTION.md 中的「Session 結束協定」，不可省略。**
+
+**語言與編碼（一啟動即生效）**：回覆與所有交接文件一律正體中文（zh-TW）；程式碼一律必須加上解釋 Why 的正體中文註解；寫入檔案一律 UTF-8。詳見 CONSTITUTION.md 第 10、11 節。

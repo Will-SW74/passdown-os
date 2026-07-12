@@ -34,12 +34,13 @@ flowchart TD
 
 1. 把本 repo 的內容放進專案根目錄的 `passdown-os/` 資料夾（clone 後複製，或加為 subtree）。
 2. 跑 [`GOLDEN_TEMPLATE.md`](GOLDEN_TEMPLATE.md) 的「套用後自檢清單」重置狀態檔。
-3. 依 [`entrypoints/README.md`](entrypoints/README.md) 設定各 agent 入口檔；用 cc 的話順手裝上 SessionStart hook 與 `/handoff` 指令。
+3. 依 [`entrypoints/README.md`](entrypoints/README.md) 設定各 agent 入口檔；用 cc 的話順手裝上 SessionStart hook 與 `/handoff` 指令。codex / agy 也有對應的 hooks 範本（SessionStart 注入 + 檢查點計數器），見 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)。
 
 ## 從哪裡開始讀
 
 | 你是誰 | 讀什麼 |
 | --- | --- |
+| 第一次接觸本專案的人或 AI | [`PROJECT_MANIFEST.md`](PROJECT_MANIFEST.md)（專案 DNA：30 秒掌握定位、版本與入口） |
 | 剛接手的 agent（每次 session 開始） | [`CONSTITUTION.md`](CONSTITUTION.md) → [`handoff/CURRENT.md`](handoff/CURRENT.md)，依 Session 開始協定往下 |
 | 遇到特定情境（git 衝突、記憶同步、維護） | [`PROTOCOLS.md`](PROTOCOLS.md) 對應章節（被指到才讀） |
 | 要交辦任務 / 派 subagent | [`DISPATCH.md`](DISPATCH.md) ＋ [`prompts/`](prompts/README.md) 範本 |

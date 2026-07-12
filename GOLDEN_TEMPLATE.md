@@ -17,13 +17,15 @@
 
 | 檔案 | 重置方式 |
 | --- | --- |
+| `PROJECT_MANIFEST.md` | 重填新專案的名稱、目標、版本、支援的 agent 與當前焦點（此檔是接手者第一眼看的專案 DNA） |
 | `handoff/CURRENT.md` | 用 `handoff/_template.md` 的格式重寫，內容改成新專案「剛導入 passdown-os/、尚無 active change」的初始狀態 |
 | `memory/decisions.md` | 清空所有條目，只保留檔案開頭的格式說明 |
 | `memory/conventions.md` | 清空成範例格式，等新專案累積出自己的慣例再填 |
 | `memory/known-issues.md` | 清空成範例格式 |
 | `memory/glossary.md` | 換成新專案自己的縮寫/名詞表（例如新專案若用到不同的三個 agent 或不同代號，要重新定義） |
 | `memory/redaction-log.md` | 清空成範例格式 |
-| `sessions/*.md`（`_template.md` 除外） | 全部移除或歸檔，新專案從零開始累積自己的 session 記錄 |
+| `sessions/*.md`（`_template.md` 與 `INDEX.md` 除外） | 全部移除或歸檔，新專案從零開始累積自己的 session 記錄 |
+| `sessions/INDEX.md` | 清空索引列表，只保留表頭與說明 |
 | `sessions/archive/` | 清空 |
 | `imports/` | 清空成只有 `README.md` + `.gitkeep`（保持 gitignore 規則） |
 | `references/` | 清空；只有在新專案自己也有類似的舊草稿要合併時才會用到這個資料夾 |
@@ -51,13 +53,14 @@
 
 複製 `passdown-os/` 到新專案後，用此清單確認一切就緒：
 
+- [ ] `PROJECT_MANIFEST.md` 已重填新專案的定位、版本與支援 agent
 - [ ] `handoff/CURRENT.md` 已改成新專案初始狀態（參考 `handoff/_template.md`）
 - [ ] `memory/decisions.md` 已清空條目，只保留格式說明
 - [ ] `memory/conventions.md` 已清空條目，只保留格式說明
 - [ ] `memory/known-issues.md` 已清空條目，只保留格式說明
 - [ ] `memory/glossary.md` 已換成新專案自己的名詞表
 - [ ] `memory/redaction-log.md` 已清空條目，只保留格式說明
-- [ ] `sessions/` 底下只剩 `_template.md` 和空的 `archive/`（含 `.gitkeep`）
+- [ ] `sessions/` 底下只剩 `_template.md`、清空的 `INDEX.md` 和空的 `archive/`（含 `.gitkeep`）
 - [ ] `imports/` 只有 `README.md` + `.gitkeep`
 - [ ] `references/` 已清空（或只保留新專案相關的舊草稿）
 - [ ] `.gitignore` 已就位（確認 `imports/*` 被忽略）
@@ -68,3 +71,6 @@
 - [ ] 若使用 cc 且要啟用自動調度：`entrypoints/claude-agents/` 的五個 agent 檔已複製到新專案 `.claude/agents/`，且 `CLAUDE.md` 含「調度模式」段落（不啟用則跳過此項）
 - [ ] 若使用 cc：`entrypoints/hooks/settings.json.example` 的 SessionStart hook 已合併進新專案 `.claude/settings.json`，並開新 session 驗證注入成功（建議安裝；不裝則靠協定紀律）
 - [ ] 若使用 cc：`entrypoints/commands/handoff.md` 已複製到新專案 `.claude/commands/`（收工打 `/handoff` 觸發結束協定；建議安裝）
+- [ ] 若使用 codex：`entrypoints/hooks/codex-hooks.json.example` 已放到新專案 `.codex/hooks.json` 並在 codex 內信任（建議安裝；含 SessionStart 注入與檢查點計數器）
+- [ ] 若使用 agy：`entrypoints/hooks/agy-hooks.json.example` 已放到新專案 `.agents/hooks.json` 並實測注入成功（建議安裝）
+- [ ] `.gitignore` 含 `sessions/.active_lock` 與 `sessions/.toolcount`（會話鎖與計數器是本機暫存，不進版控）
