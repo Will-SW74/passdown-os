@@ -32,9 +32,13 @@ flowchart TD
 
 ## 導入新專案
 
-1. 把本 repo 的內容放進專案根目錄的 `passdown-os/` 資料夾（clone 後複製，或加為 subtree）。
+**最省事的方式**：把這個範本庫的路徑（或 git URL）丟給你的 AI agent，說一句「照 INSTALL.md 把 passdown-os 裝進這個專案」——[`INSTALL.md`](INSTALL.md) 是寫給 agent 讀的完整安裝程序（複製清單、範本庫狀態的汙染排除、重置、入口檔與 hooks 設定、驗收回報），agent 會全程自己動手。
+
+想手動裝也可以：
+
+1. 把框架本體放進專案根目錄的 `passdown-os/` 資料夾（哪些檔案該搬、哪些不該搬，見 `INSTALL.md` 第 1 步）。
 2. 跑 [`GOLDEN_TEMPLATE.md`](GOLDEN_TEMPLATE.md) 的「套用後自檢清單」重置狀態檔。
-3. 依 [`entrypoints/README.md`](entrypoints/README.md) 設定各 agent 入口檔；用 cc 的話順手裝上 SessionStart hook 與 `/handoff` 指令。codex / agy 也有對應的 hooks 範本（SessionStart 注入 + 檢查點計數器），見 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)。
+3. 依 [`entrypoints/README.md`](entrypoints/README.md) 設定各 agent 入口檔；cc / codex / agy 各有 hooks 範本（SessionStart 注入 + 檢查點計數器），見 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)。
 
 ## 從哪裡開始讀
 

@@ -37,7 +37,8 @@
 | `memory/redaction-log.md` | 本機記憶匯入時的去敏感化紀錄 | 只在執行「本機記憶同步」的整批匯入流程時相關 |
 | `imports/` | 本機原始記憶暫存清洗區 | 只在整批遷移本機記憶時使用，平常不需要看 |
 | `references/` | 已合併進正本、僅供歷史參考的舊草稿 | 幾乎不需要讀，正式規則一律以 `CONSTITUTION.md` 為準 |
-| `GOLDEN_TEMPLATE.md` | 複製本框架到新專案的操作指南 | 只在要把 `passdown-os/` 套用到新專案時查閱 |
+| `INSTALL.md` | **給 agent 的安裝指南**：使用者要你把本框架裝進某專案時的完整執行程序（複製清單、汙染排除、重置、入口與 hooks 設定、驗收） | 使用者說「把 passdown-os 套用／安裝到專案」時，照此執行 |
+| `GOLDEN_TEMPLATE.md` | 套用時「哪些檔案要重置、哪些規則不可動」的對照表（`INSTALL.md` 執行中會指到） | 執行 `INSTALL.md` 第 2、5 步時查閱 |
 | `entrypoints/` | 各 agent 入口設定檔範本、cc 專用的 `claude-agents/` subagent 範本組與 `hooks/` 自動注入設定 | 只在新專案要設定 agent 入口／安裝 cc 自動調度或 hook 時查閱 |
 
 除了 `handoff/CURRENT.md`，其他所有檔案都是「被指到才讀」的參考資料，不是「主動掃描找下一步」的來源——這是刻意設計，避免每次接手都要把整個目錄讀過一遍。

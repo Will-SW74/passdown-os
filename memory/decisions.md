@@ -2,6 +2,17 @@
 
 只增不改的決策紀錄（ADR-lite）。若某個決策後來被推翻，用新條目記錄並註明「取代 YYYY-MM-DD — 標題」，不要刪除或改寫舊條目。
 
+## 2026-07-12 — 新增 INSTALL.md：agent 自主安裝程序
+
+**Decision:** 新增 `INSTALL.md`，明確以 AI agent 為讀者的安裝程序：使用者只需給來源路徑＋一句話，agent 全程自己執行複製（含「範本庫自身狀態」的汙染排除清單：.git/、openspec/、根目錄入口檔實體、工具設定目錄、實際 session log）、重置、入口檔與 hooks 安裝、驗收回報。`GOLDEN_TEMPLATE.md` 重新定位為「重置表＋不可動規則」的對照資料，由 INSTALL.md 引用，兩檔互補不重複。
+
+**Why:** 原本的 GOLDEN_TEMPLATE.md 是寫給人的（「把目錄複製到新專案」主詞是使用者），agent 讀了不知道來源在哪、哪些檔案不能搬、重置該自己做——不符合「丟給 agent 一句話就裝好」的使用預期。且範本庫根目錄如今同時是一個活專案（有 openspec/、工具部署實體），沒有排除清單的話 agent 會把範本庫的狀態複製進新專案。
+
+**Alternatives considered:**
+- 直接改寫 GOLDEN_TEMPLATE.md 成 agent 視角 — 否決：重置表與「規則不可動」清單對人工安裝仍有價值，拆成「程序（INSTALL）＋資料（GOLDEN_TEMPLATE）」符合本框架衍生視圖原則且各自單一職責。
+
+**Agent:** cc（2026-07-12 20:30）
+
 ## 2026-07-12 — 衍生檔裁決：留 CHECKLIST、刪 local-agent-sync（混合方案）
 
 **Decision:** 使用者授權 cc 裁決衍生檔去留，採混合方案：(1) **保留** `CHECKLIST_HANDOFF.md`——它是結束協定的「打勾操作介面」，有正本（CONSTITUTION 第 6 節）沒有的獨立用途；已標明正本、無自有規範內容。(2) **刪除** `memory/local-agent-sync.md`——純為 PROTOCOLS「本機記憶同步」章的簡略複述，唯一獨有概念（Promotion 提煉原則）已併回 PROTOCOLS 整批匯入第 3 步。同時修訂 `handoff-integrity` spec 的 SSoT requirement：允許「明示正本、遇不一致以正本為準、不含自有規範」的衍生視圖。另刪除 `review-fixes` 分支指標（其內容為目前分支直系祖先，零損失）。`fix-framework-review-findings` change 以 17/17 完成 archive。
