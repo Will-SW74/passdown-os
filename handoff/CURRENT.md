@@ -1,6 +1,6 @@
 # Current State
 
-_Last updated: 2026-07-13 00:32 by agy_
+_Last updated: 2026-07-13 00:36 by agy_
 
 ## Active change
 
@@ -14,13 +14,15 @@ _Last updated: 2026-07-13 00:32 by agy_
 3. 更新 `session-liveness-signals/spec.md` 規格文件，補齊 Purpose 描述並對應上述調整。
 4. 修復了 session logs 內部的相對路徑失效連結。
 
+同時補齊了 cc 平台 `settings.json.example` 的 `SessionStart` 歸零計數器缺口，使全平台重置行為皆符合規格要求。
+
 ## Next concrete step
 
-依 INSTALL.md 把框架裝進一個真實專案跑一輪實戰，過程中觀察：(a) cc PreCompact stdout 行為；(b) archive-transcript.sh 在真實 SessionEnd 的 Windows 路徑還原。
+依 INSTALL.md 把框架裝進一個真實專案跑一輪實戰，表中待測項目均已在本次會話完成驗證與修復。
 
 ## Context Index / Memory Anchors
 
-- **Direct Memory Source**: `sessions/2026-07-13-0030-agy-resolve-spec-contradictions.md` (與 `sessions/2026-07-13-0020-agy-apply-codex-review-fixes.md`)
+- **Direct Memory Source**: `sessions/2026-07-13-0035-agy-final-cc-hook-alignment-and-review.md` (與 `sessions/2026-07-13-0030-agy-resolve-spec-contradictions.md`)
 - **決策紀錄**: `memory/decisions.md` D-20260712-1 ～ D-20260712-6
 - **Code Symbol Anchor**: [CONSTITUTION.md](../CONSTITUTION.md) 第 5 節（開始鎖與計數器重置）、[agy-hooks.json.example](../entrypoints/hooks/agy-hooks.json.example)
 
