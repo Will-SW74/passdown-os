@@ -1,6 +1,6 @@
 # Current State
 
-_Last updated: 2026-07-13 00:25 by agy_
+_Last updated: 2026-07-13 00:32 by agy_
 
 ## Active change
 
@@ -20,7 +20,7 @@ _Last updated: 2026-07-13 00:25 by agy_
 
 ## Context Index / Memory Anchors
 
-- **Direct Memory Source**: `sessions/2026-07-13-0020-agy-apply-codex-review-fixes.md` (與 `sessions/2026-07-13-0010-agy-resolve-antigravity-hook-standards.md`)
+- **Direct Memory Source**: `sessions/2026-07-13-0030-agy-resolve-spec-contradictions.md` (與 `sessions/2026-07-13-0020-agy-apply-codex-review-fixes.md`)
 - **決策紀錄**: `memory/decisions.md` D-20260712-1 ～ D-20260712-6
 - **Code Symbol Anchor**: [CONSTITUTION.md](../CONSTITUTION.md) 第 5 節（開始鎖與計數器重置）、[agy-hooks.json.example](../entrypoints/hooks/agy-hooks.json.example)
 

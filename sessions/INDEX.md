@@ -12,6 +12,7 @@
 | 2026-07-12 | [2026-07-12-1530-cc-wire-hardening-and-startup-rules.md](./2026-07-12-1530-cc-wire-hardening-and-startup-rules.md) | 框架大修全記錄：接線修正、會話鎖閉環、語意檢查、逐字稿歸檔、決策 ID（D-20260712-1～6）、CT 查證 |
 | 2026-07-13 | [2026-07-13-0010-agy-resolve-antigravity-hook-standards.md](./2026-07-13-0010-agy-resolve-antigravity-hook-standards.md) | 解決 Google Antigravity 平台的 PreInvocation Hook 輸出標準與計數器重置 Bug |
 | 2026-07-13 | [2026-07-13-0020-agy-apply-codex-review-fixes.md](./2026-07-13-0020-agy-apply-codex-review-fixes.md) | 消化並套用 Codex 審查修正：P1 計數器 JSON 格式支援、Antigravity 重置防線、P2 失效連結修復 |
+| 2026-07-13 | [2026-07-13-0030-agy-resolve-spec-contradictions.md](./2026-07-13-0030-agy-resolve-spec-contradictions.md) | 解決二次審查規格矛盾：計數器重置細則對接、handoff-integrity 的 Purpose 描述補齊 |
 | ... | ... | ... |
 
 *(請注意：日常瑣碎的除錯或例行公事不需要加入此索引。本索引旨在建立一個可快速跳轉的「知識圖譜」。)*

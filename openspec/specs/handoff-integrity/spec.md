@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change 'fix-framework-review-findings'. Update Purpose after archive.
+Define the requirements and behavioral specifications for session handoff verification, including session lock lifecycle hooks, recovery procedures for unclean session terminations, and single source of truth (SSoT) rules consistency check.
 
 ## Requirements
 

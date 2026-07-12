@@ -86,7 +86,7 @@ code:
 ---
 ### Requirement: Externally counted checkpoint reminders
 
-The checkpoint trigger SHALL NOT depend on the model counting its own tool calls. Where the agent tool supports lifecycle hooks, a PostToolUse hook MUST increment the counter file `sessions/.toolcount` after every tool call, and on every 10th call the hook MUST emit a reminder instructing the agent to append a progress line to the current session log. A SessionStart hook MUST reset the counter to zero. Environments without hooks SHALL treat the counting rule as best-effort discipline and MUST NOT claim it is mechanically enforced. The counter file MUST be excluded from version control.
+The checkpoint trigger SHALL NOT depend on the model counting its own tool calls. Where the agent tool supports lifecycle hooks, a PostToolUse hook MUST increment the counter file `sessions/.toolcount` after every tool call, and on every 10th call the hook MUST emit a reminder instructing the agent to append a progress line to the current session log. For platforms supporting a SessionStart hook (e.g., cc, codex), the hook MUST reset the counter to zero. For platforms without a SessionStart hook (e.g., agy), the agent executing the Session Start Protocol MUST reset the counter as a protocol-level discipline. Environments without hooks SHALL treat the counting rule as best-effort discipline and MUST NOT claim it is mechanically enforced. The counter file MUST be excluded from version control.
 
 #### Scenario: Reminder on every 10th tool call
 
