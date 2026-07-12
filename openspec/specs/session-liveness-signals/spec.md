@@ -8,22 +8,32 @@ Define the requirements and behavioral specifications for session lifecycle lock
 
 ### Requirement: Session lock lifecycle
 
-The framework SHALL treat `sessions/.active_lock` as a liveness marker (duty tag), not a record. An agent starting a session MUST first check whether the lock exists, then overwrite it with its agent code and session start timestamp (`YYYY-MM-DD HH:mm`). An agent completing the Session End Protocol MUST delete the lock as the final step, after all handoff artifacts pass read-back verification. The lock file MUST be excluded from version control.
+The framework SHALL treat `sessions/.active_lock` as a liveness marker (duty tag) and advisory concurrency guard, not a record. The lock MUST contain the agent code, session start timestamp (`YYYY-MM-DD HH:mm`), and a unique session identifier (4-8 random alphanumeric characters). An agent starting a session MUST first check whether the lock exists and MUST NOT overwrite an existing lock until the user confirms that no other agent is still working. After writing its lock, the agent MUST re-read it immediately and again before its first write to any project file; an ownership mismatch MUST stop the agent before it modifies project state. The check-then-write race window MUST be documented as a known limitation. An agent completing the Session End Protocol MUST delete the lock as the final step, after all handoff artifacts pass read-back verification. The lock file MUST be excluded from version control.
 
 #### Scenario: Normal session lifecycle
 
 - **WHEN** an agent starts a session and no `.active_lock` exists
-- **THEN** the agent creates the lock with its agent code and start timestamp, and deletes it as the final step of the Session End Protocol
+- **THEN** the agent creates the lock with its agent code, start timestamp, and unique session identifier, re-reads it to confirm ownership, and deletes it as the final step of the Session End Protocol
 
-#### Scenario: Residual lock detected at session start
+#### Scenario: Active lock confirmed at session start
 
-- **WHEN** an agent starts a session and `.active_lock` already exists
-- **THEN** the agent treats the previous session as abnormally terminated, reads the latest session log under `sessions/` (excluding `archive/`), repairs `handoff/CURRENT.md` to reflect the true state, and only then overwrites the lock for its own session
+- **WHEN** an agent starts a session, `.active_lock` already exists, and the user confirms that its owner is still working
+- **THEN** the agent stops without modifying any file and waits for the owner to complete the Session End Protocol
+
+#### Scenario: Stale lock confirmed at session start
+
+- **WHEN** an agent starts a session, `.active_lock` already exists, and the user confirms that no other agent is working
+- **THEN** the agent treats the previous session as abnormally terminated, reads the latest session log under `sessions/` (excluding `archive/`), repairs `handoff/CURRENT.md` to reflect the true state, and only then replaces the stale lock with its own
+
+#### Scenario: Lock ownership changes during startup
+
+- **WHEN** the agent re-reads `.active_lock` immediately after writing it or before its first project-file write and the unique identifier is not its own
+- **THEN** the agent stops without modifying project state and asks the user to arbitrate ownership again
 
 #### Scenario: Forced interruption preserves the signal
 
 - **WHEN** a session is interrupted before the Session End Protocol completes
-- **THEN** the lock remains on disk, and no handoff content is lost by its presence, because all records live in `sessions/*.md` and the lock contains only the agent code and start timestamp
+- **THEN** the lock remains on disk, and no handoff content is lost by its presence, because all records live in `sessions/*.md` and the lock contains only the agent code, start timestamp, and unique session identifier
 
 
 <!-- @trace

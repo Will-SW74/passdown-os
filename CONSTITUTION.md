@@ -96,7 +96,7 @@
 3. 讀本文件（`CONSTITUTION.md`）— 每次對話只需讀一次。
 4. 讀 [`handoff/CURRENT.md`](handoff/CURRENT.md) — 掌握目前在哪個 change、做到哪、下一步是什麼。（cc 若已安裝 SessionStart hook，CURRENT.md 全文會自動注入在 context 開頭，此步驟視為完成、不需重讀。）
 5. **交接完整性檢查（復原協定）**——兩個訊號，任一觸發就先修復再動工：
-   - **訊號 A（會話鎖殘留）**：第 1 步發現殘留的 `.active_lock` → 直接視為「上次未正常收尾」，先讀 `sessions/`（不含 `archive/`）最新一份 log，據此把 CURRENT.md 修復成真實狀態。
+   - **訊號 A（確認為 stale 的會話鎖）**：第 1 步發現 `.active_lock`，且經使用者確認沒有其他 agent 仍在工作 → 才視為「上次未正常收尾」，先讀 `sessions/`（不含 `archive/`）最新一份 log，據此把 CURRENT.md 修復成真實狀態。仍在使用中的活鎖依第 1 步立即停止，不得進入復原流程或覆寫。
    - **訊號 B（語意不一致）**：檢查 `sessions/`（不含 `archive/`；忽略 `.active_lock`、`.toolcount` 等 dotfile，只看 `*.md`）最新一份 log 的檔名，是否就是 CURRENT.md 的 `Direct Memory Source` **第一項**所指向的那份：
      - 最新 log **不是** Direct Memory Source 所指（存在一份更新、未被 CURRENT.md 收錄的 log）→ 上次結束協定沒跑完整（寫了 log 但沒更新 CURRENT.md）。先讀那份最新 log，據此修復 CURRENT.md，再繼續往下。
      - Direct Memory Source 指向的 log **不存在** → 上次少寫了 session log 或 CURRENT.md 填錯。不需回補，但在本次 session log 的 `Started from` 註明「前次交接缺 log」。

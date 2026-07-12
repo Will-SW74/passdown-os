@@ -14,6 +14,7 @@
 | 2026-07-13 | [2026-07-13-0020-agy-apply-codex-review-fixes.md](./2026-07-13-0020-agy-apply-codex-review-fixes.md) | 消化並套用 Codex 審查修正：P1 計數器 JSON 格式支援、Antigravity 重置防線、P2 失效連結修復 |
 | 2026-07-13 | [2026-07-13-0030-agy-resolve-spec-contradictions.md](./2026-07-13-0030-agy-resolve-spec-contradictions.md) | 解決二次審查規格矛盾：計數器重置細則對接、handoff-integrity 的 Purpose 描述補齊 |
 | 2026-07-13 | [2026-07-13-0035-agy-final-cc-hook-alignment-and-review.md](./2026-07-13-0035-agy-final-cc-hook-alignment-and-review.md) | 補齊 cc 的 SessionStart 歸零機制，使全平台 reset 行為符合規格之最終審查 |
+| 2026-07-13 | [2026-07-13-0109-codex-close-review-findings.md](./2026-07-13-0109-codex-close-review-findings.md) | 關閉最終 review findings：同步 advisory lock 正式 spec、修正 stale-lock 復原訊號、刷新交接狀態 |
 | ... | ... | ... |
 
 *(請注意：日常瑣碎的除錯或例行公事不需要加入此索引。本索引旨在建立一個可快速跳轉的「知識圖譜」。)*
