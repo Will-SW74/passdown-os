@@ -2,6 +2,18 @@
 
 只增不改的決策紀錄（ADR-lite）。每筆條目標題格式：`## D-YYYYMMDD-N — <決策標題>`（N＝當日流水號，從 1 起算）——這個 **決策 ID** 是全框架的精準引用鍵：程式碼註解、session log 的 `Decisions made` 欄位、CURRENT.md 都用它指回本檔特定條目（例如註解寫 `// D-20260712-2：時間戳比對必然誤判，故用語意檢查`）。若某個決策後來被推翻，用新條目記錄並註明「取代 D-YYYYMMDD-N」，不要刪除或改寫舊條目。
 
+## D-20260713-2 — 會話鎖升級為並行防護（看到活鎖先問使用者，不可直接覆寫）
+
+**Decision:** 開始協定第 1 步的殘留鎖處理，由「一律視為上次異常中斷 → 修復 → 覆寫」改為**先分辨活鎖與死鎖**：讀出鎖內的 agent 代號與時間向使用者確認；對方還在工作 → 立刻停止、不動任何檔案，等對方摘牌；確認無人在跑才進復原流程並覆寫。PROTOCOLS「衝突處理」章新增「同機並行」小節，明文使用者側紀律（同一時間一個 agent，交接靠 CURRENT.md 換棒）。
+
+**Why:** 2026-07-13 實戰事故：cc 與 agy 平行編輯同一工作目錄，造成四處衝突（重置條款被還原、引用制 regression、CURRENT 指標錯位、依賴宣稱矛盾）。原鎖語意把「正在工作的 agent」誤判成「上次沒收尾的屍體」，不但不擋反而會蓋掉活人的牌。CURRENT.md 的文字提醒是紀律擋不住並行；鎖是既有機制，補一個「先問再覆寫」的分辨步驟即成為 advisory mutex，成本近零。
+
+**Alternatives considered:**
+- 純靠時間閾值自動分辨（鎖 < N 小時＝活）— 否決：長 session 與忘摘牌無法可靠區分，誤判代價高；問使用者一次最準。
+- 檔案系統強制鎖（flock 等）— 否決：跨工具不通用，違反純 Markdown 零依賴原則。
+
+**Agent:** cc（2026-07-13 01:50）
+
 ## D-20260713-1 — 環境門檻硬性化：Git＋Git Bash＋Python 缺一即中止部署
 
 **Decision:** 回應 codex review（P1：agy hook 依賴 Python 未聲明；P2：無 Git Bash 時 hooks 無完整 fallback），使用者明文裁決：**不提供第二條路**。INSTALL.md 新增第 0.1 節硬性環境門檻——部署前必須探測 `git --version`、`sh -c "echo ok"`、`python --version` 三項，任一失敗即**中止部署**並請使用者裝好再來（Windows 只有 `py` 沒有 `python` 視同不合格）。hooks README 移除 PowerShell 降級範本；README 首段「零依賴」修正為「框架本體零依賴，hooks 自動化需 Git＋Python 硬前置」。同時採 codex 建議補自動化誠實分級（PROTOCOLS 層級一）：cc/codex 全自動、agy 半自動（PreInvocation 不能歸零，session 重置靠開始協定第 1 步）。
