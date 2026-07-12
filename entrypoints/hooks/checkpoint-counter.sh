@@ -10,6 +10,14 @@
 # 注意：sessions/.toolcount 已列入 .gitignore，屬本機暫存；
 #       SessionStart hook 應把它重置為 0（見各工具的 hooks 範本）。
 
+# 解析參數
+FORMAT="plain"
+for arg in "$@"; do
+  case "$arg" in
+    --json) FORMAT="json" ;;
+  esac
+done
+
 # 兩種佈局都支援：一般專案是 <root>/passdown-os/sessions；範本庫自己（框架即根目錄）是 <root>/sessions
 base="${CLAUDE_PROJECT_DIR:-.}"
 if [ -d "$base/passdown-os/sessions" ]; then
@@ -27,11 +35,16 @@ case "$n" in
 esac
 
 n=$((n + 1))
-printf '%s' "$n" > "$COUNT_FILE"
+printf '%s' "$n" > "$COUNT_FILE" 2>/dev/null
 
 # 每滿 10 次輸出提醒。stdout 是否注入 context 依各工具而定：
-#   cc / codex 的 PostToolUse 建議用 JSON additionalContext（見 hooks/README.md）；
+#   cc / codex 的 PostToolUse 需用 JSON additionalContext（見 hooks/README.md）以利注入 context；
 #   純文字輸出在部分工具只會顯示在 transcript——安裝時請照 README 對應你的工具調整。
 if [ $((n % 10)) -eq 0 ]; then
-  echo "[passdown-os checkpoint] 本 session 已累計 ${n} 次工具呼叫：請先在 sessions/ 的當前 log append 一行進度（見 PROTOCOLS.md「持續存檔機制」），再繼續工作。"
+  msg="[passdown-os checkpoint] 本 session 已累計 ${n} 次工具呼叫：請先在 sessions/ 的當前 log append 一行進度（見 PROTOCOLS.md「持續存檔機制」），再繼續工作。"
+  if [ "$FORMAT" = "json" ]; then
+    printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"%s"}}\n' "$msg"
+  else
+    echo "$msg"
+  fi
 fi

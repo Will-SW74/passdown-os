@@ -6,7 +6,7 @@
 
 | Agent | 設定位置 | 範本 |
 | --- | --- | --- |
-| cc | `.claude/settings.json` | [`settings.json.example`](settings.json.example)（SessionStart） |
+| cc | `.claude/settings.json` | [`settings.json.example`](settings.json.example)（SessionStart + 計數器） |
 | codex | `.codex/hooks.json` | [`codex-hooks.json.example`](codex-hooks.json.example)（SessionStart + 計數器） |
 | agy | `.agents/hooks.json` | [`agy-hooks.json.example`](agy-hooks.json.example)（PreInvocation + 計數器） |
 

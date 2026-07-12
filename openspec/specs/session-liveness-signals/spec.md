@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TBD - created by archiving change 'wire-v02-hardening-and-startup-rules'. Update Purpose after archive.
+Define the requirements and behavioral specifications for session lifecycle locks (.active_lock) and PostToolUse checkpoint reminders (.toolcount) to mechanically prevent context window overload and trace unclean session terminations.
 
 ## Requirements
 
@@ -105,7 +105,7 @@ The checkpoint trigger SHALL NOT depend on the model counting its own tool calls
 #### Scenario: Counter reset at session start
 
 - **WHEN** a new session starts in a hook-enabled environment
-- **THEN** the SessionStart hook resets `sessions/.toolcount` to zero before any tool call is counted
+- **THEN** either the SessionStart hook or the agent executing the Session Start Protocol resets `sessions/.toolcount` to zero before any tool call is counted
 
 #### Scenario: Corrupt or missing counter file
 

@@ -25,17 +25,17 @@
 
 ## Files touched
 
-- [agy-hooks.json.example](entrypoints/hooks/agy-hooks.json.example)
-- [README.md](entrypoints/hooks/README.md)
-- [tasks.md](openspec/changes/wire-v02-hardening-and-startup-rules/tasks.md)
-- [CURRENT.md](handoff/CURRENT.md)
+- [agy-hooks.json.example](../entrypoints/hooks/agy-hooks.json.example)
+- [README.md](../entrypoints/hooks/README.md)
+- [tasks.md](../openspec/changes/archive/2026-07-13-wire-v02-hardening-and-startup-rules/tasks.md)
+- [CURRENT.md](../handoff/CURRENT.md)
 
 ## Next step
 
 - 執行 `/spectra-archive` 將 `wire-v02-hardening-and-startup-rules` 進行歸檔。
 - Context Anchors for next agent:
   - **Direct Memory Source**: `sessions/2026-07-13-0010-agy-resolve-antigravity-hook-standards.md`
-  - **Code Symbol Anchor**: [agy-hooks.json.example](entrypoints/hooks/agy-hooks.json.example#L10)
+  - **Code Symbol Anchor**: [agy-hooks.json.example](../entrypoints/hooks/agy-hooks.json.example#L10)
 
 ## Scratchpad (Mental Model / Unfinished Thoughts)
 

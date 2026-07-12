@@ -83,10 +83,10 @@
 ## 5. Session 開始協定（固定順序） <a name="session-start"></a>
 <!-- cc review 修正 v2：會話鎖改為完整閉環（進門查牌 → 掛牌 → 結束協定最後一步摘牌），並補上 PROJECT_MANIFEST 的首次接觸路由 -->
 
-1. **檢查並掛上會話鎖（強制首個動作）**：
+1. **檢查並掛上會話鎖與重置計數器（強制首個動作）**：
    - **先檢查** `sessions/.active_lock` 是否存在。**存在** → 代表上一個 session 沒有正常跑完結束協定（可能中斷、context 溢出、或忘了收尾），記下這個事實，第 5 步復原協定會用到。
-   - 接著（無論剛才存不存在）**覆寫** `.active_lock`，內容為：本次 agent 代號 + session 開始時間（`YYYY-MM-DD HH:mm`）。
-   - 注意：這個鎖**不是記錄，是「值班牌」**——掛牌上工、下班摘牌（見結束協定最後一步）。真正的記錄永遠在 `sessions/*.md`，刪鎖不會遺失任何交接內容。此檔已列入 `.gitignore`，屬本機暫存，不進版控。
+   - 接著（無論剛才存不存在）**覆寫** `.active_lock`，內容為：本次 agent 代號 + session 開始時間（`YYYY-MM-DD HH:mm`）。同時，**必須**將 `sessions/.toolcount` 重置寫入為 `0`（或直接刪除計數檔，讓下一次工具呼叫重新初始化為 1）。這在沒有 `SessionStart` hook 的平台（如 agy）作為機制防線，防止舊對話計數跨會話污染。
+   - 注意：這個鎖與計數器**不是記錄，是執行期暫存狀態**。掛牌上工、下班摘牌。真正的記錄永遠在 `sessions/*.md`。此二檔已列入 `.gitignore`，不進版控。
 2. **首次接觸本專案時**，先讀 [`PROJECT_MANIFEST.md`](PROJECT_MANIFEST.md)（30 秒掌握專案定位、版本與入口）；已熟悉本專案則跳過。
 3. 讀本文件（`CONSTITUTION.md`）— 每次對話只需讀一次。
 4. 讀 [`handoff/CURRENT.md`](handoff/CURRENT.md) — 掌握目前在哪個 change、做到哪、下一步是什麼。（cc 若已安裝 SessionStart hook，CURRENT.md 全文會自動注入在 context 開頭，此步驟視為完成、不需重讀。）

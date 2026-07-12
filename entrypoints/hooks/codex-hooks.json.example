@@ -20,7 +20,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh passdown-os/entrypoints/hooks/checkpoint-counter.sh",
+            "command": "sh passdown-os/entrypoints/hooks/checkpoint-counter.sh --json",
             "timeout": 5,
             "statusMessage": "passdown-os 檢查點計數"
           }
