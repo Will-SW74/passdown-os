@@ -95,7 +95,10 @@
 
 1. **分支隔離**：AI Agent 執行任何非瑣碎任務時，**必須在獨立的 Feature Branch 上工作**（例如 `agent/<change-slug>` 或 `feature/<task-name>`），禁止直接在 main/master 分支進行頻繁交接。
 2. **頻繁 Local Commit**：在 Feature Branch 上，每次執行「Session 結束協定」時，Agent 應該將所有修改（包含專案代碼、`CURRENT.md`、新產生的 `sessions/*.md`）直接 commit。Commit message 格式建議為：`<agent>: <slug> - <summary>`（例如 `cc: fix-auth-bug - complete token parsing and save session log`）。
-3. **壓扁合併 (Squash & Merge)**：當任務完全結束，變更要併回 main/master 或 dev 分支時，必須採用 **Squash and Merge** 的方式合併。
+3. **Commit 前安全檢查（每次 commit 都要）**：
+   - **本機記憶原始檔不入版控**：確認 staged files 中沒有 `*.raw`、`*.jsonl`、`*.sqlite`、`*.db` 等原始記憶／逐字稿檔案。`imports/` 已由 `.gitignore` 機制擋住，這道檢查抓的是**漏到其他位置**的原始檔（例如誤把工具逐字稿複製到 `sessions/` 或專案根目錄）。
+   - **敏感資訊掃描**：確認 staged 的文字檔（尤其 `.md`）內容不含 API key、token、密碼、個人帳號。發現即移除，並在 [`memory/redaction-log.md`](memory/redaction-log.md) 記一筆移除了什麼。
+4. **壓扁合併 (Squash & Merge)**：當任務完全結束，變更要併回 main/master 或 dev 分支時，必須採用 **Squash and Merge** 的方式合併。
    - **效果**：這會將 Feature Branch 上的數十個 AI 工作碎屑 commit 壓扁成一個乾淨的、人類可讀的高階 commit（例如 `feat: support JWT token authentication`）。
    - **記憶保留**：由於 `passdown-os/sessions/` 與 `passdown-os/memory/` 底下的所有 Markdown 文件都是以物理檔案形式存在，即使 Git commit 被 Squash，這些精確的歷史工作日誌與決策檔案**依然會被 100% 保留在 main 分支的最新檔案樹中**，完美的 Recall 機制不受影響，同時又維持了 Git 線圖的整潔。
 

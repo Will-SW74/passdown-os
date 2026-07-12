@@ -2,6 +2,17 @@
 
 只增不改的決策紀錄（ADR-lite）。若某個決策後來被推翻，用新條目記錄並註明「取代 YYYY-MM-DD — 標題」，不要刪除或改寫舊條目。
 
+## 2026-07-12 — 對照舊 AI_MEMORY 規格：補天條與 commit 安全檢查
+
+**Decision:** 使用者以舊專案的 AI_MEMORY/AGENT_MEMORY 規格逐條對照本框架，確認絕大部分已實作且多數更機制化（SSoT 可攜、里程碑主動同步、壓縮前同步、pull 式按需讀取、session 索引等）。補上兩個真實缺口：(1) **天條**——session log 必記所有失敗嘗試與死路（不論最終成敗），CONSTITUTION 第 6 節第 3 步＋sessions/_template.md 新增 Failed attempts 欄位；(2) **Commit 前安全檢查**——PROTOCOLS Git 章新增第 3 條：staged 不得含 `*.raw`/`*.jsonl`/`*.sqlite`/`*.db` 原始記憶檔、不得含 API key/token/密碼（發現即移除並記 redaction-log）。另確認一項**刻意的設計差異**：舊版要求「repo＋工具內部記憶雙寫」，本框架刻意採單向回寫（私有→repo，內部記憶為暫存不維護），目的相同、更簡單，不視為缺口。
+
+**Why:** 舊規格的兩條是實戰教訓（失敗路徑被重跑、原始逐字稿與密鑰誤入版控），且不與現有規則重複——現有失敗軌跡要求只覆蓋「卡關」與「升級」情境，一般成功繞過的死路沒人記。
+
+**Alternatives considered:**
+- .gitignore 加全域 `*.jsonl`/`*.db` pattern — 否決：會誤傷一般專案的合法資料檔，規則層檢查即可。
+
+**Agent:** cc（2026-07-12 21:00）
+
 ## 2026-07-12 — 新增 INSTALL.md：agent 自主安裝程序
 
 **Decision:** 新增 `INSTALL.md`，明確以 AI agent 為讀者的安裝程序：使用者只需給來源路徑＋一句話，agent 全程自己執行複製（含「範本庫自身狀態」的汙染排除清單：.git/、openspec/、根目錄入口檔實體、工具設定目錄、實際 session log）、重置、入口檔與 hooks 安裝、驗收回報。`GOLDEN_TEMPLATE.md` 重新定位為「重置表＋不可動規則」的對照資料，由 INSTALL.md 引用，兩檔互補不重複。
