@@ -2,6 +2,14 @@
 
 只增不改的決策紀錄（ADR-lite）。每筆條目標題格式：`## D-YYYYMMDD-N — <決策標題>`（N＝當日流水號，從 1 起算）——這個 **決策 ID** 是全框架的精準引用鍵：程式碼註解、session log 的 `Decisions made` 欄位、CURRENT.md 都用它指回本檔特定條目（例如註解寫 `// D-20260712-2：時間戳比對必然誤判，故用語意檢查`）。若某個決策後來被推翻，用新條目記錄並註明「取代 D-YYYYMMDD-N」，不要刪除或改寫舊條目。
 
+## D-20260713-4 — 認知獨立與自然文風採分層索引，不做成 skill
+
+**Decision:** (1) 認知獨立是所有 agent、所有任務型態的核心行為，故在 CONSTITUTION 誠實條款只放短原則；完整操作正本放 `RUBRICS.md` 第 6 節，以「證據／重現／遺漏路徑／真實影響／修正代價」五問判斷。DISPATCH、prompts 與 cc subagent 定義只放任務情境補充並回指 RUBRICS，不複製五問。(2) 自然文風在 CONSTITUTION 語言紀律放一句每次必讀的摘要，詳細正本放 `memory/conventions.md`「框架預設文風」；GOLDEN/INSTALL 將此區標成跨專案保留，只清空專案自訂慣例。(3) 不建立 skill：常駐行為不能依賴被顯式呼叫才生效的能力。
+
+**Why:** agy 在處理其他 agent 的 finding 時曾因沿用對方前提與嚴重度而過度修正；相反地，若只要求「反思」，又容易變成逢人必反或無限分析。分層路由能讓所有 agent 每次看到短原則，只在接手、研究、review 或有爭議時載入完整判準，控制起始 CT 並避免規則雙源。文風同理：日常只載入一句，人味細節按需讀取。
+
+**Agent:** codex（2026-07-13 01:22）
+
 ## D-20260713-3 — 消化 codex 二次 review：sh 探測二層化、鎖降級為 advisory＋識別碼複查、spec 同步
 
 **Decision:** (1) INSTALL 0.1 的 `sh` 探測改兩層：PATH 上找不到時，從 `git` 位置推導 `<Git根>\bin\sh.exe`／`usr\bin\sh.exe`——找到＝「已安裝但不在 PATH」，中止但給「加 PATH」的準確指示，不誤導使用者重裝（Windows 常態：git 在 PATH、sh 不在）。(2) 會話鎖誠實降級為 **advisory 防護**並補強：鎖內容加 4-8 碼唯一識別碼（分鐘級時間不夠唯一）、寫後立即讀回驗證持有權、首次寫專案檔前複查持有權、變了即停——check-then-write 競態窗口明文記為已知極限（純 Markdown 下無 atomic create，否決用 mkdir 原子鎖：跨文件改動大、且勸告層級已符合單使用者調度的實際威脅模型）。(3) `handoff-integrity` 正式 spec 的鎖情境同步拆為五個（無鎖／活鎖確認→停止／死鎖確認→復原後換鎖／持有權變更→停止／收尾摘牌），消除「照 spec 實作會直接覆寫活鎖」的繞過漏洞。

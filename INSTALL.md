@@ -45,7 +45,7 @@
 打開 [`GOLDEN_TEMPLATE.md`](GOLDEN_TEMPLATE.md)「必須重置為初始狀態的檔案」表，逐列執行。重點：
 
 - `handoff/CURRENT.md` → 依 `handoff/_template.md` 重寫成「剛導入、尚無 active change」的初始狀態。
-- `memory/` 各檔 → 清空條目、只留格式說明。
+- `memory/` 各檔 → 依 GOLDEN_TEMPLATE 逐項重置；其中 `memory/conventions.md` 保留「框架預設文風」，只清空「專案自訂慣例」。
 - `PROJECT_MANIFEST.md` → 填新專案的名稱、目標、版本、支援的 agent。**填不出來的欄位（專案目標、版本）問使用者一次**；能從專案現有檔案（package.json、README 等）推斷的自己推斷並註明來源。
 - `sessions/INDEX.md` → 清空索引列表、只留表頭。
 - `DISPATCH.md` 第 7 節查證表 → 清回 `<待填>` 或填當下實測值。

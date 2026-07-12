@@ -22,7 +22,7 @@
 | `PROJECT_MANIFEST.md` | 重填新專案的名稱、目標、版本、支援的 agent 與當前焦點（此檔是接手者第一眼看的專案 DNA） |
 | `handoff/CURRENT.md` | 用 `handoff/_template.md` 的格式重寫，內容改成新專案「剛導入 passdown-os/、尚無 active change」的初始狀態 |
 | `memory/decisions.md` | 清空所有條目，只保留檔案開頭的格式說明 |
-| `memory/conventions.md` | 清空成範例格式，等新專案累積出自己的慣例再填 |
+| `memory/conventions.md` | 保留「框架預設文風」；只清空「專案自訂慣例」條目，等新專案累積自己的慣例再填 |
 | `memory/known-issues.md` | 清空成範例格式 |
 | `memory/glossary.md` | 換成新專案自己的縮寫/名詞表（例如新專案若用到不同的三個 agent 或不同代號，要重新定義） |
 | `memory/redaction-log.md` | 清空成範例格式 |
@@ -43,6 +43,7 @@
 - 「Session 開始協定」與「Session 結束協定」的固定順序與強制性語氣
 - 「本機記憶同步」章節的兩層設計（每次都要做的輕量檢查 vs. 換工具/換電腦才需要的整批匯入清洗）
 - 「卡關 / 升級規則」「身分簽名規則」「衝突處理」「Git 與分支策略」「誠實條款」「維護規則」（含檔案修改權限分層）等章節的內容與精神（分佈於 `CONSTITUTION.md` 與 `PROTOCOLS.md`）
+- `memory/conventions.md` 的「框架預設文風」（專案自訂慣例則照上表清空）
 - `PROTOCOLS.md`（協定細節篇，「與 Spectra 的關係」章節依步驟 5 調整除外）、`DISPATCH.md`（調度守則，第 7 節查證表除外）、`RUBRICS.md`（判斷 rubrics）、`prompts/` 與 `entrypoints/claude-agents/` 底下全部範本、`README.md` 導引
 - `handoff/_template.md`、`sessions/_template.md` 兩份模板的欄位結構
 - `.gitignore` 裡的忽略規則：`imports/*`、`transcripts/*`、`sessions/.active_lock`、`sessions/.toolcount`（換成新專案路徑時語法不變）
@@ -59,7 +60,7 @@
 - [ ] `PROJECT_MANIFEST.md` 已重填新專案的定位、版本與支援 agent
 - [ ] `handoff/CURRENT.md` 已改成新專案初始狀態（參考 `handoff/_template.md`）
 - [ ] `memory/decisions.md` 已清空條目，只保留格式說明
-- [ ] `memory/conventions.md` 已清空條目，只保留格式說明
+- [ ] `memory/conventions.md` 已保留「框架預設文風」，並清空「專案自訂慣例」條目
 - [ ] `memory/known-issues.md` 已清空條目，只保留格式說明
 - [ ] `memory/glossary.md` 已換成新專案自己的名詞表
 - [ ] `memory/redaction-log.md` 已清空條目，只保留格式說明

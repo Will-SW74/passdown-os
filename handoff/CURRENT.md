@@ -1,6 +1,6 @@
 # Current State
 
-_Last updated: 2026-07-13 01:09 by codex_
+_Last updated: 2026-07-13 01:22 by codex_
 
 ## Active change
 
@@ -10,18 +10,18 @@ _Last updated: 2026-07-13 01:09 by codex_
 
 2026-07-13 已完成框架導入前的多輪 review 與 pre-test，主要修正均已落地：hook JSON 注入、cc/codex 計數重置、agy 半自動分級、Windows Git Bash 二層探測、環境硬門檻、失效連結，以及 advisory session lock 的活鎖仲裁、唯一識別碼與 ownership re-check（D-20260713-1～3）。
 
-本次由 codex 完成最後兩處規則同步：`session-liveness-signals` 正式 spec 已對齊 advisory lock 語意；CONSTITUTION 的復原訊號 A 只在使用者確認鎖已 stale 後才觸發，不再把活鎖誤判為異常中斷。
+本次由 codex 落實 D-20260713-4：所有 agent 的「認知獨立」採分層索引，Constitution 放短原則、RUBRICS 第 6 節放唯一完整五問，DISPATCH／任務 prompts／cc subagent 定義只放情境路由；自然文風由 Constitution 放摘要、`memory/conventions.md` 放跨專案保留的詳細正本，並同步修正 GOLDEN／INSTALL 的重置規則。未建立 skill。
 
 ## Next concrete step
 
-在具備 PATH 可見的 Git Bash 與 Python 的真實專案依 INSTALL.md 跑完整導入驗收；另完成 cc PreCompact stdout 與真實 SessionEnd Windows transcript 路徑兩項平台實測。
+請 agy 以 fresh context review D-20260713-4：確認各入口能按需找到 RUBRICS 第 6 節、五問沒有第二份正本、GOLDEN/INSTALL 套用後會保留框架預設文風，並檢查文字是否自然、不討好也不刻意唱反調。
 
 ## Context Index / Memory Anchors
 
-- **Direct Memory Source**: `sessions/2026-07-13-0109-codex-close-review-findings.md`（次讀 `sessions/2026-07-13-0100-cc-env-gate-and-codex-review-digest.md`）
-- **決策紀錄**: `memory/decisions.md` D-20260712-1～6、D-20260713-1～3
-- **Code Symbol Anchor**: [CONSTITUTION.md](../CONSTITUTION.md) 第 5 節（advisory lock 與 stale-lock 復原）、[session-liveness-signals spec](../openspec/specs/session-liveness-signals/spec.md) 的 Session lock lifecycle
+- **Direct Memory Source**: `sessions/2026-07-13-0122-codex-add-independent-judgment.md`（次讀 `sessions/2026-07-13-0109-codex-close-review-findings.md`）
+- **決策紀錄**: `memory/decisions.md` D-20260713-4（次讀 D-20260713-1～3）
+- **Code Symbol Anchor**: [CONSTITUTION.md](../CONSTITUTION.md)「誠實條款／語言與編碼紀律」、[RUBRICS.md](../RUBRICS.md) 第 6 節、[conventions.md](../memory/conventions.md)「框架預設文風」
 
 ## Blockers
 
-none（兩項平台層級待實測見 Next concrete step）
+none（等待 agy fresh-context review）
