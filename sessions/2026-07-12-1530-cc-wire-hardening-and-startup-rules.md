@@ -11,6 +11,11 @@
 4. **啟動紀律**（使用者指示）：CONSTITUTION 新增第 11 節（zh-TW + UTF-8）、第 10 節註解升級為一律必須、60% 存檔線改為先提醒使用者優先重開 session、本機記憶回寫必附時間戳。三個 entrypoints 範本同步加入口級提示。
 5. **順手修**：PROTOCOLS 引用「開始協定第 4 步」因 Gemini 插入鎖步驟已失準——所有跨檔步驟引用改為名稱引用。
 
+## 補記（同日稍晚）
+
+- 新增 transcripts/ 逐字稿歸檔區與決策 ID 約定（D-20260712-6），main 已 push。
+- 依 DISPATCH 第 7 節自行更新規則，查證並填入 codex / agy 的 CT 值：codex 名目 400k、實際可用約 258k（實務抓 200k～220k）；agy ≥1M（3.1 Pro 是否 2M 未一致確認）。來源：Codex 官方 changelog 與社群實測、Gemini 3.1 Pro model card 相關報導。
+
 ## Context Index / Memory Anchor
 
 - 決策詳情：`memory/decisions.md`「2026-07-12 — v0.2 hardening 的接線修正與啟動紀律」
