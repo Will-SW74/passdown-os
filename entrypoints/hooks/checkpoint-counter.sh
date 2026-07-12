@@ -6,11 +6,19 @@
 # 由各工具的 hook 機制注入 agent 的 context——這才是真正「不靠自覺」的持續存檔觸發器。
 #
 # 前提：hook 執行時的工作目錄是專案根目錄（cc / codex 預設如此）。
-#       若你的工具不是，把下面的 COUNT_FILE 改成絕對路徑。
+#       若你的工具不是，把下面的 base 改成絕對路徑。
 # 注意：sessions/.toolcount 已列入 .gitignore，屬本機暫存；
 #       SessionStart hook 應把它重置為 0（見各工具的 hooks 範本）。
 
-COUNT_FILE="passdown-os/sessions/.toolcount"
+# 兩種佈局都支援：一般專案是 <root>/passdown-os/sessions；範本庫自己（框架即根目錄）是 <root>/sessions
+base="${CLAUDE_PROJECT_DIR:-.}"
+if [ -d "$base/passdown-os/sessions" ]; then
+  COUNT_FILE="$base/passdown-os/sessions/.toolcount"
+elif [ -d "$base/sessions" ]; then
+  COUNT_FILE="$base/sessions/.toolcount"
+else
+  exit 0   # 找不到框架就不做事，hook 不該報錯打斷工作
+fi
 
 # 讀取現值；檔案不存在或內容不是數字時歸零（防呆：避免髒資料讓算術運算炸掉）
 n=$(cat "$COUNT_FILE" 2>/dev/null)

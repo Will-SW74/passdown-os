@@ -11,8 +11,8 @@
 ```mermaid
 flowchart TD
     subgraph S1["Session N（cc / codex / agy 任一）"]
-        A1["開始：讀 CONSTITUTION.md ＋ CURRENT.md<br/>（cc 裝了 hook 會自動注入）"] --> A2{"復原偵測：<br/>CURRENT.md 與最新 log<br/>時間戳一致？"}
-        A2 -- "log 較新 → 上次交接沒跑完" --> A2b["先讀最新 log<br/>修復 CURRENT.md"] --> A3
+        A1["開始：查牌→掛上會話鎖<br/>讀 CONSTITUTION.md ＋ CURRENT.md<br/>（cc 裝了 hook 會自動注入）"] --> A2{"復原偵測：<br/>殘留鎖？或最新 log<br/>≠ Direct Memory Source？"}
+        A2 -- "異常 → 上次交接沒跑完" --> A2b["先讀最新 log<br/>修復 CURRENT.md"] --> A3
         A2 -- 一致 --> A3["循 Context Index 錨點<br/>讀指定 session log 與程式碼行號"]
         A3 --> A4["動工（micro-task）"]
         A4 --> A5{"存檔線？<br/>task 完成／切子系統／<br/>60% CT／15 輪"}
@@ -21,11 +21,12 @@ flowchart TD
     A5 -- "觸發（70% 為硬紅線）" --> E1
     subgraph E["Session 結束協定（cc 可打 /handoff 一鍵觸發）"]
         E1["覆寫 handoff/CURRENT.md<br/>（Next step 具體到不用猜）"] --> E2["新增 sessions/ log<br/>（Scratchpad 記下未竟思路）"]
-        E2 --> E3["決策 → memory/decisions.md<br/>坑 → known-issues.md<br/>本機私有記憶回寫"]
+        E2 --> E3["決策 → memory/decisions.md（D-ID）<br/>坑 → known-issues.md<br/>本機私有記憶回寫＋逐字稿歸檔"]
         E3 --> E4["Read-back 驗證：<br/>無佔位符、錨點路徑存在"]
         E4 --> E5["commit（feature branch）"]
+        E5 --> E6["摘牌：刪 .active_lock"]
     end
-    E5 --> F[("passdown-os/<br/>唯一權威記錄<br/>（純 Markdown、進版控）")]
+    E6 --> F[("passdown-os/<br/>唯一權威記錄<br/>（純 Markdown、進版控）")]
     F -- 交班 --> B1["Session N+1：另一個 agent、<br/>或明天的自己——不用猜、不重工"]
     B1 -.-> A1
 ```
