@@ -1,31 +1,28 @@
 # Current State
 
-_Last updated: 2026-07-13 00:36 by agy_
+_Last updated: 2026-07-13 01:30 by cc_
 
 ## Active change
 
-無 active change。`openspec/changes/` 目前是空的，上一個變更 `wire-v02-hardening-and-startup-rules` 已完成歸檔。
+無 active change。`openspec/changes/` 目前是空的；`wire-v02-hardening-and-startup-rules` 已於 2026-07-13 由 agy 完成 task 6.1 實測後歸檔（正式 spec：`openspec/specs/` 下的 handoff-integrity 與 session-liveness-signals）。
 
 ## Where we left off
 
-2026-07-12 與 2026-07-13 順利完成 v0.2 硬化工程與 Hook 驗證，並推送到遠端（origin/main），且已執行 Spectra Archive 歸檔。隨後根據 Codex Review 反饋，完成了四項修正：
-1. 讓 `checkpoint-counter.sh` 支援 `--json` 參數，使得 cc 與 codex 的 PostToolUse 提醒能正確注入 context。
-2. 在 `CONSTITUTION.md` 開始協定中加入強制手動/協定重置計數器的條款，對無 SessionStart 平台的 agy 補強重置防線。
-3. 更新 `session-liveness-signals/spec.md` 規格文件，補齊 Purpose 描述並對應上述調整。
-4. 修復了 session logs 內部的相對路徑失效連結。
+2026-07-13 凌晨兩線並行收尾（注意：cc 與 agy 曾短暫平行編輯同一工作目錄，兩處小衝突已由 cc 修復——CONSTITUTION §5.1 計數器重置條款補回、settings.json 步驟引用改回名稱制）：
 
-同時補齊了 cc 平台 `settings.json.example` 的 `SessionStart` 歸零計數器缺口，使全平台重置行為皆符合規格要求。
+- **agy**：實測確認 PreInvocation 需 JSON `additionalContext` 才能注入（範本改用 python 輸出）、checkpoint-counter.sh 支援 `--json`、cc SessionStart 補計數重置、修 spec 矛盾與失效連結、歸檔 wire-v02。
+- **cc**：消化 codex review 四項發現；落實 D-20260713-1 環境門檻（INSTALL 0.1：git／sh／python 缺一即中止部署，不降級）；移除 PowerShell 降級範本；README「零依賴」誠實化；PROTOCOLS 層級一自動化分級（cc/codex 全自動、agy 半自動）。
 
 ## Next concrete step
 
-依 INSTALL.md 把框架裝進一個真實專案跑一輪實戰，表中待測項目均已在本次會話完成驗證與修復。
+依 INSTALL.md 把框架裝進一個真實專案跑一輪實戰——重點驗證新的 0.1 環境門檻探測流程，並順帶完成剩餘兩項【待實測】：cc PreCompact stdout 是否注入、archive-transcript.sh 真實 SessionEnd 的 Windows 路徑還原。
 
 ## Context Index / Memory Anchors
 
-- **Direct Memory Source**: `sessions/2026-07-13-0035-agy-final-cc-hook-alignment-and-review.md` (與 `sessions/2026-07-13-0030-agy-resolve-spec-contradictions.md`)
-- **決策紀錄**: `memory/decisions.md` D-20260712-1 ～ D-20260712-6
-- **Code Symbol Anchor**: [CONSTITUTION.md](../CONSTITUTION.md) 第 5 節（開始鎖與計數器重置）、[agy-hooks.json.example](../entrypoints/hooks/agy-hooks.json.example)
+- **Direct Memory Source**: `sessions/2026-07-13-0100-cc-env-gate-and-codex-review-digest.md`（次讀 `sessions/2026-07-13-0035-agy-final-cc-hook-alignment-and-review.md`）
+- **決策紀錄**: `memory/decisions.md` D-20260712-1～6、D-20260713-1
+- **Code Symbol Anchor**: [INSTALL.md](../INSTALL.md) 第 0.1 節（環境門檻）、[PROTOCOLS.md](../PROTOCOLS.md)「持續存檔機制」層級一（自動化分級）
 
 ## Blockers
 
-none
+none（兩項不阻斷【待實測】見 Next concrete step；協作紀律提醒：同一時間只讓一個 agent 動 repo，交接靠本檔換棒）
