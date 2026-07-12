@@ -35,4 +35,4 @@
 
 ## 6. 後續實測（唯一未完成項）
 
-- [ ] 6.1 於任一 agy（Google Antigravity）環境安裝 entrypoints/hooks/agy-hooks.json.example，實測 PreInvocation 的 stdout 是否注入 agent context（開新對話問 agent 是否看得到 CURRENT.md 內容），並把結果回寫 entrypoints/hooks/README.md 的「未確認」標註。驗證：README 該段不再含「未確認」字樣，改為實測結果與日期。
+- [x] 6.1 於任一 agy（Google Antigravity）環境安裝 entrypoints/hooks/agy-hooks.json.example，實測 PreInvocation 的 stdout 是否注入 agent context（開新對話問 agent 是否看得到 CURRENT.md 內容），並把結果回寫 entrypoints/hooks/README.md 的「未確認」標註。驗證：README 該段不再含「未確認」字樣，改為實測結果與日期。

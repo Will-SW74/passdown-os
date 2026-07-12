@@ -1,5 +1,5 @@
 {
-  "_comment": "passdown-os hooks — Google Antigravity (agy) 用。放到 <專案根目錄>/.agents/hooks.json（全域版在 ~/.gemini/antigravity-cli/hooks.json）。schema 依 2026-07-12 查證的社群文件：頂層為 hook 群組名稱，事件有 PreInvocation / PostInvocation / PreToolUse / PostToolUse / Stop；hook 輸出可透過 additionalContext 併入 agent 的 prompt。【未確認】PreInvocation 的純文字 stdout 是否等同注入 context——安裝前請對照官方 hooks 文件實測驗證，並更新本檔的查證日期。",
+  "_comment": "passdown-os hooks — Google Antigravity (agy) 用。放到 <專案根目錄>/.agents/hooks.json（全域版在 ~/.gemini/antigravity-cli/hooks.json）。schema 依 2026-07-12 查證的社群文件：頂層為 hook 群組名稱，事件有 PreInvocation / PostInvocation / PreToolUse / PostToolUse / Stop；已確認：PreInvocation 必須透過 stdout 輸出 JSON 格式的 additionalContext 欄位才能被 agent 注入，故採用 python 指令輸出 JSON。另注意：計數器不能在 PreInvocation 中歸零（否則每回合模型呼叫都會重置），應由開始協定與結束協定控制計數檔生命週期（已移除計數器重置指令）。",
   "passdown-os": {
     "PreInvocation": [
       {
@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "printf '0' > passdown-os/sessions/.toolcount 2>/dev/null; echo '=== passdown-os 交接內容 ==='; cat passdown-os/handoff/CURRENT.md 2>/dev/null || echo '（警告：找不到 passdown-os/handoff/CURRENT.md）'",
+            "command": "python -c \"import os, json; f='passdown-os/handoff/CURRENT.md'; print(json.dumps({'additionalContext': '=== passdown-os 交接內容 ===\\n' + open(f, encoding='utf-8').read() if os.path.exists(f) else '（警告：找不到 passdown-os/handoff/CURRENT.md）'}))\"",
             "timeout": 10
           }
         ]

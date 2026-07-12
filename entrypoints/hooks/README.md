@@ -58,7 +58,7 @@
 兩者現在**都有** lifecycle hooks，不再只能靠紀律：
 
 - **codex（OpenAI Codex CLI）**：支援 `hooks.json`（`~/.codex/` 全域或 `<repo>/.codex/` 專案層）或 `config.toml` 內的 `[hooks]` 表。事件含 `SessionStart`（startup/resume/clear）、`UserPromptSubmit`、`PreToolUse`、`PostToolUse`、`Stop` 等。**SessionStart 的 stdout 會作為 developer context 注入模型**——等效於 cc 的注入機制。注意：非受管 hook 首次執行前需要在 codex 內信任（trust），hook 內容變更後要重新信任。範本：[`codex-hooks.json.example`](codex-hooks.json.example)。
-- **agy（Google Antigravity）**：支援 JSON hooks（`<專案>/.agents/hooks.json` 或 `~/.gemini/antigravity-cli/hooks.json`）。事件含 `PreInvocation`、`PostInvocation`、`PreToolUse`、`PostToolUse`、`Stop`；hook 輸出可經 `additionalContext` 併入 agent prompt。**【未確認】**PreInvocation 純文字 stdout 是否等同注入——安裝時請實測（開新對話問 agent 有沒有看到 CURRENT.md 內容），並把結果更新回本 README。範本：[`agy-hooks.json.example`](agy-hooks.json.example)。
+- **agy（Google Antigravity）**：支援 JSON hooks（`<專案>/.agents/hooks.json` 或 `~/.gemini/antigravity-cli/hooks.json`）。事件含 `PreInvocation`、`PostInvocation`、`PreToolUse`、`PostToolUse`、`Stop`；已確認：PreInvocation 必須透過 stdout 輸出 JSON 格式的 `additionalContext` 欄位才能成功併入 agent prompt。因此範本 `agy-hooks.json.example` 已改用 Python 指令將 CURRENT.md 的內容序列化為 JSON 輸出（2026-07-13 實測驗證）。
 
 ### 計數器 hook 的注入細節（安裝時務必驗證）
 
