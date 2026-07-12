@@ -2,6 +2,18 @@
 
 只增不改的決策紀錄（ADR-lite）。每筆條目標題格式：`## D-YYYYMMDD-N — <決策標題>`（N＝當日流水號，從 1 起算）——這個 **決策 ID** 是全框架的精準引用鍵：程式碼註解、session log 的 `Decisions made` 欄位、CURRENT.md 都用它指回本檔特定條目（例如註解寫 `// D-20260712-2：時間戳比對必然誤判，故用語意檢查`）。若某個決策後來被推翻，用新條目記錄並註明「取代 D-YYYYMMDD-N」，不要刪除或改寫舊條目。
 
+## D-20260713-1 — 環境門檻硬性化：Git＋Git Bash＋Python 缺一即中止部署
+
+**Decision:** 回應 codex review（P1：agy hook 依賴 Python 未聲明；P2：無 Git Bash 時 hooks 無完整 fallback），使用者明文裁決：**不提供第二條路**。INSTALL.md 新增第 0.1 節硬性環境門檻——部署前必須探測 `git --version`、`sh -c "echo ok"`、`python --version` 三項，任一失敗即**中止部署**並請使用者裝好再來（Windows 只有 `py` 沒有 `python` 視同不合格）。hooks README 移除 PowerShell 降級範本；README 首段「零依賴」修正為「框架本體零依賴，hooks 自動化需 Git＋Python 硬前置」。同時採 codex 建議補自動化誠實分級（PROTOCOLS 層級一）：cc/codex 全自動、agy 半自動（PreInvocation 不能歸零，session 重置靠開始協定第 1 步）。
+
+**Why:** 多套 shell/語言版本的 hook 腳本必然彼此 drift（同邏輯三份誰改誰忘）；半套安裝（有規則沒 hooks）會讓機制化防線靜默失效，比不裝更危險。把環境要求擋在門口是兩害相權取其輕。
+
+**Alternatives considered:**
+- 提供 PowerShell／Node／Python 三版本腳本 — 否決：維護成本與 drift 風險（使用者裁決「不給第二條路」）。
+- 缺件時降級為紀律模式繼續安裝 — 否決：靜默失效最危險，使用者明確要求中止等補裝。
+
+**Agent:** cc（2026-07-13 01:10）
+
 ## D-20260712-6 — 逐字稿歸檔區（gitignored）與決策 ID 連結約定
 
 **Decision:** (1) 新增 `transcripts/` 逐字稿本機歸檔區：gitignored 不入版控（與 commit 安全檢查的 `*.jsonl` 禁令相容），可攜靠雲端/USB 同步資料夾；cc 由 SessionEnd hook（`archive-transcript.sh`，利用 hook stdin 的 `transcript_path`）全自動歸檔，codex/agy 於結束協定手動複製；命名與 sessions/ log 同時間前綴，按時間排序即為對應索引。(2) 決策條目改用 `D-YYYYMMDD-N` 編號，程式碼註解、session log、CURRENT.md 以 ID 精準引用——完成「code 註解 → 決策 → session log →（考古時）逐字稿」的完整還原鏈，前三層 100% 在 repo 內。

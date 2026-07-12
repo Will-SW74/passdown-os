@@ -59,6 +59,8 @@
 
 三大 agent 目前**都**支援 lifecycle hooks（2026-07 查證）：cc 的 `.claude/settings.json`、codex 的 `.codex/hooks.json`、agy 的 `.agents/hooks.json`。安裝 **PostToolUse 計數器 hook** 後，工具會在每次工具呼叫後由外部腳本遞增 `sessions/.toolcount` 計數檔，每滿 10 次自動把提醒注入 agent context——**計數由外部完成，完全不依賴模型內省**。安裝方式與範本見 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)。
 
+自動化程度誠實分級（2026-07-13 查證）：**cc 與 codex 為全自動**（SessionStart 重置計數＋PostToolUse 計數注入）；**agy 為半自動**——PostToolUse 計數是 hook 自動，但它沒有 SessionStart 等價事件、且 PreInvocation 每回合都觸發不能拿來歸零，所以 **session 起始的計數重置靠開始協定第 1 步的協定防線**（紀律層，非 hook 層）。
+
 ### 層級二：紀律啟發式（未裝 hook 的環境的備援）
 
 任何 agent 在對話中，若意識到自己已累積約 10、20、30… 次工具呼叫（包含讀檔、寫檔、跑指令），應先花一次呼叫去 `sessions/` 建立或 append 一行當前進度，不必等到 session 結束。**誠實聲明**：模型對自己的工具呼叫次數並沒有可靠的內省能力，所以這一層只是「盡力而為的紀律」，不可宣稱是強制機制——這正是層級一存在的理由。

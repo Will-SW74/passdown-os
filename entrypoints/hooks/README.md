@@ -24,17 +24,7 @@
 
 ## 平台注意事項
 
-- hook command 是 POSIX shell 語法。**Windows 上 cc 預設用 Git Bash 執行 hook**（cc 本身就建議裝 Git Bash），沒有 Git Bash 時會降級到 PowerShell——屆時上面的 `$CLAUDE_PROJECT_DIR`／`cat ... 2>/dev/null` 語法會失效。若你的環境確定沒有 Git Bash，改用：
-
-```json
-{
-  "type": "command",
-  "shell": "powershell",
-  "command": "Write-Output '=== passdown-os 交接內容（SessionStart hook 自動注入）==='; Get-Content \"$env:CLAUDE_PROJECT_DIR/passdown-os/handoff/CURRENT.md\" -Encoding UTF8",
-  "timeout": 10
-}
-```
-
+- **環境前置是硬性的（D-20260713-1）**：本資料夾所有 hook 都以 POSIX `sh`（Git Bash）執行，agy 注入 hook 另需 `python` 在 PATH 上。這些是 `INSTALL.md` 第 0.1 節的**強制門檻**——缺任一項，安裝程序會直接中止、請使用者裝好再部署。**不提供 PowerShell 或其他降級版本**：多套 shell 版本必然彼此 drift，半套 hooks 又會讓機制化防線靜默失效，兩害取其小就是把要求擋在門口。
 - matcher 刻意不含 `resume`：恢復的 session 已保有原 context，重複注入只是浪費 token。
 
 ## SessionEnd hook：逐字稿自動歸檔（2026-07-12 加入）
