@@ -11,7 +11,9 @@
 在做任何複製動作**之前**，先逐一探測以下環境能力（D-20260713-1：使用者明文裁決，缺任一即中止，**不提供降級、不跳過、不自行找替代方案**）：
 
 1. **Git**：執行 `git --version` 必須成功。
-2. **Git Bash / POSIX sh**（hooks 腳本的執行環境）：執行 `sh -c "echo ok"` 必須輸出 `ok`。
+2. **Git Bash / POSIX sh**（hooks 腳本的執行環境）：先執行 `sh -c "echo ok"`。**失敗時不要立刻判定未安裝**——Windows 上 Git 常見的安裝狀態是「`git` 在 PATH、`sh.exe` 不在」。此時做第二層探測：從 `git` 的位置推導 Git 安裝根目錄（例如 `where git` 得到 `C:\Program Files\Git\cmd\git.exe` → 根目錄為 `C:\Program Files\Git`），檢查 `<Git根>\bin\sh.exe` 或 `<Git根>\usr\bin\sh.exe` 是否存在並能執行 `-c "echo ok"`：
+   - **兩層都找不到** → Git Bash 真的沒裝，中止並請使用者安裝。
+   - **第二層找到了** → 元件已安裝但 **不在 PATH**。**仍然中止**（codex／agy 的 hooks 直接呼叫裸的 `sh`，PATH 上找不到就會靜默失效），但診斷要準確：告訴使用者「Git Bash 已安裝，只需把 `<Git根>\bin` 加入 PATH」，**不要**叫人重裝已存在的東西。加完 PATH 後重跑本門檻。
 3. **Python**（agy 注入 hook 的依賴）：執行 `python --version` 必須成功。注意：Windows 上若只有 `py` 啟動器而沒有 `python` 指令，**視同不合格**——hooks 範本呼叫的是 `python`，請使用者安裝時勾選「Add python.exe to PATH」。
 
 **任一項失敗 → 立刻中止部署**，向使用者回報：(a) 缺了哪幾項；(b) 安裝來源（Git 含 Git Bash：git-scm.com；Python：python.org，安裝時勾 Add to PATH）；(c) 明確說「裝好之後再叫我一次，我從頭執行本安裝」。**不要**在缺件狀態下部署任何部分——半套框架（有規則、沒 hooks）會讓機制化防線靜默失效，比不裝更危險。
