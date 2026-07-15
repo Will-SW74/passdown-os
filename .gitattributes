@@ -1,0 +1,12 @@
+# 換行規則釘死在 repo 層——不依賴各機器的 core.autocrlf 設定。
+# 為什麼：本 repo 曾以不一致的換行入庫，導致任何 Windows 機器一 clone
+# 就出現 70+ 個「幻影修改」（內容零差異、純 CRLF/LF），看起來像資料沒對齊。
+# text=auto：入庫一律正規化為 LF，checkout 依平台轉換。
+* text=auto
+
+# sh 腳本強制 LF——若被 checkout 成 CRLF，Git Bash 執行會炸
+# 「$'\r': command not found」，hooks（計數器、逐字稿歸檔）會靜默壞掉。
+*.sh text eol=lf
+
+# 逐字稿與原始記憶檔按二進位處理，不做任何換行轉換（雖已 gitignore，多一層保險）
+*.jsonl -text
