@@ -28,7 +28,7 @@
 - <交給下一個接手者的具體下一步>
 - Context Anchors for next agent:
   - **Direct Memory Source**: <本 session 檔案名稱，或指示下一個 agent 接班必讀的 session 紀錄>
-  - **Code Symbol Anchor**: <例如 [parseHeader](src/parser.js#L42-L55)；一律 repo 相對路徑（不可用 file:/// 絕對路徑，跨機必斷）；行號會漂移，必須同時給符號名>
+  - **Code Symbol Anchor**: <例如 `[parseHeader](src/parser.js#L42-L55)`；一律 repo 相對路徑（不可用 file:/// 絕對路徑，跨機必斷）；行號會漂移，必須同時給符號名>
 
 ## Scratchpad (Mental Model / Unfinished Thoughts)
 

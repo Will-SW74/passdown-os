@@ -27,8 +27,8 @@
 
 把以下清單從來源複製到 `<target>/passdown-os/`（目錄不存在就建立）：
 
-- 根目錄文件：`CONSTITUTION.md`、`PROTOCOLS.md`、`DISPATCH.md`、`RUBRICS.md`、`GOLDEN_TEMPLATE.md`、`CHECKLIST_HANDOFF.md`、`PROJECT_MANIFEST.md`、`README.md`、`INSTALL.md`、`LICENSE`、`.gitignore`
-- 資料夾：`prompts/`、`entrypoints/`、`handoff/`、`memory/`、`references/`
+- 根目錄文件：`CONSTITUTION.md`、`PROTOCOLS.md`、`DISPATCH.md`、`RUBRICS.md`、`GOLDEN_TEMPLATE.md`、`CHECKLIST_HANDOFF.md`、`PROJECT_MANIFEST.md`、`README.md`、`INSTALL.md`、`LICENSE`、`.gitignore`、`.gitattributes`
+- 資料夾：`prompts/`、`entrypoints/`、`handoff/`、`memory/`、`references/`、`tools/`
 - `sessions/`：只搬 `_template.md`、`INDEX.md`、`archive/.gitkeep`
 - `imports/`：只搬 `README.md`、`.gitkeep`
 - `transcripts/`：只搬 `README.md`、`.gitkeep`（實際逐字稿 `.jsonl` 絕不搬）
@@ -53,7 +53,8 @@
 ## 3. 安裝入口檔與 hooks
 
 1. **確認要啟用哪些 agent**：使用者指明就照辦；沒指明→從專案現況推斷（有 `.claude/` 就有 cc、有 `AGENTS.md` 可能有 codex），推斷不了就問一次。
-2. **入口檔**：依 [`entrypoints/README.md`](entrypoints/README.md) 的對應表，把對應範本的「## Passdown OS」段落合併進目標專案根目錄的入口檔（`CLAUDE.md`／`AGENTS.md` 等）——檔案已存在就 append 到末尾，不存在就建立。
+2. **入口檔**：依 [`entrypoints/README.md`](entrypoints/README.md) 的對應表，把對應範本的「## Passdown OS」段落合併進目標專案入口檔——檔案已存在就合併，不存在就建立。每個啟用的 agent 都要開 fresh session 驗證它能主動指出 `passdown-os/CONSTITUTION.md` 與 `handoff/CURRENT.md`；未證明前不得標成已接入。
+   - **agy 必走 fallback 流程**：先只放 `.agents/AGENTS.md` 並驗證；失敗就移除該段、改放根目錄 `AGENTS.md` 再驗證。成功後只保留生效位置的一份 Passdown OS 段落。兩次都失敗時標 `unverified`，回報兩次結果，不把候選路徑寫成已生效。
 3. **hooks（建議安裝）**：依 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)：
    - cc：`settings.json.example` 的 hooks 區塊合併進 `<target>/.claude/settings.json`；`entrypoints/commands/handoff.md` 複製到 `<target>/.claude/commands/`；要自動調度就把 `entrypoints/claude-agents/` 複製到 `<target>/.claude/agents/`。
    - codex：`codex-hooks.json.example` → `<target>/.codex/hooks.json`，**提醒使用者首次執行需在 codex 內 trust**。
@@ -69,4 +70,7 @@
 
 1. 逐項跑 [`GOLDEN_TEMPLATE.md`](GOLDEN_TEMPLATE.md)「套用後自檢清單」，每一項核對實際檔案。
 2. Read-back：重新讀取剛寫的 `CURRENT.md` 與 `PROJECT_MANIFEST.md`，確認沒有 `<佔位文字>` 殘留、沒有從範本庫帶過來的舊專案內容。
-3. 向使用者回報一份清單：裝了什麼、放在哪、跳過了什麼與原因（例如「未啟用 codex，故未安裝 .codex/hooks.json」）、哪些項目需要使用者後續動作（例如 codex trust、agy 實測）。
+3. 換行驗收：確認 `passdown-os/.gitattributes` 存在且包含 `*.sh text eol=lf`；逐一檢查 `passdown-os/entrypoints/hooks/*.sh` 不含 CRLF。任一項失敗都視為安裝未完成，先修正再回報。
+4. 入口驗收：逐一列出啟用 agent、fresh-session 證據與實際生效路徑。agy 必符合 `entrypoints/README.md` 的三個驗收分支之一，且 repo 中不得同時存在兩份未標正本的 Passdown OS 入口段落。
+5. 機械驗收：從目標專案根目錄執行 `python passdown-os/tools/passdown-lint.py --root passdown-os`。exit code 非 0 時逐項修正輸出的 `code`、`path`、`message` 後重跑；lint 通過前不得宣告安裝完成。若框架本身就是 repo 根目錄，改執行 `python tools/passdown-lint.py`。
+6. 向使用者回報一份清單：裝了什麼、放在哪、跳過了什麼與原因（例如「未啟用 codex，故未安裝 .codex/hooks.json」）、哪些項目需要使用者後續動作（例如 codex `/hooks` trust、agy 入口仍為 `unverified`）。

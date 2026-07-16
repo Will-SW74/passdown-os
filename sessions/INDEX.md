@@ -16,6 +16,7 @@
 | 2026-07-13 | [2026-07-13-0035-agy-final-cc-hook-alignment-and-review.md](./2026-07-13-0035-agy-final-cc-hook-alignment-and-review.md) | 補齊 cc 的 SessionStart 歸零機制，使全平台 reset 行為符合規格之最終審查 |
 | 2026-07-13 | [2026-07-13-0109-codex-close-review-findings.md](./2026-07-13-0109-codex-close-review-findings.md) | 關閉最終 review findings：同步 advisory lock 正式 spec、修正 stale-lock 復原訊號、刷新交接狀態 |
 | 2026-07-13 | [2026-07-13-0122-codex-add-independent-judgment.md](./2026-07-13-0122-codex-add-independent-judgment.md) | D-20260713-4：認知獨立五問採單一正本分層索引；自然文風按需載入且跨專案保留 |
+| 2026-07-16 | [2026-07-16-1327-codex-close-review-gaps.md](./2026-07-16-1327-codex-close-review-gaps.md) | 合併三份 review 並完成 Spectra change：Codex hooks、證據矩陣、deterministic lint、CT 門檻與 Windows checkpoint 除錯 |
 | ... | ... | ... |
 
 *(請注意：日常瑣碎的除錯或例行公事不需要加入此索引。本索引旨在建立一個可快速跳轉的「知識圖譜」。)*

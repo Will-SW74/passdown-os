@@ -55,11 +55,11 @@
 
 為了防範「該存檔卻忘記存、或 context 突然被截斷」的最痛場景，我們不只依賴最後的 Session 結束協定，也引入小型 checkpoint 機制。它有兩個執行層級，**能裝 hook 就裝 hook，紀律版只是備援**：
 
-### 層級一：hook 機制化（建議，真正的強制力）
+### 層級一：外部 hook（建議；驗證通過後才是機制化注入）
 
-三大 agent 目前**都**支援 lifecycle hooks（2026-07 查證）：cc 的 `.claude/settings.json`、codex 的 `.codex/hooks.json`、agy 的 `.agents/hooks.json`。安裝 **PostToolUse 計數器 hook** 後，工具會在每次工具呼叫後由外部腳本遞增 `sessions/.toolcount` 計數檔，每滿 10 次自動把提醒注入 agent context——**計數由外部完成，完全不依賴模型內省**。安裝方式與範本見 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)。
+三大 agent 目前都支援 lifecycle hooks（2026-07 查證）：cc 的 `.claude/settings.json`、codex 的 `.codex/hooks.json`、agy 的 `.agents/hooks.json`。安裝 **PostToolUse 計數器 hook** 後，外部腳本會在每次工具呼叫後遞增 `sessions/.toolcount`，每滿 10 次輸出提醒——**計數本身由外部完成，不依賴模型內省**。但提醒是否真的進入模型 context 必須按 agent/event 實測；只有 `entrypoints/hooks/README.md` 驗證矩陣標成 `verified` 的 event，才可稱為機制化注入。
 
-自動化程度誠實分級（2026-07-13 查證）：**cc 與 codex 為全自動**（SessionStart 重置計數＋PostToolUse 計數注入）；**agy 為半自動**——PostToolUse 計數是 hook 自動，但它沒有 SessionStart 等價事件、且 PreInvocation 每回合都觸發不能拿來歸零，所以 **session 起始的計數重置靠開始協定第 1 步的協定防線**（紀律層，非 hook 層）。
+自動化程度必須逐 event 說明，不再用「某 agent 全自動」概括：cc SessionStart 與 agy PreInvocation 有真實 context 驗證；cc/codex PostToolUse 目前只有 component test；agy PostToolUse 與 cc PreCompact 尚未驗證。agy 沒有 SessionStart 等價事件，且 PreInvocation 每回合都觸發不能拿來歸零，所以 **session 起始的計數重置靠開始協定第 1 步的協定防線**（紀律層，非 hook 層）。最新狀態與證據日期以驗證矩陣為準。
 
 ### 層級二：紀律啟發式（未裝 hook 的環境的備援）
 
@@ -134,7 +134,7 @@
 
 若專案啟用了 `transcripts/` 歸檔區（見該資料夾 README），執行本章記憶同步時順手歸檔當次逐字稿——讓「每次互動的完整記錄」跟著專案資料夾走（gitignored、不入版控）：
 
-- **cc**：安裝 SessionEnd hook（`entrypoints/hooks/archive-transcript.sh`）後全自動，不需手動。
+- **cc**：SessionEnd hook（`entrypoints/hooks/archive-transcript.sh`）目前僅完成 component test；在 Windows 真實 SessionEnd 驗證通過前，session 結束時仍要檢查 `transcripts/` 是否出現本次逐字稿，沒有就手動歸檔。
 - **codex / agy**：從上方造冊的本機路徑（codex：`~/.codex/sessions/`；agy：`~/.gemini/antigravity-cli/brain/<conversation-id>/...`）複製當次逐字稿到 `transcripts/`，命名 `YYYY-MM-DD-HHmm-<agent>-<slug>.jsonl`（與本次 session log 同前綴）。
 - 定位提醒：逐字稿是最後一層考古材料，不是記憶正本——交接仍靠 `sessions/*.md` 提煉版；要把逐字稿內容升級進正式記憶，走 `imports/` 清洗流程。
 

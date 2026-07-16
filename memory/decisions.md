@@ -2,6 +2,19 @@
 
 只增不改的決策紀錄（ADR-lite）。每筆條目標題格式：`## D-YYYYMMDD-N — <決策標題>`（N＝當日流水號，從 1 起算）——這個 **決策 ID** 是全框架的精準引用鍵：程式碼註解、session log 的 `Decisions made` 欄位、CURRENT.md 都用它指回本檔特定條目（例如註解寫 `// D-20260712-2：時間戳比對必然誤判，故用語意檢查`）。若某個決策後來被推翻，用新條目記錄並註明「取代 D-YYYYMMDD-N」，不要刪除或改寫舊條目。
 
+## D-20260716-1 — Hook 宣稱以事件證據門控，安裝完整性改由 lint 驗收
+
+**Decision:** (1) 取代 D-20260713-1 中「cc/codex 全自動」的整體分級；hook 是否能把內容送進模型 context 必須逐 agent、逐 event 以驗證矩陣記錄，只有 fresh-session 實測可見才標 `verified`，單獨執行 command 成功只能標 `component-tested`。(2) 本 repo 直接部署 `.codex/hooks.json`，下游專案則從 `entrypoints/hooks/codex-hooks.json.example` 生成；兩者共用 SessionStart 與每 10 次工具呼叫的外部計數邏輯，但 Windows command 不假設裸 `sh` 已在 PATH。(3) 安裝 payload 必含 `.gitattributes` 與 `tools/`，並以 `tools/passdown-lint.py` 機械驗收必要路徑、shell LF、hook JSON、佔位符、本地 Markdown 連結與 Direct Memory Source。(4) CT 的 60%/70% 門檻只接受工具提供的當前使用量；無可驗證用量時改以第 15 輪強制存檔，不從名目容量或模型內省推算百分比。
+
+**Why:** 三份獨立 review 指向同一類風險：文件把「存在 hook」誤寫成「已確認注入」、安裝流程靠人工清單容易漏 `.gitattributes` 或留下斷鏈、CT 百分比缺乏可重現量測。事件級證據、repo-local Codex 部署與 deterministic lint 能把宣稱、實作及驗收接成可重跑的閉環。
+
+**Alternatives considered:**
+- 沿用 agent 級「全自動／半自動」標籤 — 否決：同一 agent 的不同 event 可能只有 component test，總括標籤會掩蓋未驗證路徑。
+- 只保留 GOLDEN_TEMPLATE 人工 checklist — 否決：無穩定 exit code，也無法用故障 fixture 防止 checker 自身退化。
+- 把每 10 次工具呼叫換算成 CT 百分比 — 否決：工具呼叫數與 token 使用量沒有穩定比例。
+
+**Agent:** codex（2026-07-16 14:31）
+
 ## D-20260713-4 — 認知獨立與自然文風採分層索引，不做成 skill
 
 **Decision:** (1) 認知獨立是所有 agent、所有任務型態的核心行為，故在 CONSTITUTION 誠實條款只放短原則；完整操作正本放 `RUBRICS.md` 第 6 節，以「證據／重現／遺漏路徑／真實影響／修正代價」五問判斷。DISPATCH、prompts 與 cc subagent 定義只放任務情境補充並回指 RUBRICS，不複製五問。(2) 自然文風在 CONSTITUTION 語言紀律放一句每次必讀的摘要，詳細正本放 `memory/conventions.md`「框架預設文風」；GOLDEN/INSTALL 將此區標成跨專案保留，只清空專案自訂慣例。(3) 不建立 skill：常駐行為不能依賴被顯式呼叫才生效的能力。

@@ -47,6 +47,7 @@
 - `PROTOCOLS.md`（協定細節篇，「與 Spectra 的關係」章節依步驟 5 調整除外）、`DISPATCH.md`（調度守則，第 7 節查證表除外）、`RUBRICS.md`（判斷 rubrics）、`prompts/` 與 `entrypoints/claude-agents/` 底下全部範本、`README.md` 導引
 - `handoff/_template.md`、`sessions/_template.md` 兩份模板的欄位結構
 - `.gitignore` 裡的忽略規則：`imports/*`、`transcripts/*`、`sessions/.active_lock`、`sessions/.toolcount`（換成新專案路徑時語法不變）
+- `.gitattributes` 的換行規則：至少保留 `*.sh text eol=lf`，避免 Windows checkout 將 hooks 轉成 CRLF 後靜默失效
 - `entrypoints/` 底下的範本（內容不變，只需複製到新專案對應位置並改名）
 
 ## 為什麼這樣分
@@ -67,7 +68,9 @@
 - [ ] `sessions/` 底下只剩 `_template.md`、清空的 `INDEX.md` 和空的 `archive/`（含 `.gitkeep`）
 - [ ] `imports/` 只有 `README.md` + `.gitkeep`
 - [ ] `references/` 已清空（或只保留新專案相關的舊草稿）
+- [ ] `tools/` 已原樣複製，且從目標專案根目錄執行 `python passdown-os/tools/passdown-lint.py --root passdown-os` 通過（框架即 repo 根目錄時執行 `python tools/passdown-lint.py`）
 - [ ] `.gitignore` 已就位（確認 `imports/*` 被忽略）
+- [ ] `.gitattributes` 已就位且含 `*.sh text eol=lf`；`entrypoints/hooks/*.sh` 的實際 bytes 不含 CRLF
 - [ ] 各 agent 入口檔已設定（從 `entrypoints/` 複製對應範本到專案根目錄）
 - [ ] `PROTOCOLS.md` 的「與 Spectra 的關係」章節已依實際狀況調整（用 Spectra → 不動；不用 → 參考「不使用 Spectra 時的替代方案」段落）
 - [ ] `CONSTITUTION.md` 的「角色」章節的 agent 代號已依實際使用的工具調整

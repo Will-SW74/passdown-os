@@ -18,7 +18,15 @@
 
 > **Note**: codex 和 agy 都可能讀取 `AGENTS.md`，如果同時使用這兩個工具且共用同一個 `AGENTS.md`，只需放入一份入口段落即可——內容對所有 agent 通用。
 
-> **未確認**：agy 是否自動讀取 `.agents/AGENTS.md` 未在本框架實測過。首次導入新專案時建議實測一次：開新 agy 對話，看它是否主動遵循入口段落；若沒有，改放專案根目錄 `AGENTS.md`。實測結果請回寫更新本表。
+> **agy 入口仍需逐專案驗證**：先把唯一一份 `## Passdown OS` 段落放到 `.agents/AGENTS.md`，開 fresh agy session，直接要求它指出本專案的 Session 開始協定入口。能引用 `passdown-os/CONSTITUTION.md` 與 `handoff/CURRENT.md` 才算該路徑生效。若沒有，從 `.agents/AGENTS.md` 移除該段後，將同一段合併到根目錄 `AGENTS.md`，再開另一個 fresh session 重驗。最後只保留已證明生效的一份；兩個位置都無法證明時，標記 `unverified`，不得宣稱 agy 已接入。
+
+### agy 入口驗收分支
+
+| 驗收結果 | 最終狀態 | 必須回報 |
+| --- | --- | --- |
+| `.agents/AGENTS.md` 在 fresh session 生效 | 只保留 `.agents/AGENTS.md` 的 Passdown OS 段落 | `effective entrypoint: .agents/AGENTS.md` |
+| 第一條失敗、根目錄 `AGENTS.md` 生效 | 從 `.agents/AGENTS.md` 移除該段，只保留根目錄版本 | `effective entrypoint: AGENTS.md (fallback)` |
+| 兩條都無法證明 | 不把任一路徑寫成已生效；保留使用者指定的一份候選並標 `unverified` | 兩次 fresh-session 驗證結果與後續人工調查項目 |
 
 ## cc SessionStart hook（選用，建議安裝）
 
