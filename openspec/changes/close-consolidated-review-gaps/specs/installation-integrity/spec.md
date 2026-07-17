@@ -54,7 +54,12 @@ The hook documentation SHALL maintain a verification matrix with agent, lifecycl
 
 ### Requirement: Installation lint is deterministic
 
-The source repository SHALL provide tools/passdown-lint.py using only the Python standard library. The installer SHALL run that source-side command against the target with --root; tools/ MUST NOT be copied into the target payload and the checker MUST NOT run during normal handoffs. The command interface SHALL be python tools/passdown-lint.py [--root PATH] [--json]. It MUST validate required payload files, the shell LF attribute and shell bytes, hook example JSON, repository-relative hook script references, unresolved placeholders in handoff/CURRENT.md and PROJECT_MANIFEST.md, non-archived local Markdown link targets, and handoff memory-anchor targets. It MUST exclude openspec/changes/archive, sessions/archive, references, and transcripts from content checks.
+The source repository SHALL provide tools/passdown-lint.py using only the Python standard library. The installer SHALL run that source-side command against the target with --root; tools/ MUST NOT be copied into the target payload and the checker MUST NOT run during normal handoffs. The command interface SHALL be python tools/passdown-lint.py [--root PATH] [--json]. It MUST validate required payload files, the shell LF attribute and shell bytes, hook example JSON, repository-relative hook script references, unresolved placeholders in handoff/CURRENT.md and PROJECT_MANIFEST.md, non-archived local Markdown link targets, Markdown self-references, session index row targets, and handoff memory-anchor targets. It MUST exclude openspec/changes/archive, sessions/archive, references, and transcripts from content checks.
+
+#### Scenario: Session index or Markdown navigation would loop or dead-end
+
+- **WHEN** a Markdown link points back to its own source file, or a session index data row is a placeholder, lacks exactly one valid link, repeats a target, or points outside sessions/
+- **THEN** installation validation fails with a stable diagnostic identifying the source document or index rule
 
 #### Scenario: Source checker validates a target without entering the payload
 

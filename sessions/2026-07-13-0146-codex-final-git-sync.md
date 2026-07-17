@@ -27,7 +27,7 @@
 
 - [.gitignore](../.gitignore)
 - [CURRENT.md](../handoff/CURRENT.md)
-- [本 session log](./2026-07-13-0146-codex-final-git-sync.md)
+- 本 session log：`sessions/2026-07-13-0146-codex-final-git-sync.md`
 
 ## Next step
 

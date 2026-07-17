@@ -70,6 +70,13 @@ class PassdownLintTests(unittest.TestCase):
             ),
         )
         self.write_text("README.md", "[Current](handoff/CURRENT.md)\n")
+        self.write_text(
+            "sessions/INDEX.md",
+            "# Session Index\n\n"
+            "| Date | Session | Summary |\n"
+            "| --- | --- | --- |\n"
+            "| 2026-07-17 | [current.md](./current.md) | Current work |\n",
+        )
 
     def run_lint(self) -> tuple[subprocess.CompletedProcess[str], dict[str, object]]:
         result = subprocess.run(
@@ -115,6 +122,56 @@ class PassdownLintTests(unittest.TestCase):
     def test_missing_markdown_link_fails(self) -> None:
         self.write_text("README.md", "[Missing](docs/missing.md)\n")
         self.assert_error("LINK_TARGET_MISSING")
+
+    def test_markdown_self_link_fails(self) -> None:
+        self.write_text("README.md", "[Self](README.md)\n")
+        self.assert_error("LINK_SELF_REFERENCE")
+
+    def test_session_index_placeholder_row_fails(self) -> None:
+        self.write_text(
+            "sessions/INDEX.md",
+            "| 日期 | Session | Summary |\n"
+            "| --- | --- | --- |\n"
+            "| 範例 | example.md | Example |\n",
+        )
+        self.assert_error("INDEX_PLACEHOLDER_ROW")
+
+    def test_session_index_missing_target_fails(self) -> None:
+        self.write_text(
+            "sessions/INDEX.md",
+            "| 日期 | Session | Summary |\n"
+            "| --- | --- | --- |\n"
+            "| 2026-07-17 | [missing.md](./missing.md) | Missing |\n",
+        )
+        self.assert_error("INDEX_TARGET_MISSING")
+
+    def test_session_index_without_link_fails(self) -> None:
+        self.write_text(
+            "sessions/INDEX.md",
+            "| 日期 | Session | Summary |\n"
+            "| --- | --- | --- |\n"
+            "| 2026-07-17 | current.md | Missing link syntax |\n",
+        )
+        self.assert_error("INDEX_ROW_LINK_COUNT")
+
+    def test_session_index_target_outside_sessions_fails(self) -> None:
+        self.write_text(
+            "sessions/INDEX.md",
+            "| 日期 | Session | Summary |\n"
+            "| --- | --- | --- |\n"
+            "| 2026-07-17 | [README.md](../README.md) | Outside sessions |\n",
+        )
+        self.assert_error("INDEX_TARGET_INVALID")
+
+    def test_session_index_duplicate_target_fails(self) -> None:
+        self.write_text(
+            "sessions/INDEX.md",
+            "| 日期 | Session | Summary |\n"
+            "| --- | --- | --- |\n"
+            "| 2026-07-17 | [current.md](./current.md) | First |\n"
+            "| 2026-07-17 | [current.md](./current.md) | Duplicate |\n",
+        )
+        self.assert_error("INDEX_TARGET_DUPLICATE")
 
     def test_missing_direct_memory_anchor_fails(self) -> None:
         (self.root / "sessions/current.md").unlink()

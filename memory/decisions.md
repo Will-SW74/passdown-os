@@ -2,6 +2,14 @@
 
 只增不改的決策紀錄（ADR-lite）。每筆條目標題格式：`## D-YYYYMMDD-N — <決策標題>`（N＝當日流水號，從 1 起算）——這個 **決策 ID** 是全框架的精準引用鍵：程式碼註解、session log 的 `Decisions made` 欄位、CURRENT.md 都用它指回本檔特定條目（例如註解寫 `// D-20260712-2：時間戳比對必然誤判，故用語意檢查`）。若某個決策後來被推翻，用新條目記錄並註明「取代 D-YYYYMMDD-N」，不要刪除或改寫舊條目。
 
+## D-20260717-2 — Session 導覽完整性由來源端 lint 強制驗證
+
+**Decision:** `sessions/INDEX.md` 只保留實際存在的 session 連結，不放範例或省略列；session log 不得以 Markdown link 指回自身，如需提及本檔改用 inline-code 檔名。來源 repo 的 `passdown-lint.py` 在安裝驗收時拒絕 self-link，並要求 INDEX 每個資料列恰有一個存在、唯一且位於 `sessions/` 內的 Markdown target。
+
+**Why:** 來源 INDEX 雖會在下游安裝時重置，但只靠安裝 agent 遵守步驟仍可能回歸；把規則放進來源端 lint 與 fixture，可同時保護範本 repo 與新安裝目標，又不會把 Python 工具帶進純 Markdown payload。
+
+**Agent:** codex（2026-07-17 13:19）
+
 ## D-20260717-1 — Python lint 留在來源端，不進入純 Markdown payload
 
 **Decision:** 取代 D-20260716-1 第 (3) 點中「安裝 payload 必含 tools/」的部分。`tools/passdown-lint.py` 與測試只留在 Passdown OS 來源 repo；安裝 agent 從來源以 `--root` 指向目標執行一次，目標 `passdown-os/` 不複製 `tools/`，日常 session 與交接也不執行 lint。Git／Git Bash／Python 的安裝硬門檻維持不變；Codex 與 agy 的 Python hook 是選配 lifecycle adapter，和 lint 分開。

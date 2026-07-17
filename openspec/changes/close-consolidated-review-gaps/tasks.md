@@ -25,3 +25,4 @@
 ## 5. 純 Markdown payload 邊界修正
 
 - [x] 5.1 落實「來源端 passdown-lint 命令契約」：INSTALL 不複製 tools/，安裝 agent 從來源以 --root 驗證不含 tools/ 的目標，且 README、GOLDEN_TEMPLATE、CONSTITUTION、proposal/design/spec 與測試一致說明 lint 不在日常交接執行；以無 tools/ fixture、完整 unittest、lint 與 Spectra validate 驗證。
+- [x] 5.2 防止索引 dead-end 與 Markdown 自迴圈：移除 sessions/INDEX.md 的假資料列、把歷史 self-link 改為 literal、在 session template 禁止自連結，並讓來源端 lint 拒絕 self-link、INDEX 佔位／無效／重複 target；以正反 fixture、全 repo lint 與引用圖掃描驗證。

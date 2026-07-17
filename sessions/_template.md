@@ -22,6 +22,7 @@
 ## Files touched
 
 - <變更到的檔案路徑，建議使用 markdown link 指向檔案>
+<!-- 不要把本次 session log 連回自己；需要提及時使用 inline-code 檔名，避免形成無效自迴圈。 -->
 
 ## Next step
 

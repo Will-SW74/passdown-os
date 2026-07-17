@@ -24,6 +24,7 @@ REQUIRED_PATHS = (
     "INSTALL.md",
     "PROJECT_MANIFEST.md",
     "handoff/CURRENT.md",
+    "sessions/INDEX.md",
     "entrypoints/hooks/checkpoint-counter.sh",
 )
 
@@ -40,6 +41,7 @@ CHECKS = (
     "hook-json",
     "placeholders",
     "markdown-links",
+    "session-index",
     "memory-anchors",
 )
 
@@ -202,7 +204,13 @@ class PassdownLint:
             searchable = INLINE_CODE_RE.sub("", searchable)
             for target in MARKDOWN_LINK_RE.findall(searchable):
                 resolved = self.resolve_markdown_target(markdown, target)
-                if resolved is not None and not resolved.exists():
+                if resolved is not None and resolved == markdown.resolve():
+                    self.add_error(
+                        "LINK_SELF_REFERENCE",
+                        markdown,
+                        f"Markdown link 不得指回同一檔案：{target}",
+                    )
+                elif resolved is not None and not resolved.exists():
                     self.add_error(
                         "LINK_TARGET_MISSING",
                         markdown,
@@ -220,6 +228,66 @@ class PassdownLint:
         if not path_text:
             return None
         return (source.parent / Path(path_text)).resolve()
+
+    def check_session_index(self) -> None:
+        index_path = self.root / "sessions" / "INDEX.md"
+        if not index_path.is_file():
+            return
+        content = self.read_text(index_path)
+        if content is None:
+            return
+
+        seen_targets: set[Path] = set()
+        header_seen = False
+        for line_number, line in enumerate(content.splitlines(), start=1):
+            if not line.lstrip().startswith("|"):
+                continue
+            cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+            if not cells:
+                continue
+            # 第一個表格列是欄名；分隔列可能含 Markdown 對齊冒號，兩者都不是資料。
+            if not header_seen:
+                header_seen = True
+                continue
+            if all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
+                continue
+            if cells[0] in {"範例", "..."} or "..." in cells:
+                self.add_error(
+                    "INDEX_PLACEHOLDER_ROW",
+                    index_path,
+                    f"session index 第 {line_number} 行仍是範例或省略佔位列",
+                )
+                continue
+
+            targets = MARKDOWN_LINK_RE.findall(line)
+            if len(targets) != 1:
+                self.add_error(
+                    "INDEX_ROW_LINK_COUNT",
+                    index_path,
+                    f"session index 第 {line_number} 行必須恰有一個 Markdown link",
+                )
+                continue
+            resolved = self.resolve_markdown_target(index_path, targets[0])
+            if resolved is None or resolved.parent != index_path.parent.resolve() or resolved.suffix.lower() != ".md":
+                self.add_error(
+                    "INDEX_TARGET_INVALID",
+                    index_path,
+                    f"session index 第 {line_number} 行必須指向 sessions/ 內的 Markdown 檔案",
+                )
+                continue
+            if not resolved.is_file():
+                self.add_error(
+                    "INDEX_TARGET_MISSING",
+                    index_path,
+                    f"session index 第 {line_number} 行目標不存在：{targets[0]}",
+                )
+            if resolved in seen_targets:
+                self.add_error(
+                    "INDEX_TARGET_DUPLICATE",
+                    index_path,
+                    f"session index 第 {line_number} 行重複指向：{targets[0]}",
+                )
+            seen_targets.add(resolved)
 
     def check_memory_anchors(self) -> None:
         current_path = self.root / "handoff" / "CURRENT.md"
@@ -247,6 +315,7 @@ class PassdownLint:
         self.check_hook_json()
         self.check_placeholders()
         self.check_markdown_links()
+        self.check_session_index()
         self.check_memory_anchors()
         return self.errors
 
