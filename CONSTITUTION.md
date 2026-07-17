@@ -36,7 +36,7 @@
 | `memory/glossary.md` | 名詞/縮寫表 | 看到不認得的縮寫時查閱 |
 | `memory/redaction-log.md` | 本機記憶匯入時的去敏感化紀錄 | 只在執行「本機記憶同步」的整批匯入流程時相關 |
 | `imports/` | 本機原始記憶暫存清洗區 | 只在整批遷移本機記憶時使用，平常不需要看 |
-| `transcripts/` | 逐字稿本機歸檔區（gitignored 不入版控；cc 由 SessionEnd hook 自動歸檔，codex/agy 手動） | 幾乎不需要讀——只在提煉版 log 看不出當初脈絡的考古情境；歸檔規則見 `PROTOCOLS.md`「逐字稿歸檔」 |
+| `transcripts/` | 逐字稿本機歸檔區（gitignored 不入版控；cc 由 SessionEnd 歸檔，codex 由 turn-scoped Stop 持續快照，agy 手動） | 幾乎不需要讀——只在提煉版 log 看不出當初脈絡的考古情境；歸檔規則見 `PROTOCOLS.md`「逐字稿歸檔」 |
 | `references/` | 已合併進正本、僅供歷史參考的舊草稿 | 幾乎不需要讀，正式規則一律以 `CONSTITUTION.md` 為準 |
 | `tools/` | 來源 repo 的可重複機械檢查器與測試，不屬於下游純 Markdown payload；`passdown-lint.py` 可從來源位置驗證另一個目標根目錄 | 安裝 agent 驗收目標、維護本 repo 或診斷結構錯誤時執行；日常 session 與交接不執行 |
 | `INSTALL.md` | **給 agent 的安裝指南**：使用者要你把本框架裝進某專案時的完整執行程序（複製清單、汙染排除、重置、入口與 hooks 設定、驗收） | 使用者說「把 passdown-os 套用／安裝到專案」時，照此執行 |
@@ -119,7 +119,7 @@
 3. 用 [`sessions/_template.md`](sessions/_template.md) 在 `sessions/` 新增一份本次 session 的 log，檔名格式：`YYYY-MM-DD-HHmm-<agent>-<slug>.md`，其中日期與 `HHmm` 一律填 **session 開始時間**（不是寫檔時間）。其中 `<slug>` 用小寫英文 + 短橫線，3-5 個詞，描述本次 session 主要做的事（例如 `setup-auth-middleware`、`fix-csv-parser-edge-case`、`review-api-design`）。**這一步不可省略**——即使本次 session 沒有產出程式碼變更（例如只是討論、只是回答問題），只要對專案的理解或方向有影響，也要留一份簡短 log。**天條：程式不會一次就成功——本次所有失敗的嘗試與死路（試了什麼、為什麼不行），不論最終有沒有成功繞過，都必須記進 log 的 Failed attempts 欄位**，讓下一個接手者不必重跑你已經踩過的失敗路徑。若本次 session 具長期參考價值（重大決策、架構變動、複雜 debug 的解法），同時在 [`sessions/INDEX.md`](sessions/INDEX.md) 補一行索引（日常瑣事不必）。
 4. 若本次做了跨 spec、影響後續判斷的決策（例如選了某個技術方案、放棄某個做法），在 `memory/decisions.md` 補一筆——標題依 `D-YYYYMMDD-N` 格式編 ID（N＝當日流水號），session log 的 `Decisions made` 欄位與相關程式碼註解都用這個 ID 引用。
 5. 若發現了值得記住的坑或 workaround，補進 `memory/known-issues.md`。
-6. **本機記憶同步檢查（強制）**：檢查本次 session 是否有內容被寫進了目前工具自己的私有記憶系統（例如 Claude Code 的 `~/.claude/.../memory/` auto memory、Codex 的本機 session 記錄）。若有，依 `PROTOCOLS.md`「本機記憶同步」章節，把重點內容鏡射一份回 `passdown-os/`（sessions/ 或 memory/），**回寫的每一條都依第 8 節簽名規則附上 agent 代號與時間戳**，不能讓任何決策或事實只存在單一工具看得到的地方。若本次 session 沒有寫入任何本機私有記憶，這步驟視為已確認、無需動作。
+6. **本機記憶同步檢查（強制）**：檢查本次 session 是否有內容被寫進了目前工具自己的私有記憶系統（例如 Claude Code 的 `~/.claude/.../memory/` auto memory、Codex 的本機 session 記錄）。若有，依 `PROTOCOLS.md`「本機記憶同步」章節，把重點內容鏡射一份回 `passdown-os/`（sessions/ 或 memory/），**回寫的每一條都依第 8 節簽名規則附上 agent 代號與時間戳**，不能讓任何決策或事實只存在單一工具看得到的地方。Codex 若已啟用 `Stop` hook，同時確認該 task 的 raw snapshot 已出現在 `transcripts/`；缺失時依 PROTOCOLS 手動補救。若本次 session 沒有寫入任何本機私有記憶，這步驟視為已確認、無需動作。
 7. **Read-back 驗證（不可自認完成）**：重新讀取剛覆寫的 CURRENT.md 與剛新增的 session log，逐項確認：(a) 檔案確實存在且內容完整；(b) `Next concrete step` 是具體可執行的一句話，不是 `<佔位文字>` 或空白；(c) `Context Index` 指向的檔案路徑真實存在。任一項不過就修到過為止——「我寫了」不等於「寫對了」。
 8. 視情況執行 `/spectra-commit` 提交本次變更相關的檔案（不使用 Spectra → 一般 `git add` + `git commit`；分支與 commit 紀律見 `PROTOCOLS.md`「Git Commit 與分支策略」）。
 9. **摘牌簽退（最後一步）**：確認第 2、3、7 步都完成後，**刪除 `sessions/.active_lock`**（若存在 `.toolcount` 計數檔可一併刪除）。刪除鎖就是「本次 session 正常收尾」的實體簽退訊號——鎖裡只有開始時間，這資訊 session log 檔名本來就有，刪它不會遺失任何記錄。**沒摘牌，下一個接手者就會把本次視為異常中斷並啟動復原協定。**

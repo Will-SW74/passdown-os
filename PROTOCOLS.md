@@ -135,7 +135,8 @@
 若專案啟用了 `transcripts/` 歸檔區（見該資料夾 README），執行本章記憶同步時順手歸檔當次逐字稿——讓「每次互動的完整記錄」跟著專案資料夾走（gitignored、不入版控）：
 
 - **cc**：SessionEnd hook（`entrypoints/hooks/archive-transcript.sh`）目前僅完成 component test；在 Windows 真實 SessionEnd 驗證通過前，session 結束時仍要檢查 `transcripts/` 是否出現本次逐字稿，沒有就手動歸檔。
-- **codex / agy**：從上方造冊的本機路徑（codex：`~/.codex/sessions/`；agy：`~/.gemini/antigravity-cli/brain/<conversation-id>/...`）複製當次逐字稿到 `transcripts/`，命名 `YYYY-MM-DD-HHmm-<agent>-<slug>.jsonl`（與本次 session log 同前綴）。
+- **codex**：信任專案 `Stop` hook 後，每個 assistant turn 會把 `transcript_path` 指向的 opaque bytes 持續快照到 `transcripts/`。`Stop` 是 turn-scoped，已驗證介面沒有 SessionEnd；一個 Codex task/thread 只對應一份 raw snapshot，resume 更新同檔。要讓下一次 Passdown 工作有獨立 raw transcript，必須開新 Codex task。fresh task 真實觸發前狀態只可標 `component-tested`；快照缺失時才從 `~/.codex/sessions/` 手動補救。
+- **agy**：從上方造冊的 `~/.gemini/antigravity-cli/brain/<conversation-id>/...` 複製當次逐字稿到 `transcripts/`，命名 `YYYY-MM-DD-HHmm-agy-<slug>.jsonl`。
 - 定位提醒：逐字稿是最後一層考古材料，不是記憶正本——交接仍靠 `sessions/*.md` 提煉版；要把逐字稿內容升級進正式記憶，走 `imports/` 清洗流程。
 
 ## 維護規則
