@@ -21,3 +21,7 @@
 - [x] 4.2 把 Installation lint is deterministic 接進 INSTALL.md 第 5 節與 GOLDEN_TEMPLATE.md 自檢，同時在 CONSTITUTION.md 檔案地圖接入 tools/ 與 .codex/ 部署實體的讀取時機；以逐項 read-back 確認新檔符合既有 File map completeness spec 且安裝流程會實際執行 lint。
 - [x] 4.3 執行整體驗收：解析所有 hook JSON、對所有 shell 腳本跑 sh -n、執行 lint 正反案例、codex doctor --json、Markdown link 掃描、spectra analyze 與 spectra validate；除 codex doctor 外的命令 exit 0，doctor 的 checks.config.load.status 必須為 ok（sandbox auth/network/terminal 結果另列、不當成 hook config 失敗），且 Spectra 無 Critical/Warning才可勾選。
 - [x] 4.4 依規則修改授權補 memory/decisions.md 決策、更新 handoff/CURRENT.md、建立本次 session log 並視長期價值更新 sessions/INDEX.md；read-back 確認 Direct Memory Source 指向最新 log、無佔位符且所有 Context Index 路徑存在。
+
+## 5. 純 Markdown payload 邊界修正
+
+- [x] 5.1 落實「來源端 passdown-lint 命令契約」：INSTALL 不複製 tools/，安裝 agent 從來源以 --root 驗證不含 tools/ 的目標，且 README、GOLDEN_TEMPLATE、CONSTITUTION、proposal/design/spec 與測試一致說明 lint 不在日常交接執行；以無 tools/ fixture、完整 unittest、lint 與 Spectra validate 驗證。

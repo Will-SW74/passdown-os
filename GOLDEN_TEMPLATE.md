@@ -1,6 +1,6 @@
 # passdown-os/ 作為黃金樣板
 
-本專案的 `passdown-os/` 目錄被定位為**可重複使用的黃金樣板**：純 Markdown、無工具依賴，設計上就是為了整包複製到新專案使用。這份文件說明怎麼複製、複製之後哪些東西要重置、哪些不變。
+本專案的 `passdown-os/` 核心被定位為**可重複使用的黃金樣板**：規則與記憶以純 Markdown 運作；`entrypoints/hooks/` 是選配 adapter，`tools/` 是來源 repo 維護工具，不屬於下游 payload。這份文件說明怎麼複製、複製之後哪些東西要重置、哪些不變。
 
 > **你是 AI agent、且使用者要你執行安裝？** 直接照 [`INSTALL.md`](INSTALL.md) 做——那是給 agent 的可執行安裝程序（含複製排除清單與驗收步驟），執行中會回頭引用本檔的重置表與自檢清單。
 
@@ -68,7 +68,7 @@
 - [ ] `sessions/` 底下只剩 `_template.md`、清空的 `INDEX.md` 和空的 `archive/`（含 `.gitkeep`）
 - [ ] `imports/` 只有 `README.md` + `.gitkeep`
 - [ ] `references/` 已清空（或只保留新專案相關的舊草稿）
-- [ ] `tools/` 已原樣複製，且從目標專案根目錄執行 `python passdown-os/tools/passdown-lint.py --root passdown-os` 通過（框架即 repo 根目錄時執行 `python tools/passdown-lint.py`）
+- [ ] 目標 `passdown-os/` 不含來源 repo 的 `tools/`；安裝 agent 已從來源執行 `python <source>/tools/passdown-lint.py --root <target>/passdown-os` 並通過
 - [ ] `.gitignore` 已就位（確認 `imports/*` 被忽略）
 - [ ] `.gitattributes` 已就位且含 `*.sh text eol=lf`；`entrypoints/hooks/*.sh` 的實際 bytes 不含 CRLF
 - [ ] 各 agent 入口檔已設定（從 `entrypoints/` 複製對應範本到專案根目錄）

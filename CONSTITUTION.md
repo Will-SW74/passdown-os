@@ -38,7 +38,7 @@
 | `imports/` | 本機原始記憶暫存清洗區 | 只在整批遷移本機記憶時使用，平常不需要看 |
 | `transcripts/` | 逐字稿本機歸檔區（gitignored 不入版控；cc 由 SessionEnd hook 自動歸檔，codex/agy 手動） | 幾乎不需要讀——只在提煉版 log 看不出當初脈絡的考古情境；歸檔規則見 `PROTOCOLS.md`「逐字稿歸檔」 |
 | `references/` | 已合併進正本、僅供歷史參考的舊草稿 | 幾乎不需要讀，正式規則一律以 `CONSTITUTION.md` 為準 |
-| `tools/` | 可重複執行的框架機械檢查器與測試；`passdown-lint.py` 驗證安裝完整性、連結與記憶錨點 | 安裝驗收、維護框架或診斷結構錯誤時執行；一般 session 不需逐檔閱讀 |
+| `tools/` | 來源 repo 的可重複機械檢查器與測試，不屬於下游純 Markdown payload；`passdown-lint.py` 可從來源位置驗證另一個目標根目錄 | 安裝 agent 驗收目標、維護本 repo 或診斷結構錯誤時執行；日常 session 與交接不執行 |
 | `INSTALL.md` | **給 agent 的安裝指南**：使用者要你把本框架裝進某專案時的完整執行程序（複製清單、汙染排除、重置、入口與 hooks 設定、驗收） | 使用者說「把 passdown-os 套用／安裝到專案」時，照此執行 |
 | `GOLDEN_TEMPLATE.md` | 套用時「哪些檔案要重置、哪些規則不可動」的對照表（`INSTALL.md` 執行中會指到） | 執行 `INSTALL.md` 第 2、5 步時查閱 |
 | `entrypoints/` | 各 agent 入口設定檔範本、cc 專用的 `claude-agents/` subagent 範本組與 `hooks/` 自動注入設定 | 只在新專案要設定 agent 入口／安裝 cc 自動調度或 hook 時查閱 |

@@ -54,7 +54,12 @@ The hook documentation SHALL maintain a verification matrix with agent, lifecycl
 
 ### Requirement: Installation lint is deterministic
 
-The repository SHALL provide tools/passdown-lint.py using only the Python standard library. The command interface SHALL be python tools/passdown-lint.py [--root PATH] [--json]. It MUST validate required payload files, the shell LF attribute and shell bytes, hook example JSON, repository-relative hook script references, unresolved placeholders in handoff/CURRENT.md and PROJECT_MANIFEST.md, non-archived local Markdown link targets, and handoff memory-anchor targets. It MUST exclude openspec/changes/archive, sessions/archive, references, and transcripts from content checks.
+The source repository SHALL provide tools/passdown-lint.py using only the Python standard library. The installer SHALL run that source-side command against the target with --root; tools/ MUST NOT be copied into the target payload and the checker MUST NOT run during normal handoffs. The command interface SHALL be python tools/passdown-lint.py [--root PATH] [--json]. It MUST validate required payload files, the shell LF attribute and shell bytes, hook example JSON, repository-relative hook script references, unresolved placeholders in handoff/CURRENT.md and PROJECT_MANIFEST.md, non-archived local Markdown link targets, and handoff memory-anchor targets. It MUST exclude openspec/changes/archive, sessions/archive, references, and transcripts from content checks.
+
+#### Scenario: Source checker validates a target without entering the payload
+
+- **WHEN** an installation agent runs the source repository checker with --root pointing to an installed passdown-os directory
+- **THEN** validation can pass while the target contains no tools directory, and subsequent handoffs do not execute the checker
 
 #### Scenario: Clean template passes
 

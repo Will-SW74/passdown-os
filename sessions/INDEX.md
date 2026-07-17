@@ -17,6 +17,7 @@
 | 2026-07-13 | [2026-07-13-0109-codex-close-review-findings.md](./2026-07-13-0109-codex-close-review-findings.md) | 關閉最終 review findings：同步 advisory lock 正式 spec、修正 stale-lock 復原訊號、刷新交接狀態 |
 | 2026-07-13 | [2026-07-13-0122-codex-add-independent-judgment.md](./2026-07-13-0122-codex-add-independent-judgment.md) | D-20260713-4：認知獨立五問採單一正本分層索引；自然文風按需載入且跨專案保留 |
 | 2026-07-16 | [2026-07-16-1327-codex-close-review-gaps.md](./2026-07-16-1327-codex-close-review-gaps.md) | 合併三份 review 並完成 Spectra change：Codex hooks、證據矩陣、deterministic lint、CT 門檻與 Windows checkpoint 除錯 |
+| 2026-07-17 | [2026-07-17-1240-codex-restore-markdown-payload.md](./2026-07-17-1240-codex-restore-markdown-payload.md) | D-20260717-1：lint 改為來源端安裝工具，不再複製進下游 payload；釐清 Codex hooks 與日常交接分工 |
 | ... | ... | ... |
 
 *(請注意：日常瑣碎的除錯或例行公事不需要加入此索引。本索引旨在建立一個可快速跳轉的「知識圖譜」。)*

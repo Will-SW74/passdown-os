@@ -2,9 +2,9 @@
 
 > *Passdown*：軍隊與護理界的「交班日誌」——離班的人寫給接班的人，讓下一班不用猜就能接手。
 
-讓 Claude Code / Codex / Antigravity（或任何組合的 AI agent）在同一個專案上無縫接力的**純 Markdown** 框架：管 session 之間怎麼交接、記憶存哪裡、判斷怎麼做。框架本體零依賴、無 daemon、無資料庫；選裝的 hooks 自動化防線需要 **Git（含 Git Bash）與 Python**——這是 `INSTALL.md` 的硬性環境門檻，缺件時安裝會中止。
+讓 Claude Code / Codex / Antigravity（或任何組合的 AI agent）在同一個專案上無縫接力的**純 Markdown 核心**：管 session 之間怎麼交接、記憶存哪裡、判斷怎麼做。核心零執行期依賴、無 daemon、無資料庫；來源 repo 的安裝檢查器與選裝 hooks 需要 **Git（含 Git Bash）與 Python**——這是 `INSTALL.md` 的硬性環境門檻，但 Python 工具不會複製進目標框架，也不在日常交接執行。
 
-*A pure-Markdown framework for seamless handoffs between AI coding agents (Claude Code / Codex / Antigravity / any). The framework core is zero-dependency; the optional hooks-based automation requires Git (with Git Bash) and Python as hard prerequisites enforced by INSTALL.md. It governs session-to-session handoff protocols, shared memory, context-budget economics, and externalized judgment rubrics — so a cheap model tomorrow inherits the discipline of an expensive model today. Docs are currently in Traditional Chinese.*
+*A pure-Markdown core for seamless handoffs between AI coding agents (Claude Code / Codex / Antigravity / any). The core has no runtime dependency; the source-side installation checker and optional hooks require Git (with Git Bash) and Python as prerequisites enforced by INSTALL.md, but Python tooling is not copied into target projects or run during normal handoffs. It governs session-to-session handoff protocols, shared memory, context-budget economics, and externalized judgment rubrics — so a cheap model tomorrow inherits the discipline of an expensive model today. Docs are currently in Traditional Chinese.*
 
 ## 交接流程一圖看懂
 

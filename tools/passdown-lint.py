@@ -25,7 +25,6 @@ REQUIRED_PATHS = (
     "PROJECT_MANIFEST.md",
     "handoff/CURRENT.md",
     "entrypoints/hooks/checkpoint-counter.sh",
-    "tools/passdown-lint.py",
 )
 
 EXCLUDED_PARTS = (

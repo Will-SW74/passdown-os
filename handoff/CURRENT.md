@@ -1,14 +1,14 @@
 # Current State
 
-_Last updated: 2026-07-16 14:31 by codex_
+_Last updated: 2026-07-17 12:48 by codex_
 
 ## Active change
 
-`openspec/changes/close-consolidated-review-gaps/`：三份 review 的共同缺口已實作，12 項 task 已完成；尚未 archive。
+`openspec/changes/close-consolidated-review-gaps/`：三份 review 的共同缺口與純 Markdown payload 邊界修正已實作，13 項 task 已完成；尚未 archive。
 
 ## Where we left off
 
-已在 branch `codex/close-consolidated-review-gaps` 完成 D-20260716-1：新增 deterministic `passdown-lint` 與 7 個故障 fixture 測試、把 `.gitattributes`／`tools/` 接進安裝 payload、建立 hook event 驗證矩陣與 repo-local `.codex/hooks.json`、補 agy 入口 fallback、改用可觀測 CT 訊號、修正假 Markdown 錨點，並讓 checkpoint counter 在 Windows 精簡 PATH 下只用 shell built-ins。
+已在 branch `codex/close-consolidated-review-gaps` 完成 D-20260716-1 與 D-20260717-1：新增 deterministic `passdown-lint` 與 7 個故障 fixture 測試，但 lint 只留在來源 repo，由安裝 agent 對目標執行；下游 payload 不含 `tools/`，日常交接不跑 Python。Codex hook 保留為選配 lifecycle adapter，負責 SessionStart 注入 CURRENT 與每 10 次工具呼叫的 checkpoint，不執行 lint。
 
 整體驗收已通過 hook JSON parse、所有 shell `sh -n`、lint 文字／JSON模式、7 個 unittest、Markdown link scan、scoped `git diff --check`、Spectra validate。`codex doctor --json` 整體因 sandbox credentials／network／`TERM=dumb` 為 fail，但 `checks."config.load".status` 為 `ok`。Spectra analyze 無 Critical/Warning，只有 15 個補 example 的 Suggestion。
 
@@ -18,8 +18,8 @@ _Last updated: 2026-07-16 14:31 by codex_
 
 ## Context Index / Memory Anchors
 
-- **Direct Memory Source**: `sessions/2026-07-16-1327-codex-close-review-gaps.md`
-- **決策紀錄**: `memory/decisions.md` D-20260716-1
+- **Direct Memory Source**: `sessions/2026-07-17-1240-codex-restore-markdown-payload.md`（次讀 `sessions/2026-07-16-1327-codex-close-review-gaps.md`）
+- **決策紀錄**: `memory/decisions.md` D-20260717-1（補充 D-20260716-1）
 - **Code Symbol Anchor**: [checkpoint-counter.sh](../entrypoints/hooks/checkpoint-counter.sh) 的 `COUNT_FILE` 選擇與 shell built-in 讀取區塊；[passdown-lint.py](../tools/passdown-lint.py) 的 `run_checks`
 
 ## Blockers

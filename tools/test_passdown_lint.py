@@ -70,9 +70,6 @@ class PassdownLintTests(unittest.TestCase):
             ),
         )
         self.write_text("README.md", "[Current](handoff/CURRENT.md)\n")
-        target_script = self.root / "tools" / "passdown-lint.py"
-        target_script.parent.mkdir(parents=True, exist_ok=True)
-        target_script.write_bytes(SCRIPT.read_bytes())
 
     def run_lint(self) -> tuple[subprocess.CompletedProcess[str], dict[str, object]]:
         result = subprocess.run(
@@ -98,6 +95,7 @@ class PassdownLintTests(unittest.TestCase):
         self.assertEqual(set(payload), {"ok", "root", "checks", "errors"})
         self.assertTrue(payload["ok"])
         self.assertEqual(payload["errors"], [])
+        self.assertFalse((self.root / "tools").exists())
 
     def test_missing_gitattributes_fails(self) -> None:
         (self.root / ".gitattributes").unlink()

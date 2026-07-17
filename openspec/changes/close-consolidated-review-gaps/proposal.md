@@ -13,14 +13,14 @@
 - 將 60%/70% context 門檻改成有外部量測來源時才生效；沒有可查證量測來源時，以 15 輪對話與外部工具呼叫 checkpoint 作為可執行代理。
 - 為 agy 入口檔加入安裝時讀取驗證與根目錄 AGENTS.md fallback，避免 .agents/AGENTS.md 未被載入時靜默失效。
 - 將官方支援的專案層 Codex hook 實際安裝到本 repo 的 .codex/hooks.json；保留 entrypoints/hooks/codex-hooks.json.example 作為下游專案範本，兩者分別驗證。
-- 新增純 Python 標準函式庫的選配安裝檢查器，驗證必要檔案、LF 屬性、模板佔位符、記憶錨點目標與 hook JSON；無法執行檢查器時保留等價的人工驗收清單。
+- 新增純 Python 標準函式庫的來源端安裝檢查器，驗證必要檔案、LF 屬性、模板佔位符、記憶錨點目標與 hook JSON；由安裝 agent 從來源 repo 對目標執行，不複製進下游 payload，也不在日常交接執行。
 - 將三處範例 Code Symbol Anchor 改成不會被 Markdown link checker 當成真實檔案的表示法，並由檢查器拒絕範例假斷鏈。
 
 ## Alternatives Considered
 
 - 全面採納三份 review 的所有建議：拒絕；英文版、VERSION/CHANGELOG、社群檔案、一行式發布與 FILEMAP 拆分屬產品發展或架構選擇，不是本次可靠性缺陷的共同根因。
 - 重排 CURRENT 與 session log 的寫入順序並加入完成旗標：拒絕；現行正式 spec 已採「Direct Memory Source 對最新 log」的語意檢查，能避開時間戳與寫入順序誤判。
-- 讓 lint 成為框架硬依賴：拒絕；框架仍維持純 Markdown 可用，Python 檢查器是安裝與維護時的選配機械驗證。
+- 讓 lint 成為下游 payload 或交接執行期依賴：拒絕；框架核心仍以純 Markdown 運作，Python 檢查器只存在於來源 repo，供安裝與維護 agent 驗收。
 
 ## Capabilities
 

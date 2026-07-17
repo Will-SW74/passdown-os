@@ -2,6 +2,14 @@
 
 只增不改的決策紀錄（ADR-lite）。每筆條目標題格式：`## D-YYYYMMDD-N — <決策標題>`（N＝當日流水號，從 1 起算）——這個 **決策 ID** 是全框架的精準引用鍵：程式碼註解、session log 的 `Decisions made` 欄位、CURRENT.md 都用它指回本檔特定條目（例如註解寫 `// D-20260712-2：時間戳比對必然誤判，故用語意檢查`）。若某個決策後來被推翻，用新條目記錄並註明「取代 D-YYYYMMDD-N」，不要刪除或改寫舊條目。
 
+## D-20260717-1 — Python lint 留在來源端，不進入純 Markdown payload
+
+**Decision:** 取代 D-20260716-1 第 (3) 點中「安裝 payload 必含 tools/」的部分。`tools/passdown-lint.py` 與測試只留在 Passdown OS 來源 repo；安裝 agent 從來源以 `--root` 指向目標執行一次，目標 `passdown-os/` 不複製 `tools/`，日常 session 與交接也不執行 lint。Git／Git Bash／Python 的安裝硬門檻維持不變；Codex 與 agy 的 Python hook 是選配 lifecycle adapter，和 lint 分開。
+
+**Why:** 使用者要的是規則與記憶可用純 Markdown 搬移及接班。安裝前允許 Python runtime，不代表每個目標專案都應攜帶 Python 維護程式；來源端驗收可保留 deterministic check，同時避免把安裝工具誤認為交接執行期依賴。
+
+**Agent:** codex（2026-07-17 12:48）
+
 ## D-20260716-1 — Hook 宣稱以事件證據門控，安裝完整性改由 lint 驗收
 
 **Decision:** (1) 取代 D-20260713-1 中「cc/codex 全自動」的整體分級；hook 是否能把內容送進模型 context 必須逐 agent、逐 event 以驗證矩陣記錄，只有 fresh-session 實測可見才標 `verified`，單獨執行 command 成功只能標 `component-tested`。(2) 本 repo 直接部署 `.codex/hooks.json`，下游專案則從 `entrypoints/hooks/codex-hooks.json.example` 生成；兩者共用 SessionStart 與每 10 次工具呼叫的外部計數邏輯，但 Windows command 不假設裸 `sh` 已在 PATH。(3) 安裝 payload 必含 `.gitattributes` 與 `tools/`，並以 `tools/passdown-lint.py` 機械驗收必要路徑、shell LF、hook JSON、佔位符、本地 Markdown 連結與 Direct Memory Source。(4) CT 的 60%/70% 門檻只接受工具提供的當前使用量；無可驗證用量時改以第 15 輪強制存檔，不從名目容量或模型內省推算百分比。
