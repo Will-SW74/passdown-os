@@ -1,5 +1,4 @@
 {
-  "_comment": "Passdown OS 的下游 Codex hook 範本。放到目標專案 <repo>/.codex/hooks.json；非受管 hook 必須在 Codex /hooks 信任後才執行。介面依 2026-07-16 官方 hooks 文件與 codex-cli 0.142.4 核對；目前為 component-tested，fresh Codex task 驗證 context 可見性後才能升級為 verified。",
   "hooks": {
     "SessionStart": [
       {
@@ -25,6 +24,19 @@
             "commandWindows": "python -c \"import pathlib, shutil, subprocess, sys; g=pathlib.Path(shutil.which('git') or ''); s=g.parent.parent/'bin'/'sh.exe'; sys.exit(subprocess.call([str(s), 'passdown-os/entrypoints/hooks/checkpoint-counter.sh', '--json']))\"",
             "timeout": 5,
             "statusMessage": "passdown-os 檢查點計數"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 passdown-os/entrypoints/hooks/archive-codex-transcript.py",
+            "commandWindows": "python passdown-os/entrypoints/hooks/archive-codex-transcript.py",
+            "timeout": 30,
+            "statusMessage": "保存 Codex 逐字稿快照"
           }
         ]
       }

@@ -1,5 +1,4 @@
 {
-  "_comment": "Passdown OS 原始 repo 自用的 Codex hooks。非受管 hook 必須在 Codex /hooks 信任後才執行；目前為 component-tested，fresh Codex task 驗證 context 可見性後才能升級為 verified。",
   "hooks": {
     "SessionStart": [
       {
@@ -25,6 +24,19 @@
             "commandWindows": "python -c \"import pathlib, shutil, subprocess, sys; g=pathlib.Path(shutil.which('git') or ''); s=g.parent.parent/'bin'/'sh.exe'; sys.exit(subprocess.call([str(s), 'entrypoints/hooks/checkpoint-counter.sh', '--json']))\"",
             "timeout": 5,
             "statusMessage": "Passdown OS 檢查點計數"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 entrypoints/hooks/archive-codex-transcript.py",
+            "commandWindows": "python entrypoints/hooks/archive-codex-transcript.py",
+            "timeout": 30,
+            "statusMessage": "保存 Codex 逐字稿快照"
           }
         ]
       }

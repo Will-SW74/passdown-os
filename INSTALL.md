@@ -14,7 +14,7 @@
 2. **Git Bash / POSIX sh**（hooks 腳本的執行環境）：先執行 `sh -c "echo ok"`。**失敗時不要立刻判定未安裝**——Windows 上 Git 常見的安裝狀態是「`git` 在 PATH、`sh.exe` 不在」。此時做第二層探測：從 `git` 的位置推導 Git 安裝根目錄（例如 `where git` 得到 `C:\Program Files\Git\cmd\git.exe` → 根目錄為 `C:\Program Files\Git`），檢查 `<Git根>\bin\sh.exe` 或 `<Git根>\usr\bin\sh.exe` 是否存在並能執行 `-c "echo ok"`：
    - **兩層都找不到** → Git Bash 真的沒裝，中止並請使用者安裝。
    - **第二層找到了** → 元件已安裝但 **不在 PATH**。**仍然中止**（codex／agy 的 hooks 直接呼叫裸的 `sh`，PATH 上找不到就會靜默失效），但診斷要準確：告訴使用者「Git Bash 已安裝，只需把 `<Git根>\bin` 加入 PATH」，**不要**叫人重裝已存在的東西。加完 PATH 後重跑本門檻。
-3. **Python**（agy 注入 hook 的依賴）：執行 `python --version` 必須成功。注意：Windows 上若只有 `py` 啟動器而沒有 `python` 指令，**視同不合格**——hooks 範本呼叫的是 `python`，請使用者安裝時勾選「Add python.exe to PATH」。
+3. **Python**（agy 注入 hook 與 Codex 逐字稿快照 hook 的依賴）：執行 `python --version` 必須成功；非 Windows 還要確認 `python3 --version`。Windows 上若只有 `py` 啟動器而沒有 `python` 指令，**視同不合格**——hooks 範本呼叫的是 `python`，請使用者安裝時勾選「Add python.exe to PATH」。
 
 **任一項失敗 → 立刻中止部署**，向使用者回報：(a) 缺了哪幾項；(b) 安裝來源（Git 含 Git Bash：git-scm.com；Python：python.org，安裝時勾 Add to PATH）；(c) 明確說「裝好之後再叫我一次，我從頭執行本安裝」。**不要**在缺件狀態下部署任何部分——半套框架（有規則、沒 hooks）會讓機制化防線靜默失效，比不裝更危險。
 
@@ -58,7 +58,8 @@
    - **agy 必走 fallback 流程**：先只放 `.agents/AGENTS.md` 並驗證；失敗就移除該段、改放根目錄 `AGENTS.md` 再驗證。成功後只保留生效位置的一份 Passdown OS 段落。兩次都失敗時標 `unverified`，回報兩次結果，不把候選路徑寫成已生效。
 3. **hooks（建議安裝）**：依 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)：
    - cc：`settings.json.example` 的 hooks 區塊合併進 `<target>/.claude/settings.json`；`entrypoints/commands/handoff.md` 複製到 `<target>/.claude/commands/`；要自動調度就把 `entrypoints/claude-agents/` 複製到 `<target>/.claude/agents/`。
-   - codex：`codex-hooks.json.example` → `<target>/.codex/hooks.json`，**提醒使用者首次執行需在 codex 內 trust**。
+   - codex：`codex-hooks.json.example` → `<target>/.codex/hooks.json`；確認 payload 內同時存在 `passdown-os/entrypoints/hooks/archive-codex-transcript.py`。首次安裝或 hook/script 內容變更後，**必須提醒使用者在 fresh Codex task 執行 `/hooks`，review 後 trust**。未看到真實 `Stop` event 更新 `transcripts/` 前，只能標記 `component-tested`。
+     - **路徑界線不可混用**：來源 repo 自用的 `.codex/hooks.json` 指向 `entrypoints/hooks/...`；下游專案必須使用 `codex-hooks.json.example`，指向 `passdown-os/entrypoints/hooks/...`。不得直接把來源 repo 的 `.codex/hooks.json` 複製到下游專案。
    - agy：`agy-hooks.json.example` → `<target>/.agents/hooks.json`，注入行為需實測（見該檔註記）。
 4. **Spectra**：目標專案有 `openspec/` 就不用動；沒有就依 `PROTOCOLS.md`「不使用 Spectra 時的替代方案」——不需要為了本框架去裝 Spectra。
 
@@ -75,3 +76,4 @@
 4. 入口驗收：逐一列出啟用 agent、fresh-session 證據與實際生效路徑。agy 必符合 `entrypoints/README.md` 的三個驗收分支之一，且 repo 中不得同時存在兩份未標正本的 Passdown OS 入口段落。
 5. 機械驗收：由安裝 agent 從來源 repo 執行 `python <source>/tools/passdown-lint.py --root <target>/passdown-os`。exit code 非 0 時逐項修正輸出的 `code`、`path`、`message` 後重跑；lint 通過前不得宣告安裝完成。檢查器只讀目標，**不會被複製到目標，也不在日常交接執行**。若框架本身就是 repo 根目錄，執行 `python tools/passdown-lint.py`。
 6. 向使用者回報一份清單：裝了什麼、放在哪、跳過了什麼與原因（例如「未啟用 codex，故未安裝 .codex/hooks.json」）、哪些項目需要使用者後續動作（例如 codex `/hooks` trust、agy 入口仍為 `unverified`）。
+7. 若啟用 codex，fresh task 完成 `/hooks` trust 後至少跑完一個 assistant turn，確認 `passdown-os/transcripts/` 出現或更新該 task 的 `.jsonl`。這才是 lifecycle 驗證；直接餵假 stdin 只算 component test。

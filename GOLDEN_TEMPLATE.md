@@ -48,7 +48,7 @@
 - `handoff/_template.md`、`sessions/_template.md` 兩份模板的欄位結構
 - `.gitignore` 裡的忽略規則：`imports/*`、`transcripts/*`、`sessions/.active_lock`、`sessions/.toolcount`（換成新專案路徑時語法不變）
 - `.gitattributes` 的換行規則：至少保留 `*.sh text eol=lf`，避免 Windows checkout 將 hooks 轉成 CRLF 後靜默失效
-- `entrypoints/` 底下的範本（內容不變，只需複製到新專案對應位置並改名）
+- `entrypoints/` 底下的範本與 hook scripts（包含 `hooks/archive-codex-transcript.py`；內容不變，只需複製到新專案對應位置並改名）
 
 ## 為什麼這樣分
 
@@ -78,6 +78,6 @@
 - [ ] 若使用 cc 且要啟用自動調度：`entrypoints/claude-agents/` 的五個 agent 檔已複製到新專案 `.claude/agents/`，且 `CLAUDE.md` 含「調度模式」段落（不啟用則跳過此項）
 - [ ] 若使用 cc：`entrypoints/hooks/settings.json.example` 的 SessionStart hook 已合併進新專案 `.claude/settings.json`，並開新 session 驗證注入成功（建議安裝；不裝則靠協定紀律）
 - [ ] 若使用 cc：`entrypoints/commands/handoff.md` 已複製到新專案 `.claude/commands/`（收工打 `/handoff` 觸發結束協定；建議安裝）
-- [ ] 若使用 codex：`entrypoints/hooks/codex-hooks.json.example` 已放到新專案 `.codex/hooks.json` 並在 codex 內信任（建議安裝；含 SessionStart 注入與檢查點計數器）
+- [ ] 若使用 codex：`entrypoints/hooks/codex-hooks.json.example` 已放到新專案 `.codex/hooks.json`，`archive-codex-transcript.py` 已隨 payload 搬入；在 fresh task 用 `/hooks` review/trust，並確認一個真實 Stop turn 會更新 `transcripts/`（含 SessionStart、檢查點計數器與逐字稿持續快照）
 - [ ] 若使用 agy：`entrypoints/hooks/agy-hooks.json.example` 已放到新專案 `.agents/hooks.json` 並實測注入成功（建議安裝）
 - [ ] `.gitignore` 含 `sessions/.active_lock` 與 `sessions/.toolcount`（會話鎖與計數器是本機暫存，不進版控）
