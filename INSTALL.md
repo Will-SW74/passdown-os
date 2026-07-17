@@ -59,6 +59,7 @@
 3. **hooks（建議安裝）**：依 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)：
    - cc：`settings.json.example` 的 hooks 區塊合併進 `<target>/.claude/settings.json`；`entrypoints/commands/handoff.md` 複製到 `<target>/.claude/commands/`；要自動調度就把 `entrypoints/claude-agents/` 複製到 `<target>/.claude/agents/`。
    - codex：`codex-hooks.json.example` → `<target>/.codex/hooks.json`；確認 payload 內同時存在 `passdown-os/entrypoints/hooks/archive-codex-transcript.py`。首次安裝或 hook/script 內容變更後，**必須提醒使用者在 fresh Codex task 執行 `/hooks`，review 後 trust**。未看到真實 `Stop` event 更新 `transcripts/` 前，只能標記 `component-tested`。
+     - **路徑界線不可混用**：來源 repo 自用的 `.codex/hooks.json` 指向 `entrypoints/hooks/...`；下游專案必須使用 `codex-hooks.json.example`，指向 `passdown-os/entrypoints/hooks/...`。不得直接把來源 repo 的 `.codex/hooks.json` 複製到下游專案。
    - agy：`agy-hooks.json.example` → `<target>/.agents/hooks.json`，注入行為需實測（見該檔註記）。
 4. **Spectra**：目標專案有 `openspec/` 就不用動；沒有就依 `PROTOCOLS.md`「不使用 Spectra 時的替代方案」——不需要為了本框架去裝 Spectra。
 
