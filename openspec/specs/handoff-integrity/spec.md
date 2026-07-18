@@ -89,74 +89,28 @@ code:
 ---
 ### Requirement: Semantic handoff integrity check
 
-The Session Start Protocol SHALL verify handoff integrity by comparing the filename of the most recent log in sessions/ (excluding archive/) against the first entry of the Direct Memory Source field in handoff/CURRENT.md. Timestamp comparison SHALL NOT be the primary integrity check. Session log filenames SHALL use the session start time as their timestamp component.
+The Session Start Protocol SHALL verify handoff integrity by comparing the filename of the most recent eligible session log against the first entry of the Direct Memory Source field in `handoff/CURRENT.md`. Eligible logs MUST be direct children of `sessions/`, MUST match `YYYY-MM-DD-HHmm-<agent>-<slug>.md`, and MUST NOT be inside `sessions/archive/`. `INDEX.md`, `_template.md`, dotfiles, and Markdown files outside that naming contract MUST NOT participate in newest-log selection. Timestamp comparison between CURRENT.md and a log SHALL NOT be the primary integrity check. Session log filenames SHALL use the session start time as their timestamp component.
 
 #### Scenario: Handoff is consistent
 
-- **WHEN** the most recent session log filename matches the first Direct Memory Source entry in CURRENT.md
+- **WHEN** the most recent eligible session log filename matches the first Direct Memory Source entry in CURRENT.md
 - **THEN** the handoff is treated as complete and the agent proceeds without recovery
 
 #### Scenario: Handoff is inconsistent
 
-- **WHEN** the most recent session log filename does not match the first Direct Memory Source entry in CURRENT.md
-- **THEN** the agent enters the recovery flow: it reads the most recent session log, repairs CURRENT.md to reflect the true state, and records the recovery in its own session log
+- **WHEN** the most recent eligible session log filename does not match the first Direct Memory Source entry in CURRENT.md
+- **THEN** the agent enters the recovery flow: it reads the most recent eligible session log, repairs CURRENT.md to reflect the true state, and records the recovery in its own session log
 
 ##### Example: newest log not referenced
 
-- **GIVEN** sessions/ contains 2026-07-11-0900-cc-fix-parser.md and 2026-07-11-1400-codex-add-tests.md, and CURRENT.md Direct Memory Source lists 2026-07-11-0900-cc-fix-parser.md
+- **GIVEN** `sessions/` contains `2026-07-11-0900-cc-fix-parser.md` and `2026-07-11-1400-codex-add-tests.md`, and CURRENT.md Direct Memory Source lists `2026-07-11-0900-cc-fix-parser.md`
 - **WHEN** an agent runs the integrity check at session start
-- **THEN** the check fails because the newest log (1400-codex) is not referenced, and the recovery flow starts from 2026-07-11-1400-codex-add-tests.md
+- **THEN** the check fails because the newest eligible log is `2026-07-11-1400-codex-add-tests.md`, and the recovery flow starts from that file
 
+#### Scenario: Index and template are newer than the latest log
 
-<!-- @trace
-source: fix-framework-review-findings
-updated: 2026-07-12
-code:
-  - .opencode/skills/spectra-ingest/SKILL.md
-  - .opencode/skills/spectra-propose/SKILL.md
-  - AGENTS.md
-  - GEMINI.md
-  - entrypoints/commands/handoff.md
-  - entrypoints/hooks/README.md
-  - .opencode/skills/spectra-commit/SKILL.md
-  - entrypoints/hooks/checkpoint-counter.sh
-  - entrypoints/hooks/codex-hooks.json.example
-  - memory/decisions.md
-  - entrypoints/CLAUDE.md.example
-  - .opencode/commands/spectra-commit.md
-  - sessions/2026-07-12-1530-cc-wire-hardening-and-startup-rules.md
-  - .opencode/skills/spectra-drift/SKILL.md
-  - entrypoints/AGENTS.md.example
-  - memory/local-agent-sync.md
-  - .opencode/commands/spectra-discuss.md
-  - handoff/_template.md
-  - .opencode/commands/spectra-apply.md
-  - .opencode/commands/spectra-audit.md
-  - CLAUDE.md
-  - .opencode/skills/spectra-audit/SKILL.md
-  - .spectra.yaml
-  - entrypoints/CODEX.md.example
-  - entrypoints/hooks/agy-hooks.json.example
-  - CHECKLIST_HANDOFF.md
-  - PROTOCOLS.md
-  - .opencode/commands/spectra-ask.md
-  - .opencode/skills/spectra-ask/SKILL.md
-  - README.md
-  - .opencode/skills/spectra-discuss/SKILL.md
-  - .opencode/commands/spectra-propose.md
-  - entrypoints/hooks/settings.json.example
-  - handoff/CURRENT.md
-  - .opencode/commands/spectra-debug.md
-  - .opencode/skills/spectra-archive/SKILL.md
-  - CONSTITUTION.md
-  - sessions/_template.md
-  - .opencode/commands/spectra-archive.md
-  - .opencode/commands/spectra-ingest.md
-  - .opencode/skills/spectra-apply/SKILL.md
-  - .opencode/commands/spectra-drift.md
-  - GOLDEN_TEMPLATE.md
-  - .opencode/skills/spectra-debug/SKILL.md
--->
+- **WHEN** `sessions/INDEX.md` or `sessions/_template.md` has a newer modification time than every eligible session log
+- **THEN** the integrity check ignores those files and compares CURRENT.md against the most recent eligible session log
 
 ---
 ### Requirement: Single source of truth for every rule
@@ -293,63 +247,22 @@ code:
 ---
 ### Requirement: Portable memory anchors
 
-Code Symbol Anchor examples and instructions in templates and protocols SHALL use repository-relative paths together with a symbol name. Absolute paths (including file:/// URIs) SHALL NOT be used in anchor examples. Anchors SHALL name the symbol so the target remains locatable after line numbers drift.
+Direct Memory Source entries written as backticked paths SHALL be relative to the Passdown OS root. Markdown links SHALL be relative to the directory containing the Markdown source file, matching standard Markdown resolution and the lint implementation. Code Symbol Anchors SHALL include a symbol name and MUST NOT use machine-specific absolute paths or `file:///` URIs. Line ranges SHALL remain optional navigation aids and MUST NOT be the only way to identify code.
 
-#### Scenario: Anchor written during handoff
+#### Scenario: Direct Memory Source is written during handoff
 
-- **WHEN** an agent records a Code Symbol Anchor in CURRENT.md or a session log
-- **THEN** the anchor uses a repository-relative path with a symbol name and line range, and contains no machine-specific absolute path
+- **WHEN** an agent records a session log in the Direct Memory Source field of `handoff/CURRENT.md`
+- **THEN** it writes a backticked Passdown-root-relative path such as `sessions/2026-07-18-0900-codex-fix-hooks.md`
 
+#### Scenario: Markdown anchor points from handoff to source-repo code
 
-<!-- @trace
-source: fix-framework-review-findings
-updated: 2026-07-12
-code:
-  - .opencode/skills/spectra-ingest/SKILL.md
-  - .opencode/skills/spectra-propose/SKILL.md
-  - AGENTS.md
-  - GEMINI.md
-  - entrypoints/commands/handoff.md
-  - entrypoints/hooks/README.md
-  - .opencode/skills/spectra-commit/SKILL.md
-  - entrypoints/hooks/checkpoint-counter.sh
-  - entrypoints/hooks/codex-hooks.json.example
-  - memory/decisions.md
-  - entrypoints/CLAUDE.md.example
-  - .opencode/commands/spectra-commit.md
-  - sessions/2026-07-12-1530-cc-wire-hardening-and-startup-rules.md
-  - .opencode/skills/spectra-drift/SKILL.md
-  - entrypoints/AGENTS.md.example
-  - memory/local-agent-sync.md
-  - .opencode/commands/spectra-discuss.md
-  - handoff/_template.md
-  - .opencode/commands/spectra-apply.md
-  - .opencode/commands/spectra-audit.md
-  - CLAUDE.md
-  - .opencode/skills/spectra-audit/SKILL.md
-  - .spectra.yaml
-  - entrypoints/CODEX.md.example
-  - entrypoints/hooks/agy-hooks.json.example
-  - CHECKLIST_HANDOFF.md
-  - PROTOCOLS.md
-  - .opencode/commands/spectra-ask.md
-  - .opencode/skills/spectra-ask/SKILL.md
-  - README.md
-  - .opencode/skills/spectra-discuss/SKILL.md
-  - .opencode/commands/spectra-propose.md
-  - entrypoints/hooks/settings.json.example
-  - handoff/CURRENT.md
-  - .opencode/commands/spectra-debug.md
-  - .opencode/skills/spectra-archive/SKILL.md
-  - CONSTITUTION.md
-  - sessions/_template.md
-  - .opencode/commands/spectra-archive.md
-  - .opencode/commands/spectra-ingest.md
-  - .opencode/skills/spectra-apply/SKILL.md
-  - .opencode/commands/spectra-drift.md
-  - GOLDEN_TEMPLATE.md
-  - .opencode/skills/spectra-debug/SKILL.md
--->
+- **WHEN** source-repo `handoff/CURRENT.md` links to the `run` symbol in `tools/passdown-lint.py`
+- **THEN** the Markdown target is relative to the handoff file, such as `../tools/passdown-lint.py`, and the anchor text or adjacent prose names `run`
+
+#### Scenario: Markdown anchor points from downstream payload to project code
+
+- **WHEN** `passdown-os/handoff/CURRENT.md` links to the `parseHeader` symbol in project-root `src/parser.js`
+- **THEN** the Markdown target begins with `../../src/parser.js`, contains no machine-specific absolute path, and the anchor text or adjacent prose names `parseHeader`
 
 ---
 ### Requirement: Pre-compaction save is mechanized for Claude Code

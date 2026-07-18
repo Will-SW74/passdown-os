@@ -29,6 +29,8 @@ REQUIRED_PATHS = (
 )
 
 EXCLUDED_PARTS = (
+    (".git",),
+    ("imports",),
     ("openspec", "changes", "archive"),
     ("sessions", "archive"),
     ("references",),
@@ -37,6 +39,7 @@ EXCLUDED_PARTS = (
 
 CHECKS = (
     "required-paths",
+    "text-encoding",
     "shell-line-endings",
     "hook-json",
     "placeholders",
@@ -50,6 +53,8 @@ INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 ANGLE_PLACEHOLDER_RE = re.compile(r"<[^>\r\n]+>")
 SHELL_ATTRIBUTE_RE = re.compile(r"(?m)^\s*\*\.sh\s+text\s+eol=lf(?:\s|$)")
+MANAGED_TEXT_SUFFIXES = {".json", ".md", ".py", ".sh"}
+UTF8_BOM = b"\xef\xbb\xbf"
 
 
 @dataclass(frozen=True)
@@ -86,7 +91,29 @@ class PassdownLint:
             parts = path.relative_to(self.root).parts
         except ValueError:
             return True
-        return any(parts[: len(prefix)] == prefix for prefix in EXCLUDED_PARTS)
+        return "__pycache__" in parts or any(parts[: len(prefix)] == prefix for prefix in EXCLUDED_PARTS)
+
+    def iter_managed_text(self) -> Iterable[Path]:
+        for path in sorted(self.root.rglob("*")):
+            if not path.is_file() or self.is_excluded(path):
+                continue
+            if path.suffix.lower() in MANAGED_TEXT_SUFFIXES or path.name.lower().endswith(".json.example"):
+                yield path
+
+    def check_text_encoding(self) -> None:
+        for path in self.iter_managed_text():
+            try:
+                content = path.read_bytes()
+            except OSError as exc:
+                self.add_error("READ_ERROR", path, f"無法讀取文字檔 bytes：{exc}")
+                continue
+            if content.startswith(UTF8_BOM):
+                self.add_error("UTF8_BOM", path, "文字檔含 UTF-8 BOM，必須使用 UTF-8 without BOM")
+                continue
+            try:
+                content.decode("utf-8")
+            except UnicodeError as exc:
+                self.add_error("READ_ERROR", path, f"無法以 UTF-8 解碼：{exc}")
 
     def check_required_paths(self) -> None:
         for relative in REQUIRED_PATHS:
@@ -183,7 +210,8 @@ class PassdownLint:
             if content is None:
                 continue
             without_comments = HTML_COMMENT_RE.sub("", content)
-            for match in ANGLE_PLACEHOLDER_RE.finditer(without_comments):
+            searchable = INLINE_CODE_RE.sub("", without_comments)
+            for match in ANGLE_PLACEHOLDER_RE.finditer(searchable):
                 self.add_error(
                     "PLACEHOLDER_REMAINS",
                     path,
@@ -311,6 +339,7 @@ class PassdownLint:
 
     def run(self) -> list[LintError]:
         self.check_required_paths()
+        self.check_text_encoding()
         self.check_shell_line_endings()
         self.check_hook_json()
         self.check_placeholders()

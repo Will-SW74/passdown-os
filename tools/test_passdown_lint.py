@@ -12,6 +12,7 @@ from pathlib import Path
 
 
 SCRIPT = Path(__file__).with_name("passdown-lint.py").resolve()
+REPO_ROOT = SCRIPT.parent.parent
 
 
 class PassdownLintTests(unittest.TestCase):
@@ -104,6 +105,39 @@ class PassdownLintTests(unittest.TestCase):
         self.assertEqual(payload["errors"], [])
         self.assertFalse((self.root / "tools").exists())
 
+    def test_bom_shell_fails_with_stable_code_and_path(self) -> None:
+        script = self.root / "entrypoints/hooks/checkpoint-counter.sh"
+        script.write_bytes(b"\xef\xbb\xbf#!/bin/sh\n")
+
+        result, payload = self.run_lint()
+
+        self.assertEqual(1, result.returncode)
+        errors = [item for item in payload["errors"] if item["code"] == "UTF8_BOM"]
+        self.assertEqual(["entrypoints/hooks/checkpoint-counter.sh"], [item["path"] for item in errors])
+
+    def test_bom_markdown_fails(self) -> None:
+        (self.root / "README.md").write_bytes(b"\xef\xbb\xbf# README\n")
+        self.assert_error("UTF8_BOM")
+
+    def test_excluded_transcript_with_arbitrary_bytes_is_ignored(self) -> None:
+        transcript = self.root / "transcripts" / "raw.json"
+        transcript.parent.mkdir()
+        transcript.write_bytes(b"\xef\xbb\xbf\xff\x00")
+
+        result, payload = self.run_lint()
+
+        self.assertEqual(0, result.returncode, result.stdout)
+        self.assertEqual([], payload["errors"])
+
+    def test_windows_writing_guidance_requires_no_bom_encoders(self) -> None:
+        install = (REPO_ROOT / "INSTALL.md").read_text(encoding="utf-8")
+        constitution = (REPO_ROOT / "CONSTITUTION.md").read_text(encoding="utf-8")
+
+        for document in (install, constitution):
+            self.assertIn("utf8NoBOM", document)
+            self.assertIn("[System.Text.UTF8Encoding]::new($false)", document)
+            self.assertIn("-Encoding utf8` 會加入 BOM", document)
+
     def test_missing_gitattributes_fails(self) -> None:
         (self.root / ".gitattributes").unlink()
         self.assert_error("MISSING_REQUIRED")
@@ -118,6 +152,18 @@ class PassdownLintTests(unittest.TestCase):
             "# Current\n<next concrete step>\n- **Direct Memory Source**: `sessions/current.md`\n",
         )
         self.assert_error("PLACEHOLDER_REMAINS")
+
+    def test_inline_code_placeholder_is_treated_as_literal(self) -> None:
+        self.write_text(
+            "handoff/CURRENT.md",
+            "# Current\nPath example: `<repo>/.codex/hooks.json`\n"
+            "- **Direct Memory Source**: `sessions/current.md`\n",
+        )
+
+        result, payload = self.run_lint()
+
+        self.assertEqual(0, result.returncode, result.stdout)
+        self.assertNotIn("PLACEHOLDER_REMAINS", {item["code"] for item in payload["errors"]})
 
     def test_missing_markdown_link_fails(self) -> None:
         self.write_text("README.md", "[Missing](docs/missing.md)\n")

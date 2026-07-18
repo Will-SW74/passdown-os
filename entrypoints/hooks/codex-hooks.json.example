@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "printf '0' > passdown-os/sessions/.toolcount 2>/dev/null; echo '=== passdown-os 交接內容（SessionStart hook）==='; cat passdown-os/handoff/CURRENT.md 2>/dev/null || echo '（警告：找不到 passdown-os/handoff/CURRENT.md，請檢查框架是否就位）'; echo '--- 以上即 CURRENT.md 全文；請依 passdown-os/CONSTITUTION.md 執行 Session 開始協定其餘步驟。'",
-            "commandWindows": "python -c \"import sys; from pathlib import Path; sys.stdout.reconfigure(encoding='utf-8'); p=Path('passdown-os/sessions/.toolcount'); p.write_text('0', encoding='ascii'); h=Path('passdown-os/handoff/CURRENT.md'); print('=== passdown-os 交接內容（SessionStart hook）==='); print(h.read_text(encoding='utf-8') if h.exists() else '（警告：找不到 passdown-os/handoff/CURRENT.md，請檢查框架是否就位）'); print('--- 以上即 CURRENT.md 全文；請依 passdown-os/CONSTITUTION.md 執行 Session 開始協定其餘步驟。')\"",
+            "commandWindows": "python passdown-os/entrypoints/hooks/codex-windows-hook.py session-start --root passdown-os",
             "timeout": 10,
             "statusMessage": "載入 passdown-os 交接內容"
           }
@@ -21,7 +21,7 @@
           {
             "type": "command",
             "command": "sh passdown-os/entrypoints/hooks/checkpoint-counter.sh --json",
-            "commandWindows": "python -c \"import pathlib, shutil, subprocess, sys; g=pathlib.Path(shutil.which('git') or ''); s=g.parent.parent/'bin'/'sh.exe'; sys.exit(subprocess.call([str(s), 'passdown-os/entrypoints/hooks/checkpoint-counter.sh', '--json']))\"",
+            "commandWindows": "python passdown-os/entrypoints/hooks/codex-windows-hook.py checkpoint --root passdown-os",
             "timeout": 5,
             "statusMessage": "passdown-os 檢查點計數"
           }

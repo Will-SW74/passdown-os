@@ -96,14 +96,16 @@ code:
 ---
 ### Requirement: Externally counted checkpoint reminders
 
-The checkpoint trigger SHALL NOT depend on the model counting its own tool calls. Where the agent tool supports lifecycle hooks, a PostToolUse hook MUST increment the counter file `sessions/.toolcount` after every tool call, and on every 10th call the hook MUST emit a reminder instructing the agent to append a progress line to the current session log. The counter file MUST be initialized or reset to zero at the start of a session (either via a SessionStart hook if supported, or naturally due to the deletion of the counter file by the previous session's end protocol). Environments without hooks SHALL treat the counting rule as best-effort discipline and MUST NOT claim it is mechanically enforced. The counter file MUST be excluded from version control.
+The checkpoint trigger SHALL NOT depend on the model counting its own tool calls. Where the agent tool supports lifecycle hooks, a PostToolUse hook MUST perform one read-increment-write attempt on `sessions/.toolcount` after every tool call, and on every observed multiple of 10 the hook MUST emit a reminder instructing the agent to append a progress line to the current session log. The counter file MUST be initialized or reset to zero at the start of a session, either through a SessionStart hook or through deletion by the previous Session End Protocol. Environments without hooks SHALL treat the counting rule as best-effort discipline and MUST NOT claim it is mechanically enforced. The counter file MUST be excluded from version control.
 
-#### Scenario: Reminder on every 10th tool call
+The framework MUST document that parallel PostToolUse processes can read the same value and overwrite one another, so the observed counter is advisory and is not exact telemetry. The `--json` mode MUST emit no output outside checkpoint boundaries. At a checkpoint boundary it SHALL emit one JSON object whose `hookSpecificOutput.hookEventName` equals `PostToolUse` and whose `hookSpecificOutput.additionalContext` is a non-empty string. Reminder text changes MUST preserve JSON parsing, including correct handling of double quotes and backslashes.
+
+#### Scenario: Reminder on every observed 10th tool call
 
 - **WHEN** the PostToolUse hook runs and the incremented counter value is a multiple of 10
 - **THEN** the hook emits a checkpoint reminder for injection into the agent context
 
-##### Example: counter boundary behavior
+##### Example: sequential counter boundary behavior
 
 | Counter after increment | Reminder emitted | Notes |
 | --- | --- | --- |
@@ -122,59 +124,17 @@ The checkpoint trigger SHALL NOT depend on the model counting its own tool calls
 - **WHEN** the PostToolUse hook reads `sessions/.toolcount` and the file is missing or contains a non-numeric value
 - **THEN** the hook treats the current count as zero and continues without error
 
-<!-- @trace
-source: wire-v02-hardening-and-startup-rules
-updated: 2026-07-13
-code:
-  - .opencode/commands/spectra-ingest.md
-  - entrypoints/CODEX.md.example
-  - entrypoints/hooks/archive-transcript.sh
-  - GOLDEN_TEMPLATE.md
-  - PROTOCOLS.md
-  - .opencode/skills/spectra-audit/SKILL.md
-  - .opencode/commands/spectra-archive.md
-  - sessions/INDEX.md
-  - .opencode/skills/spectra-debug/SKILL.md
-  - .opencode/commands/spectra-discuss.md
-  - .opencode/commands/spectra-propose.md
-  - .opencode/commands/spectra-apply.md
-  - .opencode/skills/spectra-discuss/SKILL.md
-  - .opencode/skills/spectra-archive/SKILL.md
-  - README.md
-  - transcripts/.gitkeep
-  - .opencode/skills/spectra-apply/SKILL.md
-  - entrypoints/CLAUDE.md.example
-  - entrypoints/hooks/checkpoint-counter.sh
-  - entrypoints/hooks/settings.json.example
-  - handoff/CURRENT.md
-  - sessions/_template.md
-  - entrypoints/hooks/agy-hooks.json.example
-  - .opencode/skills/spectra-drift/SKILL.md
-  - CLAUDE.md
-  - memory/decisions.md
-  - entrypoints/hooks/codex-hooks.json.example
-  - .opencode/commands/spectra-commit.md
-  - sessions/2026-07-12-1530-cc-wire-hardening-and-startup-rules.md
-  - .opencode/skills/spectra-commit/SKILL.md
-  - .opencode/skills/spectra-ingest/SKILL.md
-  - INSTALL.md
-  - .opencode/skills/spectra-ask/SKILL.md
-  - CONSTITUTION.md
-  - GEMINI.md
-  - CHECKLIST_HANDOFF.md
-  - handoff/_template.md
-  - sessions/2026-07-13-0010-agy-resolve-antigravity-hook-standards.md
-  - entrypoints/AGENTS.md.example
-  - entrypoints/commands/handoff.md
-  - entrypoints/hooks/README.md
-  - DISPATCH.md
-  - transcripts/README.md
-  - AGENTS.md
-  - .opencode/commands/spectra-drift.md
-  - .opencode/skills/spectra-propose/SKILL.md
-  - .opencode/commands/spectra-ask.md
-  - .opencode/commands/spectra-audit.md
-  - .opencode/commands/spectra-debug.md
-  - .spectra.yaml
-  - memory/local-agent-sync.md
--->
+#### Scenario: JSON checkpoint output is parsed
+
+- **WHEN** `checkpoint-counter.sh --json` reaches an observed counter value of 10
+- **THEN** standard JSON parsing succeeds, `hookEventName` equals `PostToolUse`, and `additionalContext` is non-empty
+
+#### Scenario: JSON mode between checkpoints is silent
+
+- **WHEN** `checkpoint-counter.sh --json` reaches an observed counter value that is not a multiple of 10
+- **THEN** the hook emits no stdout payload
+
+#### Scenario: Parallel increments collide
+
+- **WHEN** two PostToolUse hook processes read the same counter value before either write completes
+- **THEN** the framework permits the final counter to reflect one increment, documents the lost-update limitation, and does not represent the counter as exact telemetry

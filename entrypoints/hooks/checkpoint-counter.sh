@@ -18,6 +18,14 @@ for arg in "$@"; do
   esac
 done
 
+# This counter is intentionally advisory. Concurrent hooks can read the same
+# value and overwrite one another; do not use it as exact telemetry.
+# Escape JSON-sensitive reminder characters so future wording changes cannot
+# silently produce an invalid hook payload.
+json_escape() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
 # 兩種佈局都支援：一般專案是 <root>/passdown-os/sessions；範本庫自己（框架即根目錄）是 <root>/sessions
 base="${CLAUDE_PROJECT_DIR:-.}"
 if [ -d "$base/passdown-os/sessions" ]; then
@@ -47,7 +55,8 @@ printf '%s' "$n" > "$COUNT_FILE" 2>/dev/null
 if [ $((n % 10)) -eq 0 ]; then
   msg="[passdown-os checkpoint] 本 session 已累計 ${n} 次工具呼叫：請先在 sessions/ 的當前 log append 一行進度（見 PROTOCOLS.md「持續存檔機制」），再繼續工作。"
   if [ "$FORMAT" = "json" ]; then
-    printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"%s"}}\n' "$msg"
+    escaped_msg=$(json_escape "$msg")
+    printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"%s"}}\n' "$escaped_msg"
   else
     echo "$msg"
   fi

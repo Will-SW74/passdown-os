@@ -57,7 +57,7 @@
 
 ### 層級一：外部 hook（建議；驗證通過後才是機制化注入）
 
-三大 agent 目前都支援 lifecycle hooks（2026-07 查證）：cc 的 `.claude/settings.json`、codex 的 `.codex/hooks.json`、agy 的 `.agents/hooks.json`。安裝 **PostToolUse 計數器 hook** 後，外部腳本會在每次工具呼叫後遞增 `sessions/.toolcount`，每滿 10 次輸出提醒——**計數本身由外部完成，不依賴模型內省**。但提醒是否真的進入模型 context 必須按 agent/event 實測；只有 `entrypoints/hooks/README.md` 驗證矩陣標成 `verified` 的 event，才可稱為機制化注入。
+三大 agent 目前都支援 lifecycle hooks（2026-07 查證）：cc 的 `.claude/settings.json`、codex 的 `.codex/hooks.json`、agy 的 `.agents/hooks.json`。安裝 **PostToolUse 計數器 hook** 後，外部腳本會在每次工具呼叫後遞增 `sessions/.toolcount`，每滿 10 次輸出提醒——**計數本身由外部完成，不依賴模型內省**。這是沒有跨 process 鎖定的單次 read-increment-write；平行 PostToolUse 可能讀到同一舊值並互相覆寫，所以觀察到的計數與提醒只供 advisory checkpoint，不是精確 telemetry。但提醒是否真的進入模型 context 必須按 agent/event 實測；只有 `entrypoints/hooks/README.md` 驗證矩陣標成 `verified` 的 event，才可稱為機制化注入。
 
 自動化程度必須逐 event 說明，不再用「某 agent 全自動」概括：cc SessionStart 與 agy PreInvocation 有真實 context 驗證；cc/codex PostToolUse 目前只有 component test；agy PostToolUse 與 cc PreCompact 尚未驗證。agy 沒有 SessionStart 等價事件，且 PreInvocation 每回合都觸發不能拿來歸零，所以 **session 起始的計數重置靠開始協定第 1 步的協定防線**（紀律層，非 hook 層）。最新狀態與證據日期以驗證矩陣為準。
 
@@ -73,8 +73,8 @@
 
 ### 1. 寫入：在結束 Session 前建立「記憶錨點」
 在覆寫 `handoff/CURRENT.md` 和寫入 `sessions/` 時，必須在 **Context Index / Memory Anchor** 欄位標記精確的記憶索引：
-- **直接記憶源 (Direct Memory Source)**：明確列出與此任務最直接相關的最近 1-2 次 `sessions/*.md` 檔案路徑與名稱。
-- **程式碼錨點 (Code Symbol Anchor)**：利用 markdown link 語法指向當前正在修改、或下一個接手者必須立刻去讀的程式碼位置，必須精確到 **行號與符號**。例如：`[parseHeader](src/parser.js#L42-L55)`。**一律使用 repo 相對路徑**——絕對路徑（`file:///C:/...`）換一台機器或換使用者就斷，且會洩漏本機帳號路徑，違反本框架的去敏感化原則。行號會隨程式碼演進漂移，所以**必須同時給符號名**（function/class 名），行號只是加速定位的輔助。
+- **直接記憶源 (Direct Memory Source)**：明確列出與此任務最直接相關的最近 1-2 次 session log；反引號內的路徑一律以 **Passdown OS 根目錄**為基準，例如 `sessions/2026-07-18-0900-codex-fix-hooks.md`。
+- **程式碼錨點 (Code Symbol Anchor)**：利用 markdown link 語法指向當前正在修改、或下一個接手者必須立刻去讀的程式碼位置。Markdown target 一律以**包含該 link 的 Markdown 檔所在目錄**為基準，與標準 Markdown renderer 及 lint 一致。例如來源 repo 的 `handoff/CURRENT.md` 可寫 `` `[run](../tools/passdown-lint.py)` ``；下游 `passdown-os/handoff/CURRENT.md` 指向專案根的程式碼時可寫 `` `[parseHeader](../../src/parser.js#L42-L55)` ``。錨點必須命名 function/class 等符號；行號只是可選的定位輔助，不得成為唯一識別。絕對路徑（`file:///C:/...`）會跨機失效並洩漏本機帳號，禁止使用。
 - **臨時想法與 Scratchpad**：如果當前對話（Context）面臨被壓縮（如 `/compact`）或重新啟動，必須在當次 Session Log 中加入一個 `Scratchpad` 區段，用白話文記錄「目前腦袋裡正在想的、尚未寫成程式碼的邏輯細節與下一步猜想」。
 
 ### 2. 讀取：在開始 Session 時追蹤「記憶索引」

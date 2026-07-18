@@ -65,7 +65,7 @@
 
 ## 4. 寫檔紀律（安裝過程全程適用）
 
-- 所有檔案一律 **UTF-8**（Windows 的 PowerShell `Out-File`/`Set-Content` 預設 UTF-16，必須 `-Encoding utf8`；用你環境的檔案寫入工具通常沒這問題）。
+- 所有檔案一律 **UTF-8（無 BOM）**。PowerShell 7 使用 `Set-Content -Encoding utf8NoBOM`；Windows PowerShell 5.1 的 `-Encoding utf8` 會加入 BOM，必須改用 `[System.IO.File]::WriteAllText($path, $content, [System.Text.UTF8Encoding]::new($false))`。使用其他寫檔工具時也要在寫後檢查 encoding 與 BOM。
 - 文件內的路徑一律 **repo 相對路徑**，不寫絕對路徑。
 
 ## 5. 驗收（不可自認完成）

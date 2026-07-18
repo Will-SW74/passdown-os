@@ -101,7 +101,7 @@
 4. 讀 [`handoff/CURRENT.md`](handoff/CURRENT.md) — 掌握目前在哪個 change、做到哪、下一步是什麼。（cc 若已安裝 SessionStart hook，CURRENT.md 全文會自動注入在 context 開頭，此步驟視為完成、不需重讀。）
 5. **交接完整性檢查（復原協定）**——兩個訊號，任一觸發就先修復再動工：
    - **訊號 A（確認為 stale 的會話鎖）**：第 1 步發現 `.active_lock`，且經使用者確認沒有其他 agent 仍在工作 → 才視為「上次未正常收尾」，先讀 `sessions/`（不含 `archive/`）最新一份 log，據此把 CURRENT.md 修復成真實狀態。仍在使用中的活鎖依第 1 步立即停止，不得進入復原流程或覆寫。
-   - **訊號 B（語意不一致）**：檢查 `sessions/`（不含 `archive/`；忽略 `.active_lock`、`.toolcount` 等 dotfile，只看 `*.md`）最新一份 log 的檔名，是否就是 CURRENT.md 的 `Direct Memory Source` **第一項**所指向的那份：
+   - **訊號 B（語意不一致）**：候選只限直接位於 `sessions/`、檔名符合 `YYYY-MM-DD-HHmm-<agent>-<slug>.md` 的 session log；`archive/`、`INDEX.md`、`_template.md`、dotfile 與其他 Markdown 一律不參與 newest-log 判定。檢查最新候選 log 的檔名，是否就是 CURRENT.md 的 `Direct Memory Source` **第一項**所指向的那份：
      - 最新 log **不是** Direct Memory Source 所指（存在一份更新、未被 CURRENT.md 收錄的 log）→ 上次結束協定沒跑完整（寫了 log 但沒更新 CURRENT.md）。先讀那份最新 log，據此修復 CURRENT.md，再繼續往下。
      - Direct Memory Source 指向的 log **不存在** → 上次少寫了 session log 或 CURRENT.md 填錯。不需回補，但在本次 session log 的 `Started from` 註明「前次交接缺 log」。
      - 註：**不用時間戳先後做主判準**——結束協定「先寫 CURRENT.md、後寫 log」的固定順序，會讓 log 永遠看起來比較新，時間戳比對必然誤判。log 檔名中的日期與 `HHmm` 一律指 **session 開始時間**（不是寫檔時間），僅供人類排序閱讀。
@@ -169,7 +169,7 @@
 <!-- 使用者指示新增：從 session 第一個回覆起就適用 -->
 
 1. **正體中文（zh-TW）**：所有對話回覆、交接文件（`CURRENT.md`、session log、`memory/` 各檔）、程式碼註解，一律使用正體中文。程式碼本身、指令、專有名詞、檔名保留原文即可，不必硬翻。
-2. **UTF-8 編碼**：所有寫入的文字檔案一律使用 UTF-8（無 BOM）。Windows 環境特別注意：PowerShell 5.1 的 `Out-File` / `Set-Content` 預設輸出 UTF-16，**必須明確指定 `-Encoding utf8`**；寫檔後若發現中文變亂碼，先檢查編碼再檢查內容。
+2. **UTF-8 編碼**：所有寫入的文字檔案一律使用 UTF-8（無 BOM）。Windows 環境特別注意：PowerShell 7 使用 `Set-Content -Encoding utf8NoBOM`；Windows PowerShell 5.1 的 `-Encoding utf8` 會加入 BOM，必須改用 `[System.IO.File]::WriteAllText($path, $content, [System.Text.UTF8Encoding]::new($false))`。寫檔後若發現中文變亂碼，先檢查編碼再檢查內容。
 3. **自然文風**：像可靠的協作者說話——自然、直接、有判斷；不討好、不端著、不濫情，也不故意裝隨便。先講結論，再補必要理由；能一句說清楚就不硬擴寫。對外文字、長文件與需要拿捏語氣的內容，寫之前讀 [`memory/conventions.md`](memory/conventions.md)「框架預設文風」。
 
 其他情境（git 衝突、分支紀律、檔案歸檔與精簡、修改框架規則的權限）→ 遇到時讀 `PROTOCOLS.md` 對應章節，該檔開頭有觸發時機對照表。
