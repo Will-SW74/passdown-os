@@ -20,7 +20,8 @@
 
 ## 發布前檢查 (Release Checklist)
 如果是完成了一個 Milestone 或準備合併回主分支：
-- [ ] **Commit 安全檢查已過**：staged files 無 `*.raw`／`*.jsonl`／`*.sqlite`／`*.db` 原始記憶檔、無 API key／token／密碼？（正本：PROTOCOLS「Git Commit 與分支策略」第 3 條）
-- [ ] **Feature Branch 準備 Squash**：確認是否所有的 AI 碎屑 Commit 都將以 Squash 方式合併。
+- [ ] **已 commit（無條件，非「視情況」）**：本次變更是否已 commit？沒有變更時 commit 為 no-op，仍要跑過這一步而不是事前判斷「值不值得」。（正本：CONSTITUTION 第 6 節第 8 步）**push 由使用者決定，未經指示不要 push。**
+- [ ] **Commit 安全檢查已過**：staged files 無 `*.raw`／`*.sqlite`／`*.db` 原始記憶檔、無**位置不對的** `*.jsonl`、無 API key／token／密碼？（採逐字稿模式 B 的專案，`transcripts/*.jsonl` 允許 staged，但需先跑憑證掃描；其他位置的 `.jsonl` 一律禁止。正本：PROTOCOLS「Git Commit 與分支策略」第 3 條）
+- [ ] **分支判準已確認**：本次工作若涉及「已有可運作基線之後的實作」或「結論可能作廢的探索（spike／PoC）」，是否在獨立 Feature Branch 上？若是，所有 AI 碎屑 Commit 是否都將以 Squash 合併？（尚無實作程式碼的基線建立可直接在 main——正本：PROTOCOLS 分支隔離）
 - [ ] **Memory 檔案輪替**：檢查 `memory/decisions.md` 等檔案是否超過 30 條或 400 行，需要進行歸檔？
 - [ ] **專案 Manifest 更新**：`PROJECT_MANIFEST.md` 的版本號與當前狀態是否需要更新？

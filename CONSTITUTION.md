@@ -92,6 +92,7 @@
    - **誠實聲明（防護等級）**：這是**勸告性（advisory）防護**，不是作業系統級強制鎖——「檢查→寫入」之間存在極小的同時啟動競態窗口，純 Markdown 跨平台的取捨下無法根除；上述「寫後讀回＋寫檔前複查」把窗口縮到實務可忽略，但不可宣稱絕對。
    - **同時重置計數器**：把 `sessions/.toolcount` 覆寫為 `0`（或刪除該檔）。cc / codex 的 SessionStart hook 會自動做這件事；**沒有 SessionStart 等價事件的平台（如 agy）靠這一步防止舊 session 的計數跨會話污染**（agy 的 PreInvocation 每回合都觸發，不能拿來歸零）。
    - 注意：鎖與計數器**不是記錄，是執行期暫存**——掛牌上工、下班摘牌（見結束協定最後一步）。真正的記錄永遠在 `sessions/*.md`，刪它們不會遺失任何交接內容。兩檔皆已列入 `.gitignore`，不進版控。
+   - **收上一個 session 的孤兒逐字稿（僅逐字稿採「模式 B：追蹤」的專案適用）**：跑一次 `git status`，若 `transcripts/` 有未提交的 `.jsonl`，那是上個 session 留下的——**這是結構性必然，不是誰忘了做**：SessionEnd hook 在 agent 最後一次回應**之後**才歸檔，而 commit 只能發生在 agent 還能行動時，所以任何 session 都無法提交自己的結尾。依 `transcripts/README.md` 跑憑證掃描後一併 commit。採模式 A（排除）的專案跳過此項。
 2. **首次接觸本專案時**，先讀 [`PROJECT_MANIFEST.md`](PROJECT_MANIFEST.md)（30 秒掌握專案定位、版本與入口）；已熟悉本專案則跳過。
 3. 讀本文件（`CONSTITUTION.md`）— 每次對話只需讀一次。
 4. 讀 [`handoff/CURRENT.md`](handoff/CURRENT.md) — 掌握目前在哪個 change、做到哪、下一步是什麼。（cc 若已安裝 SessionStart hook，CURRENT.md 全文會自動注入在 context 開頭，此步驟視為完成、不需重讀。）
@@ -117,7 +118,7 @@
 5. 若發現了值得記住的坑或 workaround，補進 `memory/known-issues.md`。
 6. **本機記憶同步檢查（強制）**：檢查本次 session 是否有內容被寫進了目前工具自己的私有記憶系統（例如 Claude Code 的 `~/.claude/.../memory/` auto memory、Codex 的本機 session 記錄）。若有，依 `PROTOCOLS.md`「本機記憶同步」章節，把重點內容鏡射一份回 `passdown-os/`（sessions/ 或 memory/），**回寫的每一條都依第 8 節簽名規則附上 agent 代號與時間戳**，不能讓任何決策或事實只存在單一工具看得到的地方。若本次 session 沒有寫入任何本機私有記憶，這步驟視為已確認、無需動作。
 7. **Read-back 驗證（不可自認完成）**：重新讀取剛覆寫的 CURRENT.md 與剛新增的 session log，逐項確認：(a) 檔案確實存在且內容完整；(b) `Next concrete step` 是具體可執行的一句話，不是 `<佔位文字>` 或空白；(c) `Context Index` 指向的檔案路徑真實存在。任一項不過就修到過為止——「我寫了」不等於「寫對了」。
-8. 視情況執行 `/spectra-commit` 提交本次變更相關的檔案（不使用 Spectra → 一般 `git add` + `git commit`；分支與 commit 紀律見 `PROTOCOLS.md`「Git Commit 與分支策略」）。
+8. **一律 commit 本次變更**（`/spectra-commit`，不使用 Spectra → 一般 `git add` + `git commit`；分支與 commit 紀律見 `PROTOCOLS.md`「Git Commit 與分支策略」）。**這一步沒有「視情況」**——本次真的沒有任何檔案變更時，`git status` 會如實顯示、commit 自然是 no-op，不需要 agent 事前判斷「這次值不值得 commit」。把判斷權交給 agent 的結果是它偶爾判錯，而未 commit 的交接內容在換機器時等於不存在。**push 與否由使用者決定**，agent 不得在未經指示下 push。
 9. **摘牌簽退（最後一步）**：確認第 2、3、7 步都完成後，**刪除 `sessions/.active_lock`**（若存在 `.toolcount` 計數檔可一併刪除）。刪除鎖就是「本次 session 正常收尾」的實體簽退訊號——鎖裡只有開始時間，這資訊 session log 檔名本來就有，刪它不會遺失任何記錄。**沒摘牌，下一個接手者就會把本次視為異常中斷並啟動復原協定。**
 
 上述步驟做不完（例如被迫中斷）時，至少要完成第 2、3 步（覆寫 CURRENT.md + 留一份 session log）再刪除 `.active_lock`，確保下一個接手者不會完全看不到這次發生過什麼事。連這都來不及（直接斷線）時，殘留的 `.active_lock` 正是下一位接手者啟動復原協定的訊號——這正是它存在的目的。

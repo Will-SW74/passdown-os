@@ -9,7 +9,7 @@
 | 持續存檔機制 | 長期對話中為了防範意外遺失脈絡時 |
 | 記憶索引與接力協定 | 要填寫或讀取 Context Index / Memory Anchor 欄位時 |
 | 衝突處理 | 遇到 passdown-os 檔案的 git merge conflict 時 |
-| Git Commit 與分支策略 | 開始一個非瑣碎任務前、或要合併分支時 |
+| Git Commit 與分支策略 | 開始一項工作前（判斷該不該開 branch）、或要合併分支時 |
 | 本機記憶同步 | 執行 Session 結束協定第 6 步、或要整批匯入本機記憶時 |
 | 維護規則 | sessions/ 或 memory/ 檔案累積變多時；想修改框架規則檔時 |
 
@@ -97,7 +97,19 @@
 
 為了避免頻繁的交接與對話存檔產生大量零碎的 git commit，導致主分支 (main/master) 的 commit 歷史雜亂，必須遵守以下 Git 紀律：
 
-1. **分支隔離**：AI Agent 執行任何非瑣碎任務時，**必須在獨立的 Feature Branch 上工作**（例如 `agent/<change-slug>` 或 `feature/<task-name>`），禁止直接在 main/master 分支進行頻繁交接。
+1. **分支隔離**：判準是 **「有沒有一個可運作的基線要保護」＋「這次工作有沒有可能整個作廢」**，不是「任務瑣不瑣碎」（PDOS-D-20260721-3）。
+
+   **可以直接在 main/master 上做**：
+   - 專案**還沒有可運作的實作**時的基線建立——規格、設計、文件、框架設定、專案骨架。沒有 baseline 可破壞，錯了就往前修一個 commit（這正是文件工作的自然演進方式），branch 買不到任何東西。
+
+   **必須開獨立 Feature Branch**（例如 `agent/<change-slug>` 或 `feature/<task-name>`）：
+   - 已經有可運作的基線之後的**實作變更**——main 上有東西可以被弄壞了。
+   - **結論可能是「此路不通」的探索**，典型如 spike／PoC／效能驗證。這類工作的價值在於「可能要整段丟掉」，正是 branch 存在的理由。
+   - 需要他人 review 才能合併、或多線並行時。
+
+   **判斷不了就問使用者一次**，不要靠「感覺這個算不算瑣碎」。
+
+   > **為什麼改**：舊版寫「任何非瑣碎任務都必須開 branch」，但「非瑣碎」與「該不該隔離」是兩件事。一個 39 項任務的規格重寫非常不瑣碎，卻完全沒有 baseline 可保護、也不可能整份作廢；照舊規則要開 branch，實務上沒人這樣做，於是規則變成寫了沒人遵守——那比沒有規則更糟。
 2. **頻繁 Local Commit**：在 Feature Branch 上，每次執行「Session 結束協定」時，Agent 應該將所有修改（包含專案代碼、`CURRENT.md`、新產生的 `sessions/*.md`）直接 commit。Commit message 格式建議為：`<agent>: <slug> - <summary>`（例如 `cc: fix-auth-bug - complete token parsing and save session log`）。
 3. **Commit 前安全檢查（每次 commit 都要）**：
    - **本機記憶原始檔不入版控**：確認 staged files 中沒有 `*.raw`、`*.sqlite`、`*.db` 等原始記憶檔，以及**位置不對的** `*.jsonl`。`imports/` 由 `.gitignore` 擋住；`transcripts/` 是逐字稿的**唯一**合法存放區。這道檢查抓的是**漏到其他位置**的原始檔（例如誤把工具逐字稿複製到 `sessions/` 或專案根目錄）——那些一律不得入版控。
