@@ -134,7 +134,7 @@
 
 若專案啟用了 `transcripts/` 歸檔區（見該資料夾 README），執行本章記憶同步時順手歸檔當次逐字稿——讓「每次互動的完整記錄」跟著專案資料夾走（gitignored、不入版控）。
 
-**判準是「本專案的自動歸檔 hook 是否真的生效」，不是「用哪個 agent」（D-20260721-1）**。安裝狀態是專案屬性不是 agent 屬性——同一個 agent 在 A 專案裝了 hook、在 B 專案沒裝。**先確認再決定走哪條路**：
+**判準是「本專案的自動歸檔 hook 是否真的生效」，不是「用哪個 agent」（框架決策 PDOS-D-20260721-1）**。安裝狀態是專案屬性不是 agent 屬性——同一個 agent 在 A 專案裝了 hook、在 B 專案沒裝。**先確認再決定走哪條路**：
 
 1. **確認本次是否已自動歸檔**：看 `transcripts/` 有沒有出現對應本次 session 的檔案。（cc 亦可先查 `<target>/.claude/settings.json` 是否含 `SessionEnd` hook。）
 2. **已自動歸檔** → 完成，不需手動。目前只有 cc 有自動路徑（`entrypoints/hooks/archive-transcript.sh`）。

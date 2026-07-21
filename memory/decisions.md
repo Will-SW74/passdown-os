@@ -2,7 +2,11 @@
 
 只增不改的決策紀錄（ADR-lite）。每筆條目標題格式：`## D-YYYYMMDD-N — <決策標題>`（N＝當日流水號，從 1 起算）——這個 **決策 ID** 是全框架的精準引用鍵：程式碼註解、session log 的 `Decisions made` 欄位、CURRENT.md 都用它指回本檔特定條目（例如註解寫 `// D-20260712-2：時間戳比對必然誤判，故用語意檢查`）。若某個決策後來被推翻，用新條目記錄並註明「取代 D-YYYYMMDD-N」，不要刪除或改寫舊條目。
 
-## D-20260721-1 — hooks 由「建議安裝」升為必裝；依賴 hook 的協定步驟改以「是否生效」為判準
+> **兩個命名空間，不要混淆（PDOS-D-20260721-1）**：安裝到新專案時本檔會被**清空**（見 `GOLDEN_TEMPLATE.md` 重置表），專案從 `D-YYYYMMDD-N` 重新編號。因此**框架自身的決策**改用 `PDOS-` 前綴（`PDOS-D-YYYYMMDD-N`），被複製到各專案的框架文件（`CONSTITUTION.md`、`PROTOCOLS.md`、`INSTALL.md` 等）引用框架決策時一律帶前綴，指向**本框架母庫**的本檔，而非專案自己的 `memory/decisions.md`。
+>
+> 未加前綴的歷史條目（`D-20260712-*`、`D-20260713-*`）維持原 ID 不改寫（本檔只增不改），但同樣屬於框架命名空間；框架文件內若引用到它們，讀者請到母庫查閱。**專案自己的決策一律不加前綴。**
+
+## PDOS-D-20260721-1 — hooks 由「建議安裝」升為必裝；依賴 hook 的協定步驟改以「是否生效」為判準
 
 **Decision:** (1) `INSTALL.md` 第 3 節的 hooks 從「建議安裝」改為**必裝**，並補上安裝後驗收步驟（設定檔可解析、計數器冒煙測試、告知 SessionStart/SessionEnd 需下個 session 驗證）；使用者明確拒裝時必須在 `CURRENT.md` 的 Open items 留記錄。`entrypoints/hooks/README.md` 標題同步從「選用但強烈建議」改為「必裝」。(2) `PROTOCOLS.md`「逐字稿歸檔」與 `CHECKLIST_HANDOFF.md` 對應項的判準，從**agent 種類**（cc 有 hook／agy・codex 沒有）改為**本專案的 hook 是否真的生效**：先看 `transcripts/` 有沒有出現本次檔案，沒有就一律手動補，並補上 cc 的本機逐字稿路徑。
 
