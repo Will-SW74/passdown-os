@@ -14,6 +14,7 @@
 2. **Git Bash / POSIX sh**（hooks 腳本的執行環境）：先執行 `sh -c "echo ok"`。**失敗時不要立刻判定未安裝**——Windows 上 Git 常見的安裝狀態是「`git` 在 PATH、`sh.exe` 不在」。此時做第二層探測：從 `git` 的位置推導 Git 安裝根目錄（例如 `where git` 得到 `C:\Program Files\Git\cmd\git.exe` → 根目錄為 `C:\Program Files\Git`），檢查 `<Git根>\bin\sh.exe` 或 `<Git根>\usr\bin\sh.exe` 是否存在並能執行 `-c "echo ok"`：
    - **兩層都找不到** → Git Bash 真的沒裝，中止並請使用者安裝。
    - **第二層找到了** → 元件已安裝但 **不在 PATH**。**仍然中止**（codex／agy 的 hooks 直接呼叫裸的 `sh`，PATH 上找不到就會靜默失效），但診斷要準確：告訴使用者「Git Bash 已安裝，只需把 `<Git根>\bin` 加入 PATH」，**不要**叫人重裝已存在的東西。加完 PATH 後重跑本門檻。
+     - **Windows 環境變數刷新注意**：Windows 的環境變數變更後，當前已經在執行中的 Agent 終端機/Session **不會自動重新載入新的環境變數**。Agent 可以手動在當前 PowerShell 中藉由 `$env:Path += ";C:\Program Files\Git\bin"`（依實際 Git 根目錄調整）暫時補上，或者必須請使用者重新啟動 Agent（重開對話/重開 IDE）以繼承新的 PATH 設定。
 3. **Python**（agy 注入 hook 的依賴）：執行 `python --version` 必須成功。注意：Windows 上若只有 `py` 啟動器而沒有 `python` 指令，**視同不合格**——hooks 範本呼叫的是 `python`，請使用者安裝時勾選「Add python.exe to PATH」。
 
 **任一項失敗 → 立刻中止部署**，向使用者回報：(a) 缺了哪幾項；(b) 安裝來源（Git 含 Git Bash：git-scm.com；Python：python.org，安裝時勾 Add to PATH）；(c) 明確說「裝好之後再叫我一次，我從頭執行本安裝」。**不要**在缺件狀態下部署任何部分——半套框架（有規則、沒 hooks）會讓機制化防線靜默失效，比不裝更危險。
@@ -39,6 +40,13 @@
 - 來源根目錄的 `CLAUDE.md`、`AGENTS.md`、`GEMINI.md` 與 `.claude/`、`.agent/`、`.gemini/`、`.codex/`、`.opencode/`（範本庫自己的工具部署實體——新專案的入口檔要從 `entrypoints/` 範本重新生成，見第 3 步）
 - `sessions/` 底下的實際 log 檔（`YYYY-MM-DD-*.md`）
 - `sessions/.active_lock`、`sessions/.toolcount`（單機執行期暫存）
+
+**Windows 唯讀檔案與 `.git` 清理注意事項**：
+在複製過程中，若需要原地清理來源或刪除 `.git/` 目錄，Windows 下的 PowerShell `Remove-Item -Recurse -Force` 常因 pack 檔案具有唯讀屬性而報錯。建議採用以下做法之一解決：
+1. 採用「開新資料夾，只複製白名單檔案」的白名單做法，避免原地刪除 `.git`。
+2. 在 PowerShell 中先移除該目錄下所有檔案的唯讀屬性，再執行刪除：
+   `Get-ChildItem -Path <path> -Recurse -Force | ForEach-Object { $_.Attributes = 'Normal' }; Remove-Item -Path <path> -Recurse -Force`
+3. 使用 `cmd /c rmdir /s /q <path>` 強制刪除。
 
 ## 2. 重置狀態檔（你自己改，不是叫使用者改）
 
