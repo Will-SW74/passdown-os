@@ -2,6 +2,18 @@
 
 只增不改的決策紀錄（ADR-lite）。每筆條目標題格式：`## D-YYYYMMDD-N — <決策標題>`（N＝當日流水號，從 1 起算）——這個 **決策 ID** 是全框架的精準引用鍵：程式碼註解、session log 的 `Decisions made` 欄位、CURRENT.md 都用它指回本檔特定條目（例如註解寫 `// D-20260712-2：時間戳比對必然誤判，故用語意檢查`）。若某個決策後來被推翻，用新條目記錄並註明「取代 D-YYYYMMDD-N」，不要刪除或改寫舊條目。
 
+## D-20260721-1 — hooks 由「建議安裝」升為必裝；依賴 hook 的協定步驟改以「是否生效」為判準
+
+**Decision:** (1) `INSTALL.md` 第 3 節的 hooks 從「建議安裝」改為**必裝**，並補上安裝後驗收步驟（設定檔可解析、計數器冒煙測試、告知 SessionStart/SessionEnd 需下個 session 驗證）；使用者明確拒裝時必須在 `CURRENT.md` 的 Open items 留記錄。`entrypoints/hooks/README.md` 標題同步從「選用但強烈建議」改為「必裝」。(2) `PROTOCOLS.md`「逐字稿歸檔」與 `CHECKLIST_HANDOFF.md` 對應項的判準，從**agent 種類**（cc 有 hook／agy・codex 沒有）改為**本專案的 hook 是否真的生效**：先看 `transcripts/` 有沒有出現本次檔案，沒有就一律手動補，並補上 cc 的本機逐字稿路徑。
+
+**Why:** 兩處自相矛盾造成實際損失。第 0.1 節因 hooks 的執行環境缺件就中止整個安裝，理由明寫「半套框架（有規則、沒 hooks）會讓機制化防線靜默失效，比不裝更危險」——既然缺前置條件就不准裝，第 3 節卻寫「建議安裝」，邏輯不成立。實際案例（gt_auto_tester，2026-07-21）正是落在第 0.1 節警告的狀態：規則裝了、hooks 沒裝。而「有沒有自動歸檔」被寫成 agent 屬性（cc 有／agy・codex 沒有），但它其實是**安裝狀態屬性**；於是「cc + hook 未安裝」這個組合在正本與檢查表中**兩個分支都不屬於**，逐字稿歸檔整步靜默無動作，直到使用者發現 `transcripts/` 只有 agy 的檔案。
+
+**Alternatives considered:**
+- 只補 cc 的手動 fallback，hooks 維持「建議安裝」— 否決：那只治症狀。根因是「協定步驟依賴一個選配元件」這個結構，不修的話其他依賴 hook 的機制（PostToolUse 檢查點、PreCompact 提醒、SessionStart 注入）同樣會在半套安裝下靜默失效。
+- hooks 改必裝但不加 fallback — 否決：使用者仍可事後移除、hook 也可能安裝了卻沒生效，協定不該假設 hook 一定跑過。兩者並行才是縱深防禦。
+
+**Agent:** cc（2026-07-21 20:55）
+
 ## D-20260713-4 — 認知獨立與自然文風採分層索引，不做成 skill
 
 **Decision:** (1) 認知獨立是所有 agent、所有任務型態的核心行為，故在 CONSTITUTION 誠實條款只放短原則；完整操作正本放 `RUBRICS.md` 第 6 節，以「證據／重現／遺漏路徑／真實影響／修正代價」五問判斷。DISPATCH、prompts 與 cc subagent 定義只放任務情境補充並回指 RUBRICS，不複製五問。(2) 自然文風在 CONSTITUTION 語言紀律放一句每次必讀的摘要，詳細正本放 `memory/conventions.md`「框架預設文風」；GOLDEN/INSTALL 將此區標成跨專案保留，只清空專案自訂慣例。(3) 不建立 skill：常駐行為不能依賴被顯式呼叫才生效的能力。

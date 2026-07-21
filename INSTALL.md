@@ -62,10 +62,18 @@
 
 1. **確認要啟用哪些 agent**：使用者指明就照辦；沒指明→從專案現況推斷（有 `.claude/` 就有 cc、有 `AGENTS.md` 可能有 codex），推斷不了就問一次。
 2. **入口檔**：依 [`entrypoints/README.md`](entrypoints/README.md) 的對應表，把對應範本的「## Passdown OS」段落合併進目標專案根目錄的入口檔（`CLAUDE.md`／`AGENTS.md` 等）——檔案已存在就 append 到末尾，不存在就建立。
-3. **hooks（建議安裝）**：依 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)：
+3. **hooks（必裝，不是選配）**：依 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)，為**每一個啟用的 agent** 安裝：
    - cc：`settings.json.example` 的 hooks 區塊合併進 `<target>/.claude/settings.json`；`entrypoints/commands/handoff.md` 複製到 `<target>/.claude/commands/`；要自動調度就把 `entrypoints/claude-agents/` 複製到 `<target>/.claude/agents/`。
    - codex：`codex-hooks.json.example` → `<target>/.codex/hooks.json`，**提醒使用者首次執行需在 codex 內 trust**。
    - agy：`agy-hooks.json.example` → `<target>/.agents/hooks.json`，注入行為需實測（見該檔註記）。
+
+   **為什麼是必裝（D-20260721-1）**：第 0.1 節已經因為 hooks 的執行環境（Git Bash、Python）缺件就**中止整個安裝**，並明文寫著「半套框架（有規則、沒 hooks）會讓機制化防線靜默失效，比不裝更危險」。既然缺了 hooks 的前置條件就不准裝，hooks 本身自然不可能是選配——過去寫成「建議安裝」與第 0.1 節自相矛盾，實際造成過「規則裝了、hooks 沒裝」的半套狀態，且該狀態下依賴 hook 的協定步驟會靜默不執行。
+
+   **安裝後必須驗收**（不可只寫檔就宣稱完成）：
+   - 設定檔能被解析（cc：`.claude/settings.json` 是合法 JSON，且原有設定未被覆蓋）。
+   - 冒煙測試 `sh entrypoints/hooks/checkpoint-counter.sh --json` 正常結束。
+   - 明確告訴使用者：**SessionStart 與 SessionEnd 需在下一個 session 才能驗證**，並給出驗收方法（開場問 agent「你 context 裡有沒有 SessionStart hook 注入的交接內容？」，能引用 `CURRENT.md` 即成功）。
+   - 若使用者明確拒裝 hooks，**必須**在 `handoff/CURRENT.md` 的 Open items 記一筆「hooks 未安裝，依賴 hook 的協定步驟需全部手動執行」，讓後續 agent 看得到——不可默默略過。
 4. **Spectra**：目標專案有 `openspec/` 就不用動；沒有就依 `PROTOCOLS.md`「不使用 Spectra 時的替代方案」——不需要為了本框架去裝 Spectra。
 
 ## 4. 寫檔紀律（安裝過程全程適用）

@@ -130,12 +130,20 @@
 
 換句話說：**每次**都要做「檢查 + 輕量摘要回寫」（步驟 1-2）；只有在整批搬家/換工具的情境才需要走完整的匯入清洗流程（步驟 3）。
 
-### 逐字稿歸檔（選用，但啟用後每次 session 結束都做）
+### 逐字稿歸檔（專案啟用 `transcripts/` 後，每次 session 結束都做）
 
-若專案啟用了 `transcripts/` 歸檔區（見該資料夾 README），執行本章記憶同步時順手歸檔當次逐字稿——讓「每次互動的完整記錄」跟著專案資料夾走（gitignored、不入版控）：
+若專案啟用了 `transcripts/` 歸檔區（見該資料夾 README），執行本章記憶同步時順手歸檔當次逐字稿——讓「每次互動的完整記錄」跟著專案資料夾走（gitignored、不入版控）。
 
-- **cc**：安裝 SessionEnd hook（`entrypoints/hooks/archive-transcript.sh`）後全自動，不需手動。
-- **codex / agy**：從上方造冊的本機路徑（codex：`~/.codex/sessions/`；agy：`~/.gemini/antigravity-cli/brain/<conversation-id>/...`）複製當次逐字稿到 `transcripts/`，命名 `YYYY-MM-DD-HHmm-<agent>-<slug>.jsonl`（與本次 session log 同前綴）。
+**判準是「本專案的自動歸檔 hook 是否真的生效」，不是「用哪個 agent」（D-20260721-1）**。安裝狀態是專案屬性不是 agent 屬性——同一個 agent 在 A 專案裝了 hook、在 B 專案沒裝。**先確認再決定走哪條路**：
+
+1. **確認本次是否已自動歸檔**：看 `transcripts/` 有沒有出現對應本次 session 的檔案。（cc 亦可先查 `<target>/.claude/settings.json` 是否含 `SessionEnd` hook。）
+2. **已自動歸檔** → 完成，不需手動。目前只有 cc 有自動路徑（`entrypoints/hooks/archive-transcript.sh`）。
+3. **沒有自動歸檔**（hook 未安裝、被移除、或安裝了卻沒生效）→ **一律手動補**，不分 agent。從本機路徑複製當次逐字稿到 `transcripts/`，命名 `YYYY-MM-DD-HHmm-<agent>-<slug>.jsonl`（與本次 session log 同前綴）：
+   - cc：`~/.claude/projects/<專案路徑 hash>/<session-id>.jsonl`
+   - codex：`~/.codex/sessions/`
+   - agy：`~/.gemini/antigravity-cli/brain/<conversation-id>/...`
+   - 手動補做時在 session log 的 Transcript 欄註明「手動歸檔」與原因；若逐字稿是 session 結束前複製的，明確標示它**不含最後一段對話**。
+
 - 定位提醒：逐字稿是最後一層考古材料，不是記憶正本——交接仍靠 `sessions/*.md` 提煉版；要把逐字稿內容升級進正式記憶，走 `imports/` 清洗流程。
 
 ## 維護規則

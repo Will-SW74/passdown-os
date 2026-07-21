@@ -20,7 +20,7 @@
 
 > **未確認**：agy 是否自動讀取 `.agents/AGENTS.md` 未在本框架實測過。首次導入新專案時建議實測一次：開新 agy 對話，看它是否主動遵循入口段落；若沒有，改放專案根目錄 `AGENTS.md`。實測結果請回寫更新本表。
 
-## cc SessionStart hook（選用，建議安裝）
+## cc SessionStart hook（必裝，見 D-20260721-1）
 
 [`hooks/`](hooks/README.md) 提供 cc 的 SessionStart hook 設定範本：每次新 session（含 `/clear` 與 compact 後）自動把 `passdown-os/handoff/CURRENT.md` 注入 context，把「agent 自覺讀交接」變成機制保證。已實測驗證（2026-07）。安裝方式見該資料夾 README。
 

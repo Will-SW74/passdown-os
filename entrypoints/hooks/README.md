@@ -1,4 +1,8 @@
-# hooks — 三大 agent 的機制化防線（選用但強烈建議）
+# hooks — 三大 agent 的機制化防線（必裝）
+
+> **必裝，不是選配（D-20260721-1）**：`INSTALL.md` 第 0.1 節會因為 hooks 的執行環境缺件就中止整個安裝，理由是「半套框架（有規則、沒 hooks）會讓機制化防線靜默失效，比不裝更危險」。既然缺前置條件就不准裝，hooks 本身不可能是選配。本檔舊版寫「選用但強烈建議」與該節矛盾，已修正。
+>
+> 若因故未安裝，**依賴 hook 的協定步驟必須全部改為手動執行**，並在 `handoff/CURRENT.md` 的 Open items 明記，否則那些步驟會靜默不執行。
 
 本資料夾提供 cc / codex / agy 三者的 hook 範本，涵蓋兩種機制：
 1. **SessionStart 自動注入**：session 一開就把 `CURRENT.md` 塞進 context——agent 忘不忘記讀，交接內容都在眼前。
@@ -34,6 +38,7 @@
 - **驗證方法**：結束一個 session（或 `/clear`）後檢查 `passdown-os/transcripts/` 是否出現新 `.jsonl`。
 - **已實測（2026-07-12）**：無 jq 環境的 sed fallback＋POSIX 路徑，假 JSON 實跑通過（歸檔與命名正確）。**【待實測】**：真實 SessionEnd 觸發時 Windows 雙反斜線路徑（`C:\\Users\\...`）的還原——實測後更新本段。
 - codex / agy 沒有等效自動機制（其 hook 是否提供 transcript 路徑**未查證**）——依 `PROTOCOLS.md`「逐字稿歸檔」小節手動複製。
+- **cc 也不保證自動**：本 hook 沒安裝、被移除、或安裝了卻沒生效時，cc 同樣要手動補。`PROTOCOLS.md` 的判準是「`transcripts/` 有沒有出現本次檔案」，不是「用哪個 agent」（D-20260721-1）。
 
 ## PreCompact hook（壓縮前的最後防線，2026-07-12 加入）
 

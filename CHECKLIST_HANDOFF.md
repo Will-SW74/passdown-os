@@ -13,7 +13,7 @@
 - [ ] **INDEX 已考慮**：本次若有長期參考價值（重大決策/架構變動/複雜 debug），是否已在 `sessions/INDEX.md` 補一行？（日常瑣事不必）
 - [ ] **Context Index 已精確指定**：`CURRENT.md` 中是否有提供指向相關 session log 或代碼行號的精確錨點？
 - [ ] **本機記憶已同步**：是否已將自己工具內的私有記憶重點回寫到 `passdown-os` 中，且每條都附了 agent 代號與時間戳？
-- [ ] **逐字稿已歸檔**：若專案啟用了 `transcripts/` 且所用 Agent 無自動 Hook 歸檔功能（如 agy / codex），是否已手動將本機當次逐字稿複製至 `transcripts/` 並以與 log 相同的前綴命名？（正本：PROTOCOLS「逐字稿歸檔」）
+- [ ] **逐字稿已歸檔**：若專案啟用了 `transcripts/`，是否已**實際確認** `transcripts/` 出現本次 session 的檔案？**判準是 hook 有沒有生效，不是用哪個 agent**——沒出現就一律手動複製並以與 log 相同的前綴命名，不因「我是 cc、我應該有 hook」而略過。（正本：PROTOCOLS「逐字稿歸檔」）
 - [ ] **決策已紀錄**：本次有任何影響架構或約定俗成的決策，是否已寫入 `memory/decisions.md`？
 - [ ] **Read-back 驗證**：是否已重新讀取自己剛寫下的交接檔案，並確認格式與內容都正確無誤？
 - [ ] **摘牌簽退**：以上全部完成後，是否已刪除 `sessions/.active_lock`？（這是「正常收尾」的實體訊號，必須是最後一步）

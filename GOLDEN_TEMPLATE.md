@@ -73,8 +73,8 @@
 - [ ] `CONSTITUTION.md` 的「角色」章節的 agent 代號已依實際使用的工具調整
 - [ ] `PROTOCOLS.md` / `DISPATCH.md` / `RUBRICS.md` / `prompts/` / `README.md` 原樣保留，僅 `DISPATCH.md` 第 7 節查證表已重填新環境的值（或清回 `<待填>`）
 - [ ] 若使用 cc 且要啟用自動調度：`entrypoints/claude-agents/` 的五個 agent 檔已複製到新專案 `.claude/agents/`，且 `CLAUDE.md` 含「調度模式」段落（不啟用則跳過此項）
-- [ ] 若使用 cc：`entrypoints/hooks/settings.json.example` 的 SessionStart hook 已合併進新專案 `.claude/settings.json`，並開新 session 驗證注入成功（建議安裝；不裝則靠協定紀律）
+- [ ] 若使用 cc：`entrypoints/hooks/settings.json.example` 的 hooks 區塊已合併進新專案 `.claude/settings.json`，並開新 session 驗證注入成功（**必裝**，D-20260721-1；未裝時必須在 `CURRENT.md` 的 Open items 記一筆，且所有依賴 hook 的協定步驟改為手動）
 - [ ] 若使用 cc：`entrypoints/commands/handoff.md` 已複製到新專案 `.claude/commands/`（收工打 `/handoff` 觸發結束協定；建議安裝）
-- [ ] 若使用 codex：`entrypoints/hooks/codex-hooks.json.example` 已放到新專案 `.codex/hooks.json` 並在 codex 內信任（建議安裝；含 SessionStart 注入與檢查點計數器）
-- [ ] 若使用 agy：`entrypoints/hooks/agy-hooks.json.example` 已放到新專案 `.agents/hooks.json` 並實測注入成功（建議安裝）
+- [ ] 若使用 codex：`entrypoints/hooks/codex-hooks.json.example` 已放到新專案 `.codex/hooks.json` 並在 codex 內信任（**必裝**；含 SessionStart 注入與檢查點計數器）
+- [ ] 若使用 agy：`entrypoints/hooks/agy-hooks.json.example` 已放到新專案 `.agents/hooks.json` 並實測注入成功（**必裝**）
 - [ ] `.gitignore` 含 `sessions/.active_lock` 與 `sessions/.toolcount`（會話鎖與計數器是本機暫存，不進版控）
