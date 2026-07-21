@@ -100,7 +100,8 @@
 1. **分支隔離**：AI Agent 執行任何非瑣碎任務時，**必須在獨立的 Feature Branch 上工作**（例如 `agent/<change-slug>` 或 `feature/<task-name>`），禁止直接在 main/master 分支進行頻繁交接。
 2. **頻繁 Local Commit**：在 Feature Branch 上，每次執行「Session 結束協定」時，Agent 應該將所有修改（包含專案代碼、`CURRENT.md`、新產生的 `sessions/*.md`）直接 commit。Commit message 格式建議為：`<agent>: <slug> - <summary>`（例如 `cc: fix-auth-bug - complete token parsing and save session log`）。
 3. **Commit 前安全檢查（每次 commit 都要）**：
-   - **本機記憶原始檔不入版控**：確認 staged files 中沒有 `*.raw`、`*.jsonl`、`*.sqlite`、`*.db` 等原始記憶／逐字稿檔案。`imports/` 與 `transcripts/` 已由 `.gitignore` 機制擋住（`transcripts/` 是逐字稿的**唯一**合法存放區），這道檢查抓的是**漏到其他位置**的原始檔（例如誤把工具逐字稿複製到 `sessions/` 或專案根目錄）。
+   - **本機記憶原始檔不入版控**：確認 staged files 中沒有 `*.raw`、`*.sqlite`、`*.db` 等原始記憶檔，以及**位置不對的** `*.jsonl`。`imports/` 由 `.gitignore` 擋住；`transcripts/` 是逐字稿的**唯一**合法存放區。這道檢查抓的是**漏到其他位置**的原始檔（例如誤把工具逐字稿複製到 `sessions/` 或專案根目錄）——那些一律不得入版控。
+     - **例外：`transcripts/` 採「追蹤模式」的專案**（見 [`transcripts/README.md`](transcripts/README.md) 的兩種模式，PDOS-D-20260721-2）。此時 `transcripts/*.jsonl` **允許** staged，但每次新增前**必須**跑該檔記載的憑證樣式掃描，命中即停。其他位置的 `.jsonl` 仍然一律禁止。
    - **敏感資訊掃描**：確認 staged 的文字檔（尤其 `.md`）內容不含 API key、token、密碼、個人帳號。發現即移除，並在 [`memory/redaction-log.md`](memory/redaction-log.md) 記一筆移除了什麼。
 4. **壓扁合併 (Squash & Merge)**：當任務完全結束，變更要併回 main/master 或 dev 分支時，必須採用 **Squash and Merge** 的方式合併。
    - **效果**：這會將 Feature Branch 上的數十個 AI 工作碎屑 commit 壓扁成一個乾淨的、人類可讀的高階 commit（例如 `feat: support JWT token authentication`）。
@@ -132,7 +133,9 @@
 
 ### 逐字稿歸檔（專案啟用 `transcripts/` 後，每次 session 結束都做）
 
-若專案啟用了 `transcripts/` 歸檔區（見該資料夾 README），執行本章記憶同步時順手歸檔當次逐字稿——讓「每次互動的完整記錄」跟著專案資料夾走（gitignored、不入版控）。
+若專案啟用了 `transcripts/` 歸檔區，執行本章記憶同步時順手歸檔當次逐字稿，讓「每次互動的完整記錄」留在專案裡。
+
+**逐字稿是否入版控有兩種模式，由專案在導入時擇一**（預設排除模式；詳細判準、切換方式與安全要求見 [`transcripts/README.md`](transcripts/README.md)，PDOS-D-20260721-2）。**歸檔動作本身兩種模式都一樣**，差別只在事後 commit 時 `.jsonl` 進不進版控。
 
 **判準是「本專案的自動歸檔 hook 是否真的生效」，不是「用哪個 agent」（框架決策 PDOS-D-20260721-1）**。安裝狀態是專案屬性不是 agent 屬性——同一個 agent 在 A 專案裝了 hook、在 B 專案沒裝。**先確認再決定走哪條路**：
 

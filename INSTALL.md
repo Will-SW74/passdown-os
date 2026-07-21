@@ -74,7 +74,11 @@
    - 冒煙測試 `sh entrypoints/hooks/checkpoint-counter.sh --json` 正常結束。
    - 明確告訴使用者：**SessionStart 與 SessionEnd 需在下一個 session 才能驗證**，並給出驗收方法（開場問 agent「你 context 裡有沒有 SessionStart hook 注入的交接內容？」，能引用 `CURRENT.md` 即成功）。
    - 若使用者明確拒裝 hooks，**必須**在 `handoff/CURRENT.md` 的 Open items 記一筆「hooks 未安裝，依賴 hook 的協定步驟需全部手動執行」，讓後續 agent 看得到——不可默默略過。
-4. **Spectra**：目標專案有 `openspec/` 就不用動；沒有就依 `PROTOCOLS.md`「不使用 Spectra 時的替代方案」——不需要為了本框架去裝 Spectra。
+4. **逐字稿模式（問使用者一次，不要自行預設）**：`transcripts/` 有「排除」與「追蹤」兩種模式，見 [`transcripts/README.md`](transcripts/README.md)（PDOS-D-20260721-2）。問法：**「這個 repo 是私有的嗎？你換機器接手是靠 git pull，還是靠雲端硬碟同步整個資料夾？」**
+   - 私有 **且** 靠 git 跨機 → 建議**模式 B（追蹤）**，否則逐字稿實質上永遠不會離開原機器。依該 README 完成三件事：移除 `.gitignore` 的 `transcripts/*`、在 repo 根加 `.gitattributes` 的 `*.jsonl -text`、把選擇與前提記進 `memory/decisions.md`。
+   - 其餘情況 → 維持**模式 A（排除，預設）**，並告知使用者可攜要靠資料夾同步。
+   - **務必主動說明切換成本不對稱**：A→B 隨時可改；B→A 補救不了（歷史裡的逐字稿需 `filter-repo`／BFG 重寫）。所以「repo 未來會不會轉公開」要現在就問清楚，不能等到轉公開那天。
+5. **Spectra**：目標專案有 `openspec/` 就不用動；沒有就依 `PROTOCOLS.md`「不使用 Spectra 時的替代方案」——不需要為了本框架去裝 Spectra。
 
 ## 4. 寫檔紀律（安裝過程全程適用）
 

@@ -46,7 +46,8 @@
 - `memory/conventions.md` 的「框架預設文風」（專案自訂慣例則照上表清空）
 - `PROTOCOLS.md`（協定細節篇，「與 Spectra 的關係」章節依步驟 5 調整除外）、`DISPATCH.md`（調度守則，第 7 節查證表除外）、`RUBRICS.md`（判斷 rubrics）、`prompts/` 與 `entrypoints/claude-agents/` 底下全部範本、`README.md` 導引
 - `handoff/_template.md`、`sessions/_template.md` 兩份模板的欄位結構
-- `.gitignore` 裡的忽略規則：`imports/*`、`transcripts/*`、`sessions/.active_lock`、`sessions/.toolcount`（換成新專案路徑時語法不變）
+- `.gitignore` 裡的忽略規則：`imports/*`、`sessions/.active_lock`、`sessions/.toolcount`（換成新專案路徑時語法不變）
+  - **`transcripts/*` 是例外，不屬於「不變」的部分**：它取決於專案選了哪種逐字稿模式（見 `transcripts/README.md`，PDOS-D-20260721-2）。模式 A（預設）保留該排除規則；模式 B 移除它，並在 repo 根加 `.gitattributes` 的 `*.jsonl -text`。
 - `entrypoints/` 底下的範本（內容不變，只需複製到新專案對應位置並改名）
 
 ## 為什麼這樣分

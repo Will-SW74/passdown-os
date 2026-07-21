@@ -33,7 +33,7 @@
 
 ## SessionEnd hook：逐字稿自動歸檔（2026-07-12 加入）
 
-`settings.json.example` 含一個 `SessionEnd` hook，呼叫 [`archive-transcript.sh`](archive-transcript.sh)：session 結束時自動把當次 cc 逐字稿複製到 `passdown-os/transcripts/`（gitignored 歸檔區，見該資料夾 README）。機制：SessionEnd 的 stdin JSON 帶有 `transcript_path` 與 `session_id`，腳本取出後照 `日期時間-cc-<id前8碼>.jsonl` 命名歸檔。
+`settings.json.example` 含一個 `SessionEnd` hook，呼叫 [`archive-transcript.sh`](archive-transcript.sh)：session 結束時自動把當次 cc 逐字稿複製到 `passdown-os/transcripts/`（該資料夾入不入版控由專案擇一，見其 README 的兩種模式；歸檔動作本身兩種模式都一樣）。機制：SessionEnd 的 stdin JSON 帶有 `transcript_path` 與 `session_id`，腳本取出後照 `日期時間-cc-<id前8碼>.jsonl` 命名歸檔。
 
 - **驗證方法**：結束一個 session（或 `/clear`）後檢查 `passdown-os/transcripts/` 是否出現新 `.jsonl`。
 - **已實測（2026-07-12）**：無 jq 環境的 sed fallback＋POSIX 路徑，假 JSON 實跑通過（歸檔與命名正確）。**【待實測】**：真實 SessionEnd 觸發時 Windows 雙反斜線路徑（`C:\\Users\\...`）的還原——實測後更新本段。

@@ -36,7 +36,7 @@
 | `memory/glossary.md` | 名詞/縮寫表 | 看到不認得的縮寫時查閱 |
 | `memory/redaction-log.md` | 本機記憶匯入時的去敏感化紀錄 | 只在執行「本機記憶同步」的整批匯入流程時相關 |
 | `imports/` | 本機原始記憶暫存清洗區 | 只在整批遷移本機記憶時使用，平常不需要看 |
-| `transcripts/` | 逐字稿本機歸檔區（gitignored 不入版控；cc 由 SessionEnd hook 自動歸檔，codex/agy 手動） | 幾乎不需要讀——只在提煉版 log 看不出當初脈絡的考古情境；歸檔規則見 `PROTOCOLS.md`「逐字稿歸檔」 |
+| `transcripts/` | 逐字稿歸檔區（入不入版控由專案在導入時擇一，見該資料夾 README 的兩種模式；歸檔動作則與模式無關，裝了 SessionEnd hook 就自動、否則手動） | 幾乎不需要讀——只在提煉版 log 看不出當初脈絡的考古情境；歸檔規則見 `PROTOCOLS.md`「逐字稿歸檔」 |
 | `references/` | 已合併進正本、僅供歷史參考的舊草稿 | 幾乎不需要讀，正式規則一律以 `CONSTITUTION.md` 為準 |
 | `INSTALL.md` | **給 agent 的安裝指南**：使用者要你把本框架裝進某專案時的完整執行程序（複製清單、汙染排除、重置、入口與 hooks 設定、驗收） | 使用者說「把 passdown-os 套用／安裝到專案」時，照此執行 |
 | `GOLDEN_TEMPLATE.md` | 套用時「哪些檔案要重置、哪些規則不可動」的對照表（`INSTALL.md` 執行中會指到） | 執行 `INSTALL.md` 第 2、5 步時查閱 |
