@@ -43,6 +43,25 @@ else
     target_log="$framework_root/$log_source"
     if [ -f "$target_log" ]; then
       echo "[PASS] Direct Memory Source 引用的 session log 確實存在: $log_source"
+
+      # 4. 檢查是否有對應的逐字稿檔案 (transcripts/*.jsonl)
+      base_log_name=$(basename "$log_source" .md)
+      transcript_file="$framework_root/transcripts/${base_log_name}.jsonl"
+      if [ -f "$transcript_file" ]; then
+        echo "[PASS] 相對應的逐字稿檔案存在: transcripts/${base_log_name}.jsonl"
+      else
+        echo "[WARN] 尚未發現相對應的逐字稿檔案 (transcripts/${base_log_name}.jsonl)，嘗試自動觸發歸檔..."
+        script_dir=$(dirname "$0")
+        if [ -f "$script_dir/archive-transcript.sh" ]; then
+          sh "$script_dir/archive-transcript.sh" 2>/dev/null
+        fi
+        if [ -f "$transcript_file" ]; then
+          echo "[PASS] 自動歸檔成功: transcripts/${base_log_name}.jsonl"
+        else
+          echo "[INFO] 若本專案採逐字稿模式 B（追蹤），請記得確認 transcripts/ 歸檔"
+        fi
+      fi
+
     else
       echo "[FAIL] Direct Memory Source 指向的 session log 不存在: $log_source"
       errors=$((errors + 1))
@@ -52,7 +71,7 @@ else
   fi
 fi
 
-# 4. 檢查會話鎖 active_lock
+# 5. 檢查會話鎖 active_lock
 if [ -f "$framework_root/sessions/.active_lock" ]; then
   lock_content=$(cat "$framework_root/sessions/.active_lock" 2>/dev/null)
   echo "[WARN] .active_lock 仍掛在 sessions/ 中 (內容: $lock_content)。若是交接結班請記得摘牌！"
