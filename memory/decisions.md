@@ -6,6 +6,14 @@
 >
 > 未加前綴的歷史條目（`D-20260712-*`、`D-20260713-*`）維護原 ID 不改寫（本檔只增不改），但同樣屬於框架命名空間；框架文件內若引用到它們，讀者請到母庫查閱。**專案自己的決策一律不加前綴。**
 
+## PDOS-D-20260722-7 — session log slot 改由 SessionStart hook 於 startup 預建
+
+**Decision:** `session-start.sh` 新增 `--agent <code>` / `--new-log`，**僅在 startup**（不含 clear/compact/resume）預建 `sessions/<start>-<agent>-session.md`（`_template.md` 骨架 + 具名 header），並寫執行期指標 `sessions/.active_session`（比照 `.active_lock`/`.toolcount`，入 `.gitignore`、不進版控）。`checkpoint-counter.sh` 讀該指標，讓「持續存檔」提醒具名指向真實檔案而非空泛「當前 log」。各 agent 的 SessionStart 拆為 `startup`（帶 `--new-log`）與 `clear|compact`（codex 另含 `resume`）兩條 matcher，避免每次壓縮洗出重複 log；cc `settings.json` 亦改為呼叫共用 `session-start.sh`（取代原 inline 複本，回歸單一真源）。`CONSTITUTION.md` §6.3 與 `PROTOCOLS.md`「持續存檔」據此微調：有 hook 的環境沿用預建 slot、改 slug 即可，勿另建雙 log。**agy 例外**：無 startup 生命週期事件（只有每回合 PreInvocation），仍手動建 log。
+
+**Why:** session log 依結束協定（§6.3）只在收工時建立，但持續存檔 checkpoint（§65／PROTOCOLS）卻要求對「當前 log」每 ~10 次工具呼叫 append 一行——log 在 session 中途根本不存在，checkpoint 一路對空氣喊，表現為 log 反覆漏開。這正是「純 md／靠 agent 自律」抓不住 agent 的通病：有強制力的只有注入/hook/skill。把「開 log」由自律升級為 hook 強制預建，即根治此漏。
+
+**Agent:** cc（2026-07-22 20:05）— 使用者授權定案並要求 backport 母庫。
+
 ## PDOS-D-20260722-6 — 逐字稿歸檔以 session_id 命名，杜絕多 agent 交錯的張冠李戴
 
 **Decision:** `archive-transcript.sh` 的目標檔名改為以 stdin `session_id` 命名（`<date>-<agent>-<sid8>.jsonl`），與被複製的 transcript 同源；只有無 session_id（agy/codex 的 mtime 尋檔路徑）才退回「最新 log 名」。原本「一律取 sessions/ 最新 log 名」會在多 agent 交錯時，把某 session 的內容填進另一 session 的檔名（實例：本輪 cc `b0f79062` 的 slot 一度是上一 session `9cca5799` 的位元組）。
