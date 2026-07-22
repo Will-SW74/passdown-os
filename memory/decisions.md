@@ -6,6 +6,16 @@
 >
 > 未加前綴的歷史條目（`D-20260712-*`、`D-20260713-*`）維護原 ID 不改寫（本檔只增不改），但同樣屬於框架命名空間；框架文件內若引用到它們，讀者請到母庫查閱。**專案自己的決策一律不加前綴。**
 
+## PDOS-D-20260722-3 — Git pre-commit 門禁改用 core.hooksPath + SessionStart 自癒；並定義框架單一真源
+
+**Decision:**
+1. **門禁安裝機制**：git pre-commit 門禁不再依賴 `.git/hooks/`（永不受版控、clone/pull 帶不過去，是門禁一再失效的根因）。改為 (a) 受版控的 `entrypoints/hooks/pre-commit` 薄 wrapper（轉呼 `pre-commit-pdos.sh`）；(b) `core.hooksPath` 指向該目錄；(c) `session-start.sh` 每次 SessionStart 冪等自癒——依 framework_root 推導 hooks 目錄相對 repo_root 的路徑（母庫本身＝`entrypoints/hooks`，安裝於專案＝`passdown-os/entrypoints/hooks`），確保任一 agent／任一機器開新 session 後門禁必定就位；(d) `.gitattributes` 對無副檔名的 `pre-commit` 單獨釘 `eol=lf`，避免 CRLF 讓 shebang 壞掉。
+2. **框架單一真源**：root `passdown-os/` 混框架碼與專案資料，兩者真源不同——**框架碼**（entrypoints/scripts/CONSTITUTION/PROTOCOLS 等）真源在**母庫**，root 可熱修救急但必須 backport 回母庫並 push；**專案資料**（handoff/sessions/memory/decisions/transcripts）真源只在 root、永不上母庫。
+
+**Why:** 框架被「邊用邊開發」時，強制機制若只留在 root 或不受版控的本機狀態，每個新環境開機都是壞的、每 session 都得先 tune 才能開工，導致專案反覆失焦。定死安裝機制自癒＋框架/資料真源分工，pd os 才能真正退居背景。
+
+**Agent:** cc（2026-07-22 13:20）— 由 gt_auto_tester 專案熱修後 backport；使用者授權 push。
+
 ## PDOS-D-20260722-2 — Review 報告統一輸出至 review_result/
 
 **Decision:** 三個 Agent (codex / cc / agy) 在專案進行任何 Tasks、Specs 或 Code Review 產出的報告檔案，一律統一存放於專案根目錄的 `review_result/` 資料夾中（檔名包含日期與主題，如 `YYYY-MM-DD-code-review.md`），方便集中查閱與歷史存檔。

@@ -19,6 +19,20 @@ else
   exit 0
 fi
 
+# Why：Git pre-commit 門禁若靠 .git/hooks/（不受版控），任何 clone/pull 都帶不過去 → 門禁一再失效。
+# 改用受版控的 core.hooksPath，並在每次 SessionStart 冪等自癒：以 framework_root 推導 hooks 目錄
+# 相對 repo_root 的路徑（母庫本身為 entrypoints/hooks；安裝在專案則為 passdown-os/entrypoints/hooks），
+# 確保任一 agent、任一機器開新 session 後門禁一定就位（PDOS-D-20260722-3）。
+hooks_dir="$framework_root/entrypoints/hooks"
+if [ -f "$hooks_dir/pre-commit" ] && [ -n "$repo_root" ]; then
+  hooks_rel=${hooks_dir#"$repo_root"/}
+  if [ "$hooks_rel" != "$hooks_dir" ] && \
+     [ "$(git -C "$repo_root" config --get core.hooksPath 2>/dev/null)" != "$hooks_rel" ]; then
+    git -C "$repo_root" config core.hooksPath "$hooks_rel" 2>/dev/null \
+      && echo "[passdown-os] 已自癒 Git pre-commit 門禁（core.hooksPath=$hooks_rel）。"
+  fi
+fi
+
 # 計數器只是本 session 的暫存訊號；每次 SessionStart 必須清零，避免承接上一輪數值。
 # Why：整個資料夾 copy 或換 sandbox session 後，舊檔 ACL 可能禁止目前程序直接截斷；
 # 在同目錄建立新檔再原子取代，可改用目錄權限並讓新檔取得本 session 的正確 ACL。

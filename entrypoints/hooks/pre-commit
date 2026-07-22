@@ -1,0 +1,12 @@
+#!/bin/sh
+# Passdown OS Git pre-commit 門禁入口（core.hooksPath 指向本目錄後由 git 直接呼叫）。
+# Why：git 只會執行名為 `pre-commit` 的檔，故以此薄 wrapper 轉呼實際邏輯 pre-commit-pdos.sh。
+#      放在被版控的 entrypoints/hooks/ 下，才能隨 git 帶給每一位 agent；
+#      舊做法把腳本塞進不受版控的 .git/hooks/，任何 clone/pull 都帶不過去（PDOS 門禁失效根因）。
+
+hook_dir=$(dirname "$0")
+if [ -f "$hook_dir/pre-commit-pdos.sh" ]; then
+  sh "$hook_dir/pre-commit-pdos.sh"
+  exit $?
+fi
+exit 0

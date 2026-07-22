@@ -8,5 +8,9 @@
 # 「$'\r': command not found」，hooks（計數器、逐字稿歸檔）會靜默壞掉。
 *.sh text eol=lf
 
+# git hook 入口 `pre-commit` 沒有 .sh 副檔名，*.sh 規則蓋不到；單獨釘 LF，
+# 否則 CRLF 會讓 shebang 變 `#!/bin/sh\r`，core.hooksPath 門禁在別台機器再次失效。
+entrypoints/hooks/pre-commit text eol=lf
+
 # 逐字稿與原始記憶檔按二進位處理，不做任何換行轉換（雖已 gitignore，多一層保險）
 *.jsonl -text
