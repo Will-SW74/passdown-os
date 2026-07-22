@@ -1,67 +1,30 @@
 # hooks — 三大 agent 的機制化防線（必裝）
 
-> **必裝，不是選配（框架決策 PDOS-D-20260721-1）**：`INSTALL.md` 第 0.1 節會因為 hooks 的執行環境缺件就中止整個安裝，理由是「半套框架（有規則、沒 hooks）會讓機制化防線靜默失效，比不裝更危險」。既然缺前置條件就不准裝，hooks 本身不可能是選配。本檔舊版寫「選用但強烈建議」與該節矛盾，已修正。
->
-> 若因故未安裝，**依賴 hook 的協定步驟必須全部改為手動執行**，並在 `handoff/CURRENT.md` 的 Open items 明記，否則那些步驟會靜默不執行。
+> **必裝，不是選配（框架決策 PDOS-D-20260721-1）**：`INSTALL.md` 第 0.1 節會因為 hooks 的執行環境缺件就中止整個安裝，理由是「半套框架（有規則、沒 hooks）會讓機制化防線靜默失效，比不裝更危險」。既然缺前置條件就不准裝，hooks 本身不可能是選配。
 
-本資料夾提供 cc / codex / agy 三者的 hook 範本，涵蓋兩種機制：
-1. **SessionStart 自動注入**：session 一開就把 `CURRENT.md` 塞進 context——agent 忘不忘記讀，交接內容都在眼前。
-2. **PostToolUse 檢查點計數器**（[`checkpoint-counter.sh`](checkpoint-counter.sh)）：由外部腳本數工具呼叫次數，每滿 10 次注入存檔提醒——把 `PROTOCOLS.md`「持續存檔機制」從紀律變成機制（模型自數不可靠，外部計數才可靠）。
+本資料夾提供 cc / codex / agy 三者的 hook 範本與驗證工具，涵蓋以下自動化與機制化串接：
 
-| Agent | 設定位置 | 範本 |
+1. **SessionStart (開班自動注入)**：session 一開就把 `CURRENT.md` 塞進 context，並將 `.toolcount` 重置為 0——agent 忘不忘記讀，交接內容都在眼前。
+2. **PostToolUse 檢查點計數器** ([`checkpoint-counter.sh`](checkpoint-counter.sh))：由外部腳本數工具呼叫次數，每滿 10 次注入存檔提醒。
+3. **SessionEnd / Git Pre-commit (結班驗證與警示)**：
+   - [`session-end-check.sh`](session-end-check.sh)：SessionEnd 觸發時自動檢查 `.active_lock` 是否忘記摘牌，並執行逐字稿歸檔。
+   - [`validate-handoff.sh`](validate-handoff.sh)：完整性檢查工具，確認 CURRENT.md 欄位、`Direct Memory Source` 指向的 log 檔與 `.active_lock` 狀態。
+   - [`pre-commit-pdos.sh`](pre-commit-pdos.sh)：Git pre-commit 門禁範本，防止未完成 Passdown OS 結束協定即提交程式碼。
+
+| Agent | 設定位置 | 範本與工具 |
 | --- | --- | --- |
-| cc | `.claude/settings.json` | [`settings.json.example`](settings.json.example)（SessionStart + 計數器） |
-| codex | `.codex/hooks.json` | [`codex-hooks.json.example`](codex-hooks.json.example)（SessionStart + 計數器） |
+| cc | `.claude/settings.json` | [`settings.json.example`](settings.json.example)（SessionStart + 計數器 + SessionEnd/EndCheck） |
+| codex | `.codex/hooks.json` | [`codex-hooks.json.example`](codex-hooks.json.example)（SessionStart + 計數器 + SessionEnd） |
 | agy | `.agents/hooks.json` | [`agy-hooks.json.example`](agy-hooks.json.example)（PreInvocation + 計數器） |
 
-## cc 的 SessionStart 自動注入
+## 交接班 hooks 串接機制
 
-把「靠 agent 自覺讀 CURRENT.md」變成「機制保證一定讀到」：cc 的 SessionStart hook 會在每次新 session（含 `/clear` 與 compact 後）自動把 `passdown-os/handoff/CURRENT.md` 全文注入 context 開頭。agent 忘不忘記執行開始協定，交接內容都已經在它眼前——這是本框架「協定紀律」的第一道機制化防線。
+- **開班流程 (Start Handoff Hook)**: 觸發 `session-start.sh`（Windows 透過 `run-posix-hook.ps1`），自動清零 `.toolcount`，檢查 `.active_lock` 並注入最新 `CURRENT.md`。
+- **結班/交接流程 (End Handoff Hook)**: 觸發 `session-end-check.sh`，若偵測到 `.active_lock` 仍掛載，發出警示提醒執行手動摘牌與記錄，避免孤兒會話鎖；同時呼叫 `archive-transcript.sh`。
+- **Git Commit 門禁 (Pre-commit Hook)**: 可將 `pre-commit-pdos.sh` 複製至 `.git/hooks/pre-commit`，在提交變更前自動執行 `validate-handoff.sh`。
 
-## 安裝
+## 安裝與驗證
 
-1. 打開（或建立）新專案的 `.claude/settings.json`。
-2. 把 [`settings.json.example`](settings.json.example) 的 `hooks` 區塊合併進去（已有其他 hooks 就把 `SessionStart` 陣列項目加進既有結構）。
-3. 開一個新的 cc session 驗證：開場問一句「你的 context 裡有沒有 SessionStart hook 注入的交接內容？」——能引用 CURRENT.md 內容即成功。
-
-設定檔屬於專案層級（`.claude/settings.json` 可進版控，全隊共用）；只想自己用就放 `.claude/settings.local.json`。
-
-## 平台注意事項
-
-- **環境前置是硬性的（D-20260713-1）**：本資料夾所有 hook 都以 POSIX `sh`（Git Bash）執行，agy 注入 hook 另需 `python` 在 PATH 上。這些是 `INSTALL.md` 第 0.1 節的**強制門檻**——缺任一項，安裝程序會直接中止、請使用者裝好再部署。**不提供 PowerShell 或其他降級版本**：多套 shell 版本必然彼此 drift，半套 hooks 又會讓機制化防線靜默失效，兩害取其小就是把要求擋在門口。
-- matcher 刻意不含 `resume`：恢復的 session 已保有原 context，重複注入只是浪費 token。
-
-## SessionEnd hook：逐字稿自動歸檔（2026-07-12 加入）
-
-`settings.json.example` 含一個 `SessionEnd` hook，呼叫 [`archive-transcript.sh`](archive-transcript.sh)：session 結束時自動把當次 cc 逐字稿複製到 `passdown-os/transcripts/`（該資料夾入不入版控由專案擇一，見其 README 的兩種模式；歸檔動作本身兩種模式都一樣）。機制：SessionEnd 的 stdin JSON 帶有 `transcript_path` 與 `session_id`，腳本取出後照 `日期時間-cc-<id前8碼>.jsonl` 命名歸檔。
-
-- **驗證方法**：結束一個 session（或 `/clear`）後檢查 `passdown-os/transcripts/` 是否出現新 `.jsonl`。
-- **已實測（2026-07-12）**：無 jq 環境的 sed fallback＋POSIX 路徑，假 JSON 實跑通過（歸檔與命名正確）。**【待實測】**：真實 SessionEnd 觸發時 Windows 雙反斜線路徑（`C:\\Users\\...`）的還原——實測後更新本段。
-- codex / agy 沒有等效自動機制（其 hook 是否提供 transcript 路徑**未查證**）——依 `PROTOCOLS.md`「逐字稿歸檔」小節手動複製。
-- **cc 也不保證自動**：本 hook 沒安裝、被移除、或安裝了卻沒生效時，cc 同樣要手動補。`PROTOCOLS.md` 的判準是「`transcripts/` 有沒有出現本次檔案」，不是「用哪個 agent」（框架決策 PDOS-D-20260721-1）。
-
-## PreCompact hook（壓縮前的最後防線，2026-07-12 加入）
-
-`settings.json.example` 另含一個 `PreCompact` hook：在 cc 執行 compact（手動 `/compact` 或自動觸發）**之前**輸出提醒，機制化 CONSTITUTION 第 3 節「準備壓縮前必須先完成記憶同步」的規則——這正好補上「模型自估 context 百分比不可靠」的缺口。**【待實測】**PreCompact 的 stdout 是否注入模型 context（或僅顯示於 transcript）尚未在新 session 驗證；實測後請更新本段。
-
-## 為什麼沒有做「Session 結束提醒」hook
-
-查證過官方 hooks 文件後的結論：`Stop` hook 是**每個回合**Claude 停止回應時都觸發，不是「session 結束」才觸發——拿來提醒結束協定會變成每回合騷擾一次；`SessionEnd` hook 則只能做清理、無法把提醒送回對話。所以結束協定目前仍靠 CLAUDE.md 入口段落的強制性條文 + 使用者口頭觸發（例如說「收工」）。若之後 cc 提供更合適的觸發點，再補進來。
-
-## codex 與 agy 的等效機制（2026-07-12 查證）
-
-兩者現在**都有** lifecycle hooks，不再只能靠紀律：
-
-- **codex（OpenAI Codex CLI）**：支援 `hooks.json`（`~/.codex/` 全域或 `<repo>/.codex/` 專案層）或 `config.toml` 內的 `[hooks]` 表。事件含 `SessionStart`（startup/resume/clear）、`UserPromptSubmit`、`PreToolUse`、`PostToolUse`、`Stop` 等。**SessionStart 的 stdout 會作為 developer context 注入模型**——等效於 cc 的注入機制。注意：非受管 hook 首次執行前需要在 codex 內信任（trust），hook 內容變更後要重新信任。範本：[`codex-hooks.json.example`](codex-hooks.json.example)。
-- **agy（Google Antigravity）**：支援 JSON hooks（`<專案>/.agents/hooks.json` 或 `~/.gemini/antigravity-cli/hooks.json`）。事件含 `PreInvocation`、`PostInvocation`、`PreToolUse`、`PostToolUse`、`Stop`；已確認：PreInvocation 必須透過 stdout 輸出 JSON 格式的 `additionalContext` 欄位才能成功併入 agent prompt。因此範本 `agy-hooks.json.example` 已改用 Python 指令將 CURRENT.md 的內容序列化為 JSON 輸出（2026-07-13 實測驗證）。
-
-### 計數器 hook 的注入細節（安裝時務必驗證）
-
-`checkpoint-counter.sh` 用純文字 stdout 輸出提醒。各工具對 PostToolUse stdout 的處理不同：
-- **cc**：PostToolUse 的純文字 stdout 預設只進 transcript、不注入模型；要注入需改用 JSON 輸出 `{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"..."}}`（以官方 hooks 文件為準）。
-- **codex**：官方文件記載 PostToolUse 支援 `additionalContext` 注入。
-- **agy**：依 `applyHookOutputToInput` 機制併入，實測為準。
-
-驗證方法都一樣：裝好後跑 10+ 次工具呼叫，問 agent「你有沒有看到 checkpoint 提醒？」——看得到才算裝成功。
-
-資料來源：[Codex hooks 官方文件](https://developers.openai.com/codex/hooks)、[Codex CLI hooks 完整指南](https://codex.danielvaughan.com/2026/04/15/codex-cli-hooks-complete-guide-events-policy-patterns/)、[Antigravity CLI agent hooks 開發者指南](https://medium.com/google-cloud/a-developers-guide-to-agent-hooks-in-antigravity-cli-4c1440febd11)。
+1. 依使用的 Agent，將範本 JSON 內容合併至 `.claude/settings.json`、`.codex/hooks.json` 或 `.agents/hooks.json`。
+2. 啟動新對話驗證開班注入是否生效。
+3. 執行 `./validate-handoff.sh` 驗證交接完整性。
