@@ -12,6 +12,7 @@ openspec/.vector-search.db*
 # 真正的記錄在 sessions/*.md；這兩個檔案是單機單次 session 的即時狀態
 sessions/.active_lock
 sessions/.toolcount
+sessions/.active_session
 
 # 逐字稿本機歸檔區——含未清洗敏感資訊，絕不入版控；可攜靠雲端/USB 同步資料夾
 transcripts/*

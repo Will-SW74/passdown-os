@@ -1,13 +1,26 @@
 {
-  "_comment": "passdown-os hooks — OpenAI Codex CLI 用。放到 <專案根目錄>/.codex/hooks.json（或合併進 .codex/config.toml 的 [hooks] 表）。Codex 會要求先信任 (trust) 非受管 hook 才執行。schema 依 2026-07-12 查證的官方文件：SessionStart 的 stdout 會作為 developer context 注入模型；PostToolUse 需用 additionalContext 注入。安裝前請對照 https://developers.openai.com/codex/hooks 驗證欄位是否有變。",
+  "description": "Passdown OS hooks for OpenAI Codex CLI. Project trust and exact hook-definition trust are separate; review changed hooks with /hooks. Windows uses commandWindows to run the same POSIX scripts through Git Bash.",
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|clear",
+        "matcher": "startup",
         "hooks": [
           {
             "type": "command",
-            "command": "printf '0' > passdown-os/sessions/.toolcount 2>/dev/null; echo '=== passdown-os 交接內容（SessionStart hook 自動注入）==='; cat passdown-os/handoff/CURRENT.md 2>/dev/null || echo '（警告：找不到 passdown-os/handoff/CURRENT.md，請檢查框架是否就位）'; echo '--- 以上即 CURRENT.md 全文；請依 passdown-os/CONSTITUTION.md 執行 Session 開始協定其餘步驟。'",
+            "command": "sh \"$(git rev-parse --show-toplevel)/passdown-os/entrypoints/hooks/session-start.sh\" --agent codex --new-log",
+            "commandWindows": "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"& (Join-Path ((& git.exe rev-parse --show-toplevel).Trim()) 'passdown-os/entrypoints/hooks/run-posix-hook.ps1') -ScriptRelativePath 'passdown-os/entrypoints/hooks/session-start.sh' -ScriptArguments '--agent','codex','--new-log'\"",
+            "timeout": 10,
+            "statusMessage": "注入 passdown-os 交接內容並預建 session log"
+          }
+        ]
+      },
+      {
+        "matcher": "resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$(git rev-parse --show-toplevel)/passdown-os/entrypoints/hooks/session-start.sh\" --agent codex",
+            "commandWindows": "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"& (Join-Path ((& git.exe rev-parse --show-toplevel).Trim()) 'passdown-os/entrypoints/hooks/run-posix-hook.ps1') -ScriptRelativePath 'passdown-os/entrypoints/hooks/session-start.sh' -ScriptArguments '--agent','codex'\"",
             "timeout": 10,
             "statusMessage": "注入 passdown-os 交接內容"
           }
@@ -20,7 +33,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh passdown-os/entrypoints/hooks/checkpoint-counter.sh --json",
+            "command": "sh \"$(git rev-parse --show-toplevel)/passdown-os/entrypoints/hooks/checkpoint-counter.sh\" --json",
+            "commandWindows": "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"& (Join-Path ((& git.exe rev-parse --show-toplevel).Trim()) 'passdown-os/entrypoints/hooks/run-posix-hook.ps1') -ScriptRelativePath 'passdown-os/entrypoints/hooks/checkpoint-counter.sh' -ScriptArguments '--json'\"",
             "timeout": 5,
             "statusMessage": "passdown-os 檢查點計數"
           }

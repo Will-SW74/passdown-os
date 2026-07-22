@@ -5,8 +5,8 @@
 # 所以改由外部 hook 在每次工具呼叫後遞增一個計數檔。每滿 10 次，就輸出一段提醒文字，
 # 由各工具的 hook 機制注入 agent 的 context——這才是真正「不靠自覺」的持續存檔觸發器。
 #
-# 前提：hook 執行時的工作目錄是專案根目錄（cc / codex 預設如此）。
-#       若你的工具不是，把下面的 base 改成絕對路徑。
+# Why：Codex 可能從 repo 子目錄啟動，因此優先由 Git root 定位；cc 的
+# CLAUDE_PROJECT_DIR 仍保留較高優先權，避免改變既有 cc 行為。
 # 注意：sessions/.toolcount 已列入 .gitignore，屬本機暫存；
 #       SessionStart hook 應把它重置為 0（見各工具的 hooks 範本）。
 
@@ -19,7 +19,14 @@ for arg in "$@"; do
 done
 
 # 兩種佈局都支援：一般專案是 <root>/passdown-os/sessions；範本庫自己（框架即根目錄）是 <root>/sessions
-base="${CLAUDE_PROJECT_DIR:-.}"
+if [ -n "$CLAUDE_PROJECT_DIR" ]; then
+  base="$CLAUDE_PROJECT_DIR"
+else
+  base=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [ -z "$base" ]; then
+    base="."
+  fi
+fi
 if [ -d "$base/passdown-os/sessions" ]; then
   COUNT_FILE="$base/passdown-os/sessions/.toolcount"
 elif [ -d "$base/sessions" ]; then
@@ -35,13 +42,28 @@ case "$n" in
 esac
 
 n=$((n + 1))
-printf '%s' "$n" > "$COUNT_FILE" 2>/dev/null
+# Why：不同 sandbox session 可能無法截斷上一輪建立的檔；同目錄原子取代可讓 ACL 跟著
+# 當前 session 重建，也避免工具並行時讀到半寫入內容。
+COUNT_TMP="${COUNT_FILE}.$$"
+if printf '%s' "$n" > "$COUNT_TMP" 2>/dev/null; then
+  if ! mv -f "$COUNT_TMP" "$COUNT_FILE" 2>/dev/null; then
+    rm -f "$COUNT_FILE" 2>/dev/null && mv "$COUNT_TMP" "$COUNT_FILE" 2>/dev/null
+  fi
+fi
 
 # 每滿 10 次輸出提醒。stdout 是否注入 context 依各工具而定：
 #   cc / codex 的 PostToolUse 需用 JSON additionalContext（見 hooks/README.md）以利注入 context；
 #   純文字輸出在部分工具只會顯示在 transcript——安裝時請照 README 對應你的工具調整。
 if [ $((n % 10)) -eq 0 ]; then
-  msg="[passdown-os checkpoint] 本 session 已累計 ${n} 次工具呼叫：請先在 sessions/ 的當前 log append 一行進度（見 PROTOCOLS.md「持續存檔機制」），再繼續工作。"
+  # Why：SessionStart hook 於 startup 會把「當前 log」檔名寫進 .active_session；
+  #      這裡讀出來讓提醒具名指向真實檔案，而非空泛的「當前 log」（PDOS-D-20260722-7）。
+  sess_dir=$(dirname "$COUNT_FILE")
+  active=$(cat "$sess_dir/.active_session" 2>/dev/null)
+  case "$active" in
+    ''|*[!0-9A-Za-z._-]*) target="sessions/ 的當前 log" ;;
+    *) target="sessions/${active}" ;;
+  esac
+  msg="[passdown-os checkpoint] 本 session 已累計 ${n} 次工具呼叫：請先在 ${target} append 一行進度（見 PROTOCOLS.md「持續存檔機制」），再繼續工作。"
   if [ "$FORMAT" = "json" ]; then
     printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"%s"}}\n' "$msg"
   else
