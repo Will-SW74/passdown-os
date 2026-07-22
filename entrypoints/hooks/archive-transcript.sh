@@ -65,17 +65,20 @@ fi
 
 [ -n "$tp" ] && [ -f "$tp" ] || exit 0
 
-# 嘗試依據 sessions/ 下最新的 log 檔名推導相配對的逐字稿檔名
+# 命名一律綁「被複製的 transcript 自身 session_id」，與內容同源；杜絕多 agent 交錯時
+# 「檔名取最新 log、內容取本 session」的張冠李戴（PDOS-D-20260722-6）。
 framework_root=$(dirname "$dest_dir")
-latest_log=$(ls -1t "$framework_root/sessions/"*.md 2>/dev/null | grep -v 'INDEX.md' | grep -v '_template.md' | head -n 1)
-
-if [ -n "$latest_log" ]; then
-  base_name=$(basename "$latest_log" .md)
-  target_file="$dest_dir/${base_name}.jsonl"
-else
-  short_id=$(printf '%s' "$sid" | cut -c1-8)
-  [ -n "$short_id" ] || short_id="transcript"
+short_id=$(printf '%s' "$sid" | cut -c1-8)
+if [ -n "$short_id" ]; then
   target_file="$dest_dir/$(date +%Y-%m-%d-%H%M)-${agent}-${short_id}.jsonl"
+else
+  # 只有無 session_id（agy/codex 的 mtime 尋檔路徑）才退回最新 log 名
+  latest_log=$(ls -1t "$framework_root/sessions/"*.md 2>/dev/null | grep -v 'INDEX.md' | grep -v '_template.md' | head -n 1)
+  if [ -n "$latest_log" ]; then
+    target_file="$dest_dir/$(basename "$latest_log" .md).jsonl"
+  else
+    target_file="$dest_dir/$(date +%Y-%m-%d-%H%M)-${agent}-transcript.jsonl"
+  fi
 fi
 
 cp "$tp" "$target_file" 2>/dev/null

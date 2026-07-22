@@ -6,6 +6,14 @@
 >
 > 未加前綴的歷史條目（`D-20260712-*`、`D-20260713-*`）維護原 ID 不改寫（本檔只增不改），但同樣屬於框架命名空間；框架文件內若引用到它們，讀者請到母庫查閱。**專案自己的決策一律不加前綴。**
 
+## PDOS-D-20260722-6 — 逐字稿歸檔以 session_id 命名，杜絕多 agent 交錯的張冠李戴
+
+**Decision:** `archive-transcript.sh` 的目標檔名改為以 stdin `session_id` 命名（`<date>-<agent>-<sid8>.jsonl`），與被複製的 transcript 同源；只有無 session_id（agy/codex 的 mtime 尋檔路徑）才退回「最新 log 名」。原本「一律取 sessions/ 最新 log 名」會在多 agent 交錯時，把某 session 的內容填進另一 session 的檔名（實例：本輪 cc `b0f79062` 的 slot 一度是上一 session `9cca5799` 的位元組）。
+
+**Why:** 檔名與內容必須同源才不會考古考到錯 session；`validate-handoff.sh` 只驗檔名存在、不驗內容，故舊 bug 會給假 PASS。改綁 session_id 後，找不到 log-slug 檔的情況 validate 會如實 WARN（非 FAIL、不擋 commit），不再假 PASS。
+
+**Agent:** cc（2026-07-22 14:15）— 使用者選方案 A、授權定案。
+
 ## PDOS-D-20260722-5 — 大幅重排/重寫他人 task 時，交接須附 old→new 對應表
 
 **Decision:** 當一次 ingest／review 大幅**重編號、合併、拆分、搬移或重寫另一個 agent 已寫的 tasks** 時，交接記錄（session log，或 change 內的 review/Resolution）除了主題級 what/why，**必須另附「舊 task ID → 新 task ID」對應表**（合併／拆分／搬移／刪除都要標明去向），或至少明確指出「已重編號，逐項見 diff `<舊commit>..<新commit>`」。
