@@ -50,23 +50,9 @@ if [ -f "$hooks_dir/pre-commit" ] && [ -n "$repo_root" ]; then
   fi
 fi
 
-# 計數器只是本 session 的暫存訊號；每次 SessionStart 必須清零，避免承接上一輪數值。
-# Why：整個資料夾 copy 或換 sandbox session 後，舊檔 ACL 可能禁止目前程序直接截斷；
-# 在同目錄建立新檔再原子取代，可改用目錄權限並讓新檔取得本 session 的正確 ACL。
-count_file="$framework_root/sessions/.toolcount"
-count_tmp="${count_file}.$$"
-if printf '0' > "$count_tmp" 2>/dev/null; then
-  if ! mv -f "$count_tmp" "$count_file" 2>/dev/null; then
-    # Windows sandbox 若不允許覆寫舊 inode，先用目錄權限移除再放入新檔。
-    rm -f "$count_file" 2>/dev/null && mv "$count_tmp" "$count_file" 2>/dev/null
-  fi
-fi
-
-# Why：session log 過去只在「結束協定」建立，但持續存檔 checkpoint 卻要求對「當前 log」
-# 每 ~10 次工具呼叫 append 一行 → 檔案在 session 中途根本不存在，checkpoint 一路對空氣喊
-# （這正是 log「又又又」漏開的根因：靠 agent 自律開檔，自律必漏）。於 startup（僅此一次）
-# 預建 log slot，把「靠 agent 自律」升級為「hook 強制預建」，並寫 .active_session 指標讓
-# checkpoint-counter 與 agent 都能解析「當前 log」是哪一份（PDOS-D-20260722-7）。
+# Why：session log 過去只在「結束協定」建立，靠 agent 自律開檔容易遺漏。
+# 於 startup（僅此一次）預建 log slot，把「靠 agent 自律」升級為「hook 強制預建」，
+# 並寫 .active_session 指標讓 agent 解析「當前 log」是哪一份（PDOS-D-20260722-7）。
 if [ "$new_log" = "1" ]; then
   sessions_dir="$framework_root/sessions"
   template="$sessions_dir/_template.md"
@@ -82,7 +68,7 @@ if [ "$new_log" = "1" ]; then
     } > "$log_file" 2>/dev/null \
       && echo "[passdown-os] 已預建本 session log slot：sessions/${stamp}-${agent}-session.md（結束協定時填寫並改 slug）。"
   fi
-  # 指標檔與 .active_lock / .toolcount 同性質：執行期暫存、不進版控。
+  # 指標檔與 .active_lock 同性質：執行期暫存、不進版控。
   printf '%s' "${stamp}-${agent}-session.md" > "$sessions_dir/.active_session" 2>/dev/null
 fi
 

@@ -12,6 +12,6 @@ description: 執行 Passdown OS 的 Session 結束協定（交接存檔＋read-b
 6. 本機記憶同步檢查：本次是否寫入了工具私有記憶（cc auto memory 等）？有 → 依 `PROTOCOLS.md`「本機記憶同步」摘要回寫，每條附 agent 代號與時間戳。
 7. Read-back 驗證：重新讀取剛寫的 CURRENT.md 與 session log，確認內容完整、無佔位符、錨點路徑存在。不過就修到過。
 8. 視情況 commit（分支紀律見 `PROTOCOLS.md`「Git Commit 與分支策略」）。
-9. 摘牌簽退：確認以上完成後，刪除 `sessions/.active_lock`（存在 `.toolcount` 也一併刪除）。這是「正常收尾」的實體訊號，必須是最後一步。
+9. 摘牌簽退：確認以上完成後，刪除 `sessions/.active_lock`。這是「正常收尾」的實體訊號，必須是最後一步。
 
 全部完成後，回報一份簡短清單：每一步做了什麼或為何不適用（例如「第 4 步：本次無新決策」），不可整段略過不提。

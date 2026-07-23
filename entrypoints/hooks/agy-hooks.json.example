@@ -13,17 +13,5 @@
         ]
       }
     ],
-    "PostToolUse": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh passdown-os/entrypoints/hooks/checkpoint-counter.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
   }
 }

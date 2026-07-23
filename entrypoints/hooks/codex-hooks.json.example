@@ -27,19 +27,5 @@
         ]
       }
     ],
-    "PostToolUse": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh \"$(git rev-parse --show-toplevel)/passdown-os/entrypoints/hooks/checkpoint-counter.sh\" --json",
-            "commandWindows": "powershell.exe -NoProfile -ExecutionPolicy Bypass -Command \"& (Join-Path ((& git.exe rev-parse --show-toplevel).Trim()) 'passdown-os/entrypoints/hooks/run-posix-hook.ps1') -ScriptRelativePath 'passdown-os/entrypoints/hooks/checkpoint-counter.sh' -ScriptArguments '--json'\"",
-            "timeout": 5,
-            "statusMessage": "passdown-os 檢查點計數"
-          }
-        ]
-      }
-    ]
   }
 }

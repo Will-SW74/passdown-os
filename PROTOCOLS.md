@@ -50,22 +50,12 @@
 
 核心邏輯都一樣：把「這個 task 做完了嗎？」變成一個任何人（或另一個 agent）都能不靠記憶、直接檢查出答案的問題。
 
-## 持續存檔機制 (Continuous Logging)
-<!-- cc review 修正 v2：誠實區分「hook 機制化」與「紀律啟發式」兩個層級——模型無法可靠自數工具呼叫次數，真正的強制力來自各工具的 PostToolUse hook -->
+## 持續存檔機制 (Continuous Logging) — 已停用
+<!-- 2026-07-23 停用：checkpoint hook 的頻繁 edit 造成 context 膨脹，token 成本遠超防護價值 -->
 
-為了防範「該存檔卻忘記存、或 context 突然被截斷」的最痛場景，我們不只依賴最後的 Session 結束協定，也引入小型 checkpoint 機制。它有兩個執行層級，**能裝 hook 就裝 hook，紀律版只是備援**：
-
-### 層級一：hook 機制化（建議，真正的強制力）
-
-三大 agent 目前**都**支援 lifecycle hooks（2026-07 查證）：cc 的 `.claude/settings.json`、codex 的 `.codex/hooks.json`、agy 的 `.agents/hooks.json`。安裝 **PostToolUse 計數器 hook** 後，工具會在每次工具呼叫後由外部腳本遞增 `sessions/.toolcount` 計數檔，每滿 10 次自動把提醒注入 agent context——**計數由外部完成，完全不依賴模型內省**。安裝方式與範本見 [`entrypoints/hooks/README.md`](entrypoints/hooks/README.md)。
-
-自動化程度誠實分級（2026-07-13 查證）：**cc 與 codex 為全自動**（SessionStart 重置計數＋PostToolUse 計數注入）；**agy 為半自動**——PostToolUse 計數是 hook 自動，但它沒有 SessionStart 等價事件、且 PreInvocation 每回合都觸發不能拿來歸零，所以 **session 起始的計數重置靠開始協定第 1 步的協定防線**（紀律層，非 hook 層）。
-
-### 層級二：紀律啟發式（未裝 hook 的環境的備援）
-
-任何 agent 在對話中，若意識到自己已累積約 10、20、30… 次工具呼叫（包含讀檔、寫檔、跑指令），應先花一次呼叫去 `sessions/` 建立或 append 一行當前進度，不必等到 session 結束。**誠實聲明**：模型對自己的工具呼叫次數並沒有可靠的內省能力，所以這一層只是「盡力而為的紀律」，不可宣稱是強制機制——這正是層級一存在的理由。（cc/codex 等有 SessionStart hook 的環境，startup 時已預建當前 log slot 並把檔名寫進 `sessions/.active_session`，checkpoint 提醒會直接具名指向該檔——append 目標不必再猜；見 PDOS-D-20260722-7。）
-
-- **共同好處**：把「一次性的大交接」拆成「持續的小型 checkpoint」。就算某次真的忘記做完整收尾，損失也只是最後幾個動作，而不是整個 session。
+> **已停用（2026-07-23）**：原設計為每 10 次工具呼叫由 PostToolUse hook 觸發 session log append。實測發現在長 session 中，checkpoint 的頻繁 edit 讓 context 持續膨脹（session 檔被改 12 次、CURRENT.md 被改 7 次，佔全部檔案操作 45%），token 成本遠超其防護價值。PostToolUse checkpoint hook 已從所有範本移除，紀律版亦不再要求。改回只依賴 Session 結束協定做一次性交接。
+>
+> 若意外斷線導致交接遺失，殘留的 `.active_lock` 會觸發下次開始協定的復原流程——這已足夠。
 
 ## 記憶索引與接力協定 (Memory Index & Resume Protocol)
 

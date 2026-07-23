@@ -62,7 +62,7 @@
 
 各輪數門檻的用途區分（多條同時適用時以先到者為準）：**10 輪／20 輪**是「規劃 task 大小」的目標值（見下方 Task 切分準則）；**15 輪或 60% 滿**是「執行中主動存檔」的觸發線；**12-15 輪**是「會自動截斷的環境」的硬性重開線。
 
-除了上述整段式存檔線，另有**持續存檔 checkpoint**（無條件適用）：約每 10 次工具呼叫，就在本次 session log append 一行當前進度——已安裝 hook 的環境會由 hook 自動計數提醒。細節與 hook 安裝方式見 `PROTOCOLS.md`「持續存檔機制」。
+~~持續存檔 checkpoint 已停用（2026-07-23）~~：原設計為每 10 次工具呼叫 append 一行進度至 session log，但實測發現 checkpoint hook 的頻繁 edit 會讓 context 持續膨脹（139 回合 session 中 session 檔被改 12 次、CURRENT.md 被改 7 次，佔全部檔案操作 45%），token 成本遠超其防護價值。改回只依賴 Session 結束協定做一次性交接。
 
 ## 4. Task 切分與 Context 預算準則 <a name="task-rules"></a>
 <!-- cc review 修正：將寫死的 token 數字（如 cc≈200k）抽離，統一由 DISPATCH.md 查證，避免規則與數字耦合 -->
@@ -90,8 +90,7 @@
    - 確認無人在工作後，**覆寫** `.active_lock`，內容為：本次 agent 代號 + session 開始時間（`YYYY-MM-DD HH:mm`）+ **一組本次 session 的唯一識別碼**（4-8 碼隨機英數，分鐘級時間戳不夠唯一）。**寫完立刻讀回**，確認內容就是自己剛寫的——不是 → 代表有另一個 agent 幾乎同時啟動並蓋了牌，立刻停止並問使用者。
    - **首次寫入任何專案檔案前，再讀一次鎖**確認持有者仍是自己的識別碼；變了 → 立即停止並重新向使用者確認。
    - **誠實聲明（防護等級）**：這是**勸告性（advisory）防護**，不是作業系統級強制鎖——「檢查→寫入」之間存在極小的同時啟動競態窗口，純 Markdown 跨平台的取捨下無法根除；上述「寫後讀回＋寫檔前複查」把窗口縮到實務可忽略，但不可宣稱絕對。
-   - **同時重置計數器**：把 `sessions/.toolcount` 覆寫為 `0`（或刪除該檔）。cc / codex 的 SessionStart hook 會自動做這件事；**沒有 SessionStart 等價事件的平台（如 agy）靠這一步防止舊 session 的計數跨會話污染**（agy 的 PreInvocation 每回合都觸發，不能拿來歸零）。
-   - 注意：鎖與計數器**不是記錄，是執行期暫存**——掛牌上工、下班摘牌（見結束協定最後一步）。真正的記錄永遠在 `sessions/*.md`，刪它們不會遺失任何交接內容。兩檔皆已列入 `.gitignore`，不進版控。
+   - 注意：鎖**不是記錄，是執行期暫存**——掛牌上工、下班摘牌（見結束協定最後一步）。真正的記錄永遠在 `sessions/*.md`，刪它不會遺失任何交接內容。已列入 `.gitignore`，不進版控。
    - **收上一個 session 的孤兒逐字稿（僅逐字稿採「模式 B：追蹤」的專案適用）**：跑一次 `git status`，若 `transcripts/` 有未提交的 `.jsonl`，那是上個 session 留下的——**這是結構性必然，不是誰忘了做**：SessionEnd hook 在 agent 最後一次回應**之後**才歸檔，而 commit 只能發生在 agent 還能行動時，所以任何 session 都無法提交自己的結尾。依 `transcripts/README.md` 跑憑證掃描後一併 commit。採模式 A（排除）的專案跳過此項。
 2. **首次接觸本專案時**，先讀 [`PROJECT_MANIFEST.md`](PROJECT_MANIFEST.md)（30 秒掌握專案定位、版本與入口）；已熟悉本專案則跳過。
 3. 讀本文件（`CONSTITUTION.md`）— 每次對話只需讀一次。
@@ -119,7 +118,7 @@
 6. **本機記憶同步檢查（強制）**：檢查本次 session 是否有內容被寫進了目前工具自己的私有記憶系統（例如 Claude Code 的 `~/.claude/.../memory/` auto memory、Codex 的本機 session 記錄）。若有，依 `PROTOCOLS.md`「本機記憶同步」章節，把重點內容鏡射一份回 `passdown-os/`（sessions/ 或 memory/），**回寫的每一條都依第 8 節簽名規則附上 agent 代號與時間戳**，不能讓任何決策或事實只存在單一工具看得到的地方。若本次 session 沒有寫入任何本機私有記憶，這步驟視為已確認、無需動作。
 7. **Read-back 驗證（不可自認完成）**：重新讀取剛覆寫的 CURRENT.md 與剛新增的 session log，逐項確認：(a) 檔案確實存在且內容完整；(b) `Next concrete step` 是具體可執行的一句話，不是 `<佔位文字>` 或空白；(c) `Context Index` 指向的檔案路徑真實存在。任一項不過就修到過為止——「我寫了」不等於「寫對了」。
 8. **一律 commit 本次變更**（`/spectra-commit`，不使用 Spectra → 一般 `git add` + `git commit`；分支與 commit 紀律見 `PROTOCOLS.md`「Git Commit 與分支策略」）。**這一步沒有「視情況」**——本次真的沒有任何檔案變更時，`git status` 會如實顯示、commit 自然是 no-op，不需要 agent 事前判斷「這次值不值得 commit」。把判斷權交給 agent 的結果是它偶爾判錯，而未 commit 的交接內容在換機器時等於不存在。**push 與否由使用者決定**，agent 不得在未經指示下 push。
-9. **摘牌簽退（最後一步）**：確認第 2、3、7 步都完成後，**刪除 `sessions/.active_lock`**（若存在 `.toolcount` 計數檔可一併刪除）。刪除鎖就是「本次 session 正常收尾」的實體簽退訊號——鎖裡只有開始時間，這資訊 session log 檔名本來就有，刪它不會遺失任何記錄。**沒摘牌，下一個接手者就會把本次視為異常中斷並啟動復原協定。**
+9. **摘牌簽退（最後一步）**：確認第 2、3、7 步都完成後，**刪除 `sessions/.active_lock`**。刪除鎖就是「本次 session 正常收尾」的實體簽退訊號——鎖裡只有開始時間，這資訊 session log 檔名本來就有，刪它不會遺失任何記錄。**沒摘牌，下一個接手者就會把本次視為異常中斷並啟動復原協定。**
 
 上述步驟做不完（例如被迫中斷）時，至少要完成第 2、3 步（覆寫 CURRENT.md + 留一份 session log）再刪除 `.active_lock`，確保下一個接手者不會完全看不到這次發生過什麼事。連這都來不及（直接斷線）時，殘留的 `.active_lock` 正是下一位接手者啟動復原協定的訊號——這正是它存在的目的。
 

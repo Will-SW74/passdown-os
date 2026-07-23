@@ -71,7 +71,6 @@
 
    **安裝後必須驗收**（不可只寫檔就宣稱完成）：
    - 設定檔能被解析（cc：`.claude/settings.json` 是合法 JSON，且原有設定未被覆蓋）。
-   - 冒煙測試 `sh entrypoints/hooks/checkpoint-counter.sh --json` 正常結束。
    - 明確告訴使用者：**SessionStart 與 SessionEnd 需在下一個 session 才能驗證**，並給出驗收方法（開場問 agent「你 context 裡有沒有 SessionStart hook 注入的交接內容？」，能引用 `CURRENT.md` 即成功）。
    - 若使用者明確拒裝 hooks，**必須**在 `handoff/CURRENT.md` 的 Open items 記一筆「hooks 未安裝，依賴 hook 的協定步驟需全部手動執行」，讓後續 agent 看得到——不可默默略過。
 4. **逐字稿模式（問使用者一次，不要自行預設）**：`transcripts/` 有「排除」與「追蹤」兩種模式，見 [`transcripts/README.md`](transcripts/README.md)（PDOS-D-20260721-2）。問法：**「這個 repo 是私有的嗎？你換機器接手是靠 git pull，還是靠雲端硬碟同步整個資料夾？」**
