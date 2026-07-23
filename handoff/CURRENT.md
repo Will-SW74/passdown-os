@@ -1,6 +1,6 @@
 # Current State
 
-_Last updated: 2026-07-23 09:21 +08:00 by codex_
+_Last updated: 2026-07-24 00:51 +08:00 by codex_
 
 ## Active change
 
@@ -8,19 +8,19 @@ _Last updated: 2026-07-23 09:21 +08:00 by codex_
 
 ## Where we left off
 
-已盤點與本專案相關的本機記錄：舊 Passdown OS 的 Claude Code JSONL、2026-07-23 的 Codex JSONL、原始乾淨 Git checkout，以及本次 Spectra 融合 change。乾淨 checkout 已 clone 到目前專案目錄；兩份 raw JSONL 已複製到 gitignored 的 `transcripts/` 作本機考古備份，正式可攜記憶則提煉在本次 session log，不讓逐字稿或可能的敏感內容進版控。
+已完成本機記錄盤點、raw transcripts 的 gitignored 備份、可攜 session 摘要、融合 Spectra change 移入，以及 GitHub 發布。Feature branch `agent/prepare-company-handoff` 已推送至 `https://github.com/Will-SW74/passdown-os.git`。
 
-目前分支為 `agent/prepare-company-handoff`。GitHub 發布尚未完成，原因是本機沒有 GitHub CLI；現有 GitHub connector 也不支援建立新 repository。
+主要融合 commit 為 `8856598`，author 與 committer 均為 `Will-SW74 <Will-SW74@users.noreply.github.com>`。Remote 配置已修正：`origin` 指向 GitHub，`local-source` 保留原本的本機乾淨 checkout。
 
 ## Next concrete step
 
-安裝 GitHub CLI 並完成 `gh auth login`，再將本 clone 的本機來源 remote 改名為 `upstream`、建立 private GitHub repository `passdown-os-skills`、設為 `origin`、提交並推送 `agent/prepare-company-handoff`。
+在公司電腦 clone `https://github.com/Will-SW74/passdown-os.git`，checkout `agent/prepare-company-handoff`，讀本 CURRENT 與本次 session log後，執行 `$spectra-apply integrate-passdown-composable-skills` 開始實作第一項 task。
 
 ## Context Index / Memory Anchors
 
-- **Direct Memory Source**: `sessions/2026-07-23-0921-codex-prepare-company-handoff.md`（次讀 `sessions/2026-07-13-0151-codex-clarify-review-rules.md`）
+- **Direct Memory Source**: `sessions/2026-07-24-0051-codex-push-company-handoff.md`（次讀 `sessions/2026-07-23-0921-codex-prepare-company-handoff.md`）
 - **Code Symbol Anchor**: [融合 proposal](../openspec/changes/integrate-passdown-composable-skills/proposal.md)、[融合 design](../openspec/changes/integrate-passdown-composable-skills/design.md)、[實作 tasks](../openspec/changes/integrate-passdown-composable-skills/tasks.md)
 
 ## Blockers
 
-- GitHub CLI `gh` 未安裝；依 GitHub publish workflow，必須先安裝並登入，才能建立新 repo 與推送。
+none
