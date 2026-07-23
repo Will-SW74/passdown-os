@@ -1,0 +1,4 @@
+interface:
+  display_name: "Handoff Passdown"
+  short_description: "Persist a durable cross-agent project handoff"
+  default_prompt: "Use $handoff-passdown to persist the current work for the next agent."

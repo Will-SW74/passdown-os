@@ -18,6 +18,7 @@
 | 2026-07-13 | [2026-07-13-0122-codex-add-independent-judgment.md](./2026-07-13-0122-codex-add-independent-judgment.md) | D-20260713-4：認知獨立五問採單一正本分層索引；自然文風按需載入且跨專案保留 |
 | 2026-07-23 | [2026-07-23-0921-codex-prepare-company-handoff.md](./2026-07-23-0921-codex-prepare-company-handoff.md) | 盤點並提煉 Claude/Codex 本機記錄、clone 乾淨 source、移入 composable skills 融合 change，準備 private GitHub repo |
 | 2026-07-24 | [2026-07-24-0051-codex-push-company-handoff.md](./2026-07-24-0051-codex-push-company-handoff.md) | 修正 remote 誤判與 noreply Git identity，透過既有 Git Credential Manager 推送公司接續 branch |
+| 2026-07-24 | [2026-07-24-0122-codex-implement-composable-passdown-skills.md](./2026-07-24-0122-codex-implement-composable-passdown-skills.md) | 完成三段 composable Passdown skills、共享 assets、融合評估、全生命週期與 failure fixtures；Spectra 10/10 all_done |
 | ... | ... | ... |
 
 *(請注意：日常瑣碎的除錯或例行公事不需要加入此索引。本索引旨在建立一個可快速跳轉的「知識圖譜」。)*

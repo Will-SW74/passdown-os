@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resume Passdown"
+  short_description: "Resume and recover durable Passdown state"
+  default_prompt: "Use $resume-passdown to resume this project from its durable handoff state."

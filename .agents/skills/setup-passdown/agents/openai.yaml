@@ -1,0 +1,4 @@
+interface:
+  display_name: "Setup Passdown"
+  short_description: "Safely initialize durable Passdown project state"
+  default_prompt: "Use $setup-passdown to initialize durable cross-agent handoff state in this project."
